@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+<navigation
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
@@ -9,17 +10,90 @@
         android:id="@+id/nav_home"
         android:name="org.kaizoku.otropelisplusmas.ui.home.HomeFragment"
         android:label="@string/menu_home"
-        tools:layout="@layout/fragment_home" />
+        tools:layout="@layout/fragment_home" >
+        <argument
+            android:name="url"
+            app:argType="integer"
+            android:defaultValue="0" />
+        <action
+            android:id="@+id/action_nav_home_to_cartelFragment2"
+            app:destination="@id/cartelFragment" />
+        <action
+            android:id="@+id/action_nav_home_to_videoCartelFragment"
+            app:destination="@id/videoCartelFragment" />
+    </fragment>
 
     <fragment
+        android:id="@+id/nav_peliculas"
+        android:name="org.kaizoku.otropelisplusmas.ui.home.HomeFragment"
+        android:label="@string/menu_home"
+        tools:layout="@layout/fragment_home" >
+        <argument
+            android:name="url"
+            app:argType="integer"
+            android:defaultValue="1" />
+        <action
+            android:id="@+id/action_nav_peliculas_to_videoCartelFragment"
+            app:destination="@id/videoCartelFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_series"
+        android:name="org.kaizoku.otropelisplusmas.ui.home.HomeFragment"
+        android:label="@string/menu_series"
+        tools:layout="@layout/fragment_home" >
+        <argument
+            android:name="url"
+            app:argType="integer"
+            android:defaultValue="2" />
+        <action
+            android:id="@+id/action_nav_series_to_cartelFragment"
+            app:destination="@id/cartelFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_animes"
+        android:name="org.kaizoku.otropelisplusmas.ui.home.HomeFragment"
+        android:label="@string/menu_animes"
+        tools:layout="@layout/fragment_home" >
+        <argument
+            android:name="url"
+            app:argType="integer"
+            android:defaultValue="3" />
+        <action
+            android:id="@+id/action_nav_animes_to_cartelFragment"
+            app:destination="@id/cartelFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/cartelFragment"
+        android:name="org.kaizoku.otropelisplusmas.ui.home.serie_cartel.SerieCartelFragment"
+        android:label="null"
+        tools:layout="@layout/fragment_serie_cartel" >
+        <action
+            android:id="@+id/action_cartelFragment_to_videoCartelFragment"
+            app:destination="@id/videoCartelFragment" />
+    </fragment>
+
+    <!--<fragment
         android:id="@+id/nav_gallery"
-        android:name="org.kaizoku.otropelisplusmas.ui.gallery.GalleryFragment"
+        android:name="org.john.eigakan.ui.gallery.GalleryFragment"
         android:label="@string/menu_gallery"
-        tools:layout="@layout/fragment_gallery" />
+        tools:layout="@layout/fragment_gallery" />-->
 
     <fragment
-        android:id="@+id/nav_slideshow"
-        android:name="org.kaizoku.otropelisplusmas.ui.slideshow.SlideshowFragment"
-        android:label="@string/menu_slideshow"
-        tools:layout="@layout/fragment_slideshow" />
+        android:id="@+id/nav_reproductor"
+        android:name="org.kaizoku.otropelisplusmas.ui.reproductor.ReproductorFragment"
+        android:label="@string/menu_reproductor"
+        tools:layout="@layout/fragment_reproductor" />
+    <fragment
+        android:id="@+id/videoCartelFragment"
+        android:name="org.kaizoku.otropelisplusmas.ui.home.video_cartel.VideoCartelFragment"
+        android:label="fragment_video_cartel"
+        tools:layout="@layout/fragment_video_cartel" >
+        <action
+            android:id="@+id/action_videoCartelFragment_to_nav_reproductor"
+            app:destination="@id/nav_reproductor" />
+    </fragment>
+
 </navigation>

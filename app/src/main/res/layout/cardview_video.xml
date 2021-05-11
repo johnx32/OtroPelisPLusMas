@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="1dp">
+    <ImageView
+        android:id="@+id/cv_iv_video_src"
+        android:layout_weight="1"
+        android:layout_width="match_parent"
+        android:layout_height="220dp"
+        android:background="#303F9F"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="#504F4F">
+        <TextView
+            android:id="@+id/cv_tv_name"
+
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Nombre"
+            android:textStyle="bold"
+            android:textColor="@color/white"
+            android:textSize="14sp"/>
+        <LinearLayout
+            android:layout_weight="5"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:orientation="horizontal">
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="wrap_content"
+                android:tag="NO IMAGE"/>
+            <TextView
+                android:id="@+id/cv_tv_rating"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="10/10"
+                android:textColor="@color/verde"
+                android:textSize="15sp"/>
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

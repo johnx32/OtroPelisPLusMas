@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">OtroPelisPlusMas</string>
+    <string name="app_name">OtroPelisPlus+</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="nav_header_title">Android Studio</string>
@@ -10,4 +10,15 @@
     <string name="menu_home">Home</string>
     <string name="menu_gallery">Gallery</string>
     <string name="menu_slideshow">Slideshow</string>
+    <string name="menu_reproductor">Reproductor</string>
+    <string name="menu_peliculas">Peliculas</string>
+    <string name="menu_series">Series</string>
+    <string name="menu_animes">Animes</string>
+
+    <string-array name="urls">
+        <item>https://pelisplushd.net</item>
+        <item>https://pelisplushd.net/peliculas</item>
+        <item>https://pelisplushd.net/series</item>
+        <item>https://pelisplushd.net/animes</item>
+    </string-array>
 </resources>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="#403B3B"
+    tools:viewBindingIgnore="true">
+
+    <TextView
+        android:id="@+id/cv_video_server_ll_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Fembed"
+        android:textSize="15sp"
+        android:textColor="@color/white"
+        android:textStyle="bold"/>
+    <LinearLayout
+        android:id="@+id/cv_video_server_ll_contenedor"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+    </LinearLayout>
+
+
+
+</LinearLayout>
