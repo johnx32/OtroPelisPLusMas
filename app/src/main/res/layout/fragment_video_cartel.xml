@@ -4,15 +4,16 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/fondo"
     android:orientation="vertical"
-    tools:context="org.john.eigakan.ui.home.video_cartel.VideoCartelFragment">
+    tools:context=".ui.home.video_cartel.VideoCartelFragment">
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent">
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="vertical">
 
             <ImageView
@@ -25,7 +26,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="5dp"
-                android:text="Titulo"
+                android:textColor="@color/white"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="5dp"
+                android:text="Sinopsis"
                 android:textSize="20sp"
                 android:textStyle="bold" />
 
@@ -33,12 +37,15 @@
                 android:id="@+id/frag_serie_sinopsis"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:textColor="@color/white"
+                android:padding="10dp"
                 android:text="Sinopsis" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/frag_serie_rv_servers"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                android:background="@color/fondo"/>
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 

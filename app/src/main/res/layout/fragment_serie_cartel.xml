@@ -5,6 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/fondo"
     android:orientation="vertical"
     tools:context=".ui.home.serie_cartel.SerieCartelFragment">
 
@@ -25,17 +26,19 @@
                 android:id="@+id/frag_cartel_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="5dp"
-                android:text="Titulo"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="5dp"
+                android:text="Sinopsis"
                 android:textSize="20sp"
+                android:textColor="@color/white"
                 android:textStyle="bold" />
-
             <TextView
                 android:id="@+id/frag_cartel_sinopsis"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:textColor="@color/white"
                 android:text="Sinopsis" />
-
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -46,17 +49,20 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="1dp"
-                    android:background="#5C6BC0"
                     app:elevation="0dp"
                     app:tabMode="scrollable"
+                    android:background="@color/fondo2"
+                    android:outlineSpotShadowColor="#00ff00"
+                    app:tabIndicatorColor="@color/button"
+                    app:tabRippleColor="@color/texto"
                     app:tabSelectedTextColor="@color/white"
                     app:tabTextColor="@color/gris" />
                 <!--    android:background="?attr/colorPrimary"    -->
                 <androidx.viewpager2.widget.ViewPager2
                     android:id="@+id/frag_cartel_viewpager_vp2"
                     android:layout_width="match_parent"
-                    android:layout_height="600dp"
-                    android:background="#FF5722"
+                    android:layout_height="wrap_content"
+
                     app:layout_behavior="@string/appbar_scrolling_view_behavior" />
             </LinearLayout>
         </LinearLayout>

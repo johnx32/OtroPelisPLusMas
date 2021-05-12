@@ -64,7 +64,8 @@ public class SerieCartelFragment extends Fragment {
     }
 
     private void setSerieCartel(SerieCartel serieCartel){
-        binding.fragCartelTitle.setText(serieCartel.name);
+        //binding.fragCartelTitle.setText(serieCartel.name);
+        getActivity().setTitle(serieCartel.name);
         binding.fragCartelSinopsis.setText(serieCartel.sinopsis);
         Picasso.get()
                 .load(serieCartel.src_img)

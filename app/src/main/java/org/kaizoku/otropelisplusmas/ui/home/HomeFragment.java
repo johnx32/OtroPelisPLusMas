@@ -62,11 +62,32 @@ public class HomeFragment extends Fragment implements
 
         //(new Thread(() -> pelisplushdService.getInfoCartel("https://pelisplushd.net/serie/bones"))).start();
 
+        //setTitle();
 
         initVideoCardAdapter();
         initItemPaginationAdapter();
         loadAdapter(url);
         return binding.getRoot();
+    }
+
+    private void setTitle() {
+        NavController navController = Navigation.findNavController(getActivity(), R.id.nav_host_fragment);
+        int id_nav=navController.getCurrentDestination().getId();
+        switch (id_nav){
+            case R.id.nav_home:
+                //getActivity().setTitle("");
+                break;
+            case R.id.nav_peliculas:
+                getActivity().setTitle("Peliculas");
+                break;
+            case R.id.nav_series:
+                getActivity().setTitle("Series");
+                break;
+            case R.id.nav_animes:
+                getActivity().setTitle("Animes");
+                break;
+        }
+
     }
 
     private String getUrlFromBundle(){

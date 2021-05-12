@@ -26,7 +26,7 @@
     <fragment
         android:id="@+id/nav_peliculas"
         android:name="org.kaizoku.otropelisplusmas.ui.home.HomeFragment"
-        android:label="@string/menu_home"
+        android:label="@string/menu_peliculas"
         tools:layout="@layout/fragment_home" >
         <argument
             android:name="url"
@@ -68,7 +68,7 @@
     <fragment
         android:id="@+id/cartelFragment"
         android:name="org.kaizoku.otropelisplusmas.ui.home.serie_cartel.SerieCartelFragment"
-        android:label="null"
+        android:label=""
         tools:layout="@layout/fragment_serie_cartel" >
         <action
             android:id="@+id/action_cartelFragment_to_videoCartelFragment"
@@ -89,7 +89,7 @@
     <fragment
         android:id="@+id/videoCartelFragment"
         android:name="org.kaizoku.otropelisplusmas.ui.home.video_cartel.VideoCartelFragment"
-        android:label="fragment_video_cartel"
+        android:label=""
         tools:layout="@layout/fragment_video_cartel" >
         <action
             android:id="@+id/action_videoCartelFragment_to_nav_reproductor"

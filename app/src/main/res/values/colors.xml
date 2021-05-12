@@ -9,4 +9,13 @@
     <color name="white">#FFFFFFFF</color>
     <color name="verde">#33C314</color>
     <color name="gris">#C0C0C0</color>
+
+    <color name="fondo">#223143</color>
+    <color name="fondo2">#1d2a3a</color>
+    <color name="button">#6569df</color>
+    <color name="button2">#04a1f4</color>
+    <color name="button3">#673AB7</color>
+    <color name="texto">#0079c9</color>
+    <color name="texto_rating">#45fe8a</color>
+    <color name="start">#ffff00</color>
 </resources>

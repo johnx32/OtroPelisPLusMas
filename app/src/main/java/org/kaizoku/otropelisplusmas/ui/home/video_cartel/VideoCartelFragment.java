@@ -63,7 +63,8 @@ public class VideoCartelFragment extends Fragment implements VideoServerAdapter.
     }
 
     private void setVideoCartel(VideoCartel videoCartel){
-        binding.fragSerieTitle.setText(videoCartel.name);
+        //binding.fragSerieTitle.setText(videoCartel.name);
+        getActivity().setTitle(videoCartel.name);
         binding.fragSerieSinopsis.setText(videoCartel.sinopsis);
         Picasso.get()
                 .load(videoCartel.src_img)
@@ -83,7 +84,7 @@ public class VideoCartelFragment extends Fragment implements VideoServerAdapter.
                 Intent intent = new Intent(Intent.ACTION_VIEW);
                 intent.setDataAndType(Uri.parse(file_url), "video/*");
                 startActivity(Intent.createChooser(intent, "PLay video..."));
-            break;
+                break;
         }
     }
 }

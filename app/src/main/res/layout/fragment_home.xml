@@ -11,12 +11,12 @@
         android:id="@+id/rv_series"
         android:layout_weight="1"
         android:layout_width="match_parent"
-        android:background="#000000"
+        android:background="@color/fondo2"
         android:layout_height="0dp"/>
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_pagination"
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#7B1FA2"/>
+        android:background="@color/fondo2"/>
 </LinearLayout>

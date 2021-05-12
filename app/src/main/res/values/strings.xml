@@ -8,8 +8,6 @@
     <string name="action_settings">Settings</string>
 
     <string name="menu_home">Home</string>
-    <string name="menu_gallery">Gallery</string>
-    <string name="menu_slideshow">Slideshow</string>
     <string name="menu_reproductor">Reproductor</string>
     <string name="menu_peliculas">Peliculas</string>
     <string name="menu_series">Series</string>

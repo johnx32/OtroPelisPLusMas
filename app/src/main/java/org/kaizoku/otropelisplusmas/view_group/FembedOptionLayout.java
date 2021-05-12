@@ -9,8 +9,8 @@ import android.widget.TextView;
 import org.kaizoku.otropelisplusmas.R;
 
 public class FembedOptionLayout extends LinearLayout {
-    TextView name,play,external;
-    public FembedOptionLayout(Context context, String name, OnClickListener onClickListenerPlay, OnClickListener onClickListenerExt) {
+    TextView name,play,external,cast;
+    public FembedOptionLayout(Context context, String name, OnClickListener onClickListenerPlay, OnClickListener onClickListenerExt, OnClickListener onClickListenerCast) {
         super(context);
         View v = LayoutInflater.from(context).inflate(R.layout.view_fembed_option_layout,this);
         this.name = v.findViewById(R.id.fembed_option_tv_name);
@@ -19,5 +19,7 @@ public class FembedOptionLayout extends LinearLayout {
         this.play.setOnClickListener(onClickListenerPlay);
         this.external = v.findViewById(R.id.fembed_option_tv_external);
         this.external.setOnClickListener(onClickListenerExt);
+        this.cast = v.findViewById(R.id.fembed_option_tv_cast);
+        this.cast.setOnClickListener(onClickListenerCast);
     }
 }

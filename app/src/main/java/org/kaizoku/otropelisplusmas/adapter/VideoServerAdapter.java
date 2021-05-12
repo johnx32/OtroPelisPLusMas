@@ -54,7 +54,8 @@ public class VideoServerAdapter extends RecyclerView.Adapter<VideoServerAdapter.
                                 new FembedOptionLayout(
                                         holder.contenedor.getContext(),fServer.options.get(i).label,
                                         v -> {{onCardListener.onClickCard(((FembedServer) list.get(position)).options.get(finalI).file,OPTION_PLAY);}},
-                                        v -> {onCardListener.onClickCard(((FembedServer) list.get(position)).options.get(finalI).file,OPTION_EXT);}
+                                        v -> {onCardListener.onClickCard(((FembedServer) list.get(position)).options.get(finalI).file,OPTION_EXT);},
+                                        v -> {onCardListener.onClickCard(((FembedServer) list.get(position)).options.get(finalI).file,OPTION_CAST);}
                                         )
                         );
                     }
