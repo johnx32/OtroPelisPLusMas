@@ -1,6 +1,7 @@
 package org.kaizoku.otropelisplusmas;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -11,12 +12,31 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.initialization.InitializationStatus;
+import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 import com.google.android.material.navigation.NavigationView;
 
 public class MainActivity extends AppCompatActivity {
 
     private AppBarConfiguration mAppBarConfiguration;
-
+    //admob app-ads.txt
+    //google.com, pub-6323075080626234, DIRECT, f08c47fec0942fa0
+    /*todo:
+        id publicidad test prod,
+        publicidad,
+        quitar menu activity,
+        fullscream,
+         quitar reproductor de menu,
+        abrir la app desde link,
+       ofuscar codigo,
+       autoupdate ukiku,
+         crash analitic,
+        cast video, notificaciones,
+         pagina en la app
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,6 +61,13 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupWithNavController(navigationView, navController);
 
         //setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+
+        //Log.i("TAG", "onCreate: test id app: "+getResources().getString(R.string.id_app));
+        MobileAds.initialize(this, new OnInitializationCompleteListener() {
+            @Override
+            public void onInitializationComplete(InitializationStatus initializationStatus) {
+            }
+        });
 
     }
 

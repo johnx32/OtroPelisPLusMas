@@ -19,6 +19,13 @@ import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+
+import com.google.android.ads.nativetemplates.NativeTemplateStyle;
+import com.google.android.ads.nativetemplates.TemplateView;
+import com.google.android.gms.ads.AdLoader;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.formats.UnifiedNativeAd;
+
 import org.kaizoku.otropelisplusmas.R;
 import org.kaizoku.otropelisplusmas.adapter.ItemPaginationAdapter;
 import org.kaizoku.otropelisplusmas.adapter.VideoCardAdapter;
@@ -67,6 +74,41 @@ public class HomeFragment extends Fragment implements
         initVideoCardAdapter();
         initItemPaginationAdapter();
         loadAdapter(url);
+
+        /*AdView mAdView = binding.getRoot().findViewById(R.id.adView);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        mAdView.loadAd(adRequest);*/
+
+        AdLoader adLoader = new AdLoader.Builder(getContext(), "ca-app-pub-3940256099942544/2247696110")
+                .forUnifiedNativeAd(new UnifiedNativeAd.OnUnifiedNativeAdLoadedListener() {
+                    @Override
+                    public void onUnifiedNativeAdLoaded(@NonNull UnifiedNativeAd unifiedNativeAd) {
+                        NativeTemplateStyle styles = new
+                                NativeTemplateStyle.Builder().build();
+                        //.withMainBackgroundColor(background).build();
+
+                        TemplateView template = binding.myTemplate;
+                        template.setStyles(styles);
+                        template.setNativeAd(unifiedNativeAd);
+                    }
+                }).build();
+                /*.forNativeAd(new NativeAd.OnNativeAdLoadedListener() {
+                    @Override
+                    public void onNativeAdLoaded(NativeAd nativeAd) {
+                        NativeTemplateStyle styles = new NativeTemplateStyle.Builder().build();
+                                //.withMainBackgroundColor(background).build();
+
+                        //TemplateView template = binding.getRoot().findViewById(R.id.my_template);
+                        //template.setStyles(styles);
+                        binding.myTemplate.setStyles(styles);
+                        //template.setNativeAd(NativeAd);
+                        binding.myTemplate.setNativeAd(nativeAd);
+                    }
+                })
+                .build();*/
+
+        adLoader.loadAd(new AdRequest.Builder().build());
+
         return binding.getRoot();
     }
 

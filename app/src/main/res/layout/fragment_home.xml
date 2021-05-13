@@ -9,14 +9,34 @@
     tools:context=".ui.home.HomeFragment">
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_series"
-        android:layout_weight="1"
         android:layout_width="match_parent"
+        android:layout_height="0dp"
         android:background="@color/fondo2"
-        android:layout_height="0dp"/>
+        android:layout_weight="1"
+        tools:listitem="@layout/cardview_video"/>
+    <!--<com.google.android.gms.ads.AdView
+        xmlns:ads="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/adView"
+        android:layout_gravity="bottom"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        android:visibility="gone"
+        ads:adSize="BANNER"
+        ads:adUnitId="@string/id_baner1">
+    </com.google.android.gms.ads.AdView> gnt_medium_template_view-->
+    <com.google.android.ads.nativetemplates.TemplateView
+        android:id="@+id/my_template"
+        app:gnt_template_type="@layout/gnt_small_template_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_pagination"
-        android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/fondo2"/>
+        android:background="@color/fondo2"
+        android:orientation="horizontal"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        tools:listitem="@layout/cardview_item_pagination"/>
 </LinearLayout>
