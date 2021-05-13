@@ -3,6 +3,8 @@ package org.kaizoku.otropelisplusmas.ui.home.video_cartel;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +15,7 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.google.android.gms.ads.AdSize;
 import com.squareup.picasso.Picasso;
 
 import org.kaizoku.otropelisplusmas.R;
@@ -58,7 +61,7 @@ public class VideoCartelFragment extends Fragment implements VideoServerAdapter.
         binding.fragSerieRvServers.setHasFixedSize(true);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         binding.fragSerieRvServers.setLayoutManager(linearLayoutManager);
-        videoServerAdapter = new VideoServerAdapter(this);//ultimo error aqui cheaquearlo
+        videoServerAdapter = new VideoServerAdapter(this,getAdSize());//ultimo error aqui cheaquearlo
         binding.fragSerieRvServers.setAdapter(videoServerAdapter);
     }
 
@@ -69,6 +72,21 @@ public class VideoCartelFragment extends Fragment implements VideoServerAdapter.
         Picasso.get()
                 .load(videoCartel.src_img)
                 .into(binding.fragSerieSrc);
+    }
+
+    private AdSize getAdSize() {
+        // Step 2 - Determine the screen width (less decorations) to use for the ad width.
+        Display display = getActivity().getWindowManager().getDefaultDisplay();
+        DisplayMetrics outMetrics = new DisplayMetrics();
+        display.getMetrics(outMetrics);
+
+        float widthPixels = outMetrics.widthPixels;
+        float density = outMetrics.density;
+
+        int adWidth = (int) (widthPixels / density);
+
+        // Step 3 - Get adaptive ad size and return for setting on the ad view.
+        return AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(getContext(), adWidth);
     }
 
     @Override

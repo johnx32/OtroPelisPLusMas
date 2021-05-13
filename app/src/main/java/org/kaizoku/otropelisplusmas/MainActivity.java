@@ -1,5 +1,6 @@
 package org.kaizoku.otropelisplusmas;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -76,7 +77,8 @@ public class MainActivity extends AppCompatActivity {
         });
 
         loadInterstitialAd();
-
+        Activity a = this;
+        a.getWindowManager().getDefaultDisplay();
     }
 
     private void loadInterstitialAd(){
