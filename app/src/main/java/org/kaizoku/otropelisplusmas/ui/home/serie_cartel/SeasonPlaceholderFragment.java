@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.google.android.gms.ads.AdSize;
 
+import org.kaizoku.otropelisplusmas.MainActivity;
 import org.kaizoku.otropelisplusmas.R;
 import org.kaizoku.otropelisplusmas.adapter.ChapterAdapter;
 import org.kaizoku.otropelisplusmas.databinding.FragmentPlaceholderSeasonBinding;
@@ -79,6 +80,7 @@ public class SeasonPlaceholderFragment extends Fragment implements ChapterAdapte
 
     @Override
     public void onClickCardChapter(String href) {
+        ((MainActivity)getActivity()).showInterstitialAd();
         Bundle b=new Bundle();
         b.putString("url",href);
         NavHostFragment.findNavController(this)
