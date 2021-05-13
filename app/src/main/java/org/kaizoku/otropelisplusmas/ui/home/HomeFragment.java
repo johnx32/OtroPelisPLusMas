@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
@@ -26,6 +27,7 @@ import com.google.android.gms.ads.AdLoader;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.formats.UnifiedNativeAd;
 
+import org.kaizoku.otropelisplusmas.MainActivity;
 import org.kaizoku.otropelisplusmas.R;
 import org.kaizoku.otropelisplusmas.adapter.ItemPaginationAdapter;
 import org.kaizoku.otropelisplusmas.adapter.VideoCardAdapter;
@@ -79,7 +81,7 @@ public class HomeFragment extends Fragment implements
         AdRequest adRequest = new AdRequest.Builder().build();
         mAdView.loadAd(adRequest);*/
 
-        AdLoader adLoader = new AdLoader.Builder(getContext(), "ca-app-pub-3940256099942544/2247696110")
+        /*AdLoader adLoader = new AdLoader.Builder(getContext(), "ca-app-pub-3940256099942544/2247696110")
                 .forUnifiedNativeAd(new UnifiedNativeAd.OnUnifiedNativeAdLoadedListener() {
                     @Override
                     public void onUnifiedNativeAdLoaded(@NonNull UnifiedNativeAd unifiedNativeAd) {
@@ -92,7 +94,7 @@ public class HomeFragment extends Fragment implements
                         template.setNativeAd(unifiedNativeAd);
                     }
                 }).build();
-                /*.forNativeAd(new NativeAd.OnNativeAdLoadedListener() {
+                .forNativeAd(new NativeAd.OnNativeAdLoadedListener() {
                     @Override
                     public void onNativeAdLoaded(NativeAd nativeAd) {
                         NativeTemplateStyle styles = new NativeTemplateStyle.Builder().build();
@@ -105,9 +107,9 @@ public class HomeFragment extends Fragment implements
                         binding.myTemplate.setNativeAd(nativeAd);
                     }
                 })
-                .build();*/
+                .build();
 
-        adLoader.loadAd(new AdRequest.Builder().build());
+        adLoader.loadAd(new AdRequest.Builder().build());*/
 
         return binding.getRoot();
     }
@@ -235,6 +237,7 @@ public class HomeFragment extends Fragment implements
 
     @Override
     public void onClickCard(VideoCard videoCard) {
+        ((MainActivity)getActivity()).showInterstitialAd();
 
         NavController navController = Navigation.findNavController(getActivity(), R.id.nav_host_fragment);
         int id_nav=navController.getCurrentDestination().getId();
@@ -302,6 +305,7 @@ public class HomeFragment extends Fragment implements
 
     @Override
     public void onClickCardItem(String url) {
+        ((MainActivity)getActivity()).showInterstitialAd();
         if(!url.contains("pelisplushd.net"))
             url="https://pelisplushd.net/"+url;
         pelisplushdService.loadMenuCards(url);
