@@ -1,7 +1,9 @@
 package org.kaizoku.otropelisplusmas.ui.home.serie_cartel;
 
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +13,8 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
+
+import com.google.android.gms.ads.AdSize;
 
 import org.kaizoku.otropelisplusmas.R;
 import org.kaizoku.otropelisplusmas.adapter.ChapterAdapter;
@@ -53,9 +57,24 @@ public class SeasonPlaceholderFragment extends Fragment implements ChapterAdapte
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
         binding.fragPlaceholderSeasonRv.setLayoutManager(layoutManager);
 
-        chapterAdapter = new ChapterAdapter(this);
+        chapterAdapter = new ChapterAdapter(this,getAdSize());
 
         binding.fragPlaceholderSeasonRv.setAdapter(chapterAdapter);
+    }
+
+    private AdSize getAdSize() {
+        // Step 2 - Determine the screen width (less decorations) to use for the ad width.
+        Display display = getActivity().getWindowManager().getDefaultDisplay();
+        DisplayMetrics outMetrics = new DisplayMetrics();
+        display.getMetrics(outMetrics);
+
+        float widthPixels = outMetrics.widthPixels;
+        float density = outMetrics.density;
+
+        int adWidth = (int) (widthPixels / density);
+
+        // Step 3 - Get adaptive ad size and return for setting on the ad view.
+        return AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(getContext(), adWidth);
     }
 
     @Override

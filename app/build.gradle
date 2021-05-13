@@ -20,13 +20,15 @@ android {
         debug {
             //buildConfigField "String", "id_app", "\"FOO DEBUG\""
             resValue "string", "id_app", "ca-app-pub-3940256099942544~3347511713"
-            resValue "string", "id_baner1", "ca-app-pub-3940256099942544/6300978111"
+            resValue "string", "banner_adaptative01", "ca-app-pub-3940256099942544/6300978111"
+            resValue "string", "banner_adaptative02", "ca-app-pub-3940256099942544/6300978111"
             resValue "string", "intersticial01", "ca-app-pub-3940256099942544/1033173712"
         }
         release {
             //buildConfigField "String", "id_app", "\"FOO RELEASE\""
             resValue "string", "id_app", "ca-app-pub-6323075080626234~7423960534"
-            resValue "string", "id_baner1", "ca-app-pub-6323075080626234/7097777031"
+            resValue "string", "banner_adaptative01", "ca-app-pub-6323075080626234/7097777031"
+            resValue "string", "banner_adaptative02", "ca-app-pub-6323075080626234/9819626373"
             resValue "string", "intersticial01", "ca-app-pub-6323075080626234/2347781727"
 
             minifyEnabled false

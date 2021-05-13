@@ -1,12 +1,19 @@
 package org.kaizoku.otropelisplusmas.adapter;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdSize;
+import com.google.android.gms.ads.AdView;
 
 import org.kaizoku.otropelisplusmas.R;
 import org.kaizoku.otropelisplusmas.model.Chapter;
@@ -15,10 +22,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ChapterAdapter extends RecyclerView.Adapter<ChapterAdapter.ChapterViewHolder> {
-    List<Chapter> list=new ArrayList<>();
+    private List<Chapter> list=new ArrayList<>();
+    private AdSize adSize;
 
-    public ChapterAdapter(OnCardChapterListener onCardListener) {
+    public ChapterAdapter(OnCardChapterListener onCardListener, AdSize adSize) {
         this.onCardListener = onCardListener;
+        this.adSize = adSize;
     }
 
     public void setChapterList(List<Chapter> list) {
@@ -29,6 +38,14 @@ public class ChapterAdapter extends RecyclerView.Adapter<ChapterAdapter.ChapterV
     @NonNull
     @Override
     public ChapterViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        /*switch (viewType){
+            case Chapter.TYPE_BANNER_ADAPTATIVE:
+                break;
+            case Chapter.TYPE_CHAPTER:
+                break;
+
+        }*/
+        Log.i("TAG", "onCreateViewHolder: viewtype: "+viewType);
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.cardview_chapter,parent,false);
         ChapterViewHolder chapterViewHolder = new ChapterViewHolder(v);
         return chapterViewHolder;
@@ -36,7 +53,19 @@ public class ChapterAdapter extends RecyclerView.Adapter<ChapterAdapter.ChapterV
 
     @Override
     public void onBindViewHolder(@NonNull ChapterViewHolder holder, int position) {
-        holder.title.setText(list.get(position).title);
+        Log.i("TAG", "onBindViewHolder: pos: "+position+" type"+getItemViewType(position));
+        if(getItemViewType(position)==Chapter.TYPE_CHAPTER){
+            holder.title.setText(list.get(position).title);
+            holder.itemView.setOnClickListener(v -> {
+                onCardListener.onClickCardChapter(list.get(position).href);
+            });
+        }else{
+            AdView adView = new AdView(holder.itemView.getContext());
+            adView.setAdUnitId(holder.itemView.getContext().getString(R.string.banner_adaptative02));
+            holder.cardView.setVisibility(View.GONE);
+            holder.ll.addView(adView);
+            loadBanner(adView);
+        }
     }
 
     @Override
@@ -44,13 +73,54 @@ public class ChapterAdapter extends RecyclerView.Adapter<ChapterAdapter.ChapterV
         return list.size();
     }
 
-    public class ChapterViewHolder extends RecyclerView.ViewHolder{
+    @Override
+    public int getItemViewType(int position) {
+        return list.get(position).type;
+    }
+
+    public class ChapterViewHolder extends RecyclerView.ViewHolder {
         TextView title;
+        //AdView adView;
+        CardView cardView;
+        LinearLayout ll;
         public ChapterViewHolder(@NonNull View itemView) {
+            super(itemView);
+            //Log.i("TAG", "ChapterViewHolder: type"+getItemViewType() list.get(getAdapterPosition()).type);
+            title = itemView.findViewById(R.id.cv_chapter_title);
+            cardView = itemView.findViewById(R.id.cv_chapter_title_cardview);
+            ll = itemView.findViewById(R.id.cv_chapter_linearlayout);
+        }
+
+
+
+    }
+
+    private void loadBanner(AdView adView) {
+        // Create an ad request. Check your logcat output for the hashed device ID
+        // to get test ads on a physical device, e.g.,
+        // "Use AdRequest.Builder.addTestDevice("ABCDE0123") to get test ads on this
+        // device."
+        AdRequest adRequest = new AdRequest.Builder()
+                .build();
+
+        //AdSize adSize = getAdSize();
+        // Step 4 - Set the adaptive ad size on the ad view.
+        adView.setAdSize(adSize);
+
+
+        // Step 5 - Start loading the ad in the background.
+        adView.loadAd(adRequest);
+    }
+
+
+
+    public class BannerViewHolder extends BaseViewHolder{
+        TextView title;
+        public BannerViewHolder(@NonNull View itemView) {
             super(itemView);
             title = itemView.findViewById(R.id.cv_chapter_title);
             itemView.setOnClickListener(v -> {
-                    onCardListener.onClickCardChapter(list.get(getAdapterPosition()).href);
+                onCardListener.onClickCardChapter(list.get(getAdapterPosition()).href);
             });
         }
     }

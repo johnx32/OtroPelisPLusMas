@@ -29,8 +29,8 @@ public class VideoServerAdapter extends RecyclerView.Adapter<VideoServerAdapter.
     public static final byte OPTION_PLAY=1;
     public static final byte OPTION_EXT=2;
     public static final byte OPTION_CAST=3;
-    List<VideoServer> list=new ArrayList<>();
-    AdSize adSize;
+    private List<VideoServer> list=new ArrayList<>();
+    private AdSize adSize;
 
     public VideoServerAdapter(OnCardListener onCardListener,AdSize adSize) {
         this.onCardListener = onCardListener;
@@ -105,7 +105,7 @@ public class VideoServerAdapter extends RecyclerView.Adapter<VideoServerAdapter.
             // Step 1 - Create an AdView and set the ad unit ID on it.
             //adView = itemView.findViewById(R.id.cv_video_server_ll_adView);
             adView = new AdView(itemView.getContext());
-            adView.setAdUnitId(itemView.getContext().getString(R.string.id_baner1));
+            adView.setAdUnitId(itemView.getContext().getString(R.string.banner_adaptative01));
             linearLayout.addView(adView);
             loadBanner();
         }
