@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/button"
@@ -14,25 +15,39 @@
         android:id="@+id/fembed_option_tv_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="5dp"
         android:layout_weight="5"
         android:text="480p"
         android:textColor="@color/white"
-        android:textSize="15sp" />
+        android:textSize="15sp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
 
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/fembed_option_gl_guia1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.25"/>
     <TextView
         android:id="@+id/fembed_option_tv_play"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginHorizontal="10dp"
+        android:background="@drawable/item_button_option"
         android:drawableLeft="@drawable/ic_play_arrow_white_24dp"
         android:gravity="center_vertical"
-        android:text="Play"
         android:paddingVertical="3dp"
         android:paddingLeft="1dp"
         android:paddingRight="10dp"
-        android:layout_marginHorizontal="10dp"
-        android:background="@drawable/item_button_option"
+        android:text="Play"
         android:textColor="@color/white"
-        android:textSize="13sp" />
+        android:textSize="13sp"
+        app:layout_constraintLeft_toRightOf="@+id/fembed_option_gl_guia1"
+        app:layout_constraintRight_toLeftOf="@+id/fembed_option_tv_external"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
 
     <TextView
         android:id="@+id/fembed_option_tv_external"
@@ -45,9 +60,13 @@
         android:layout_marginHorizontal="10dp"
         android:background="@drawable/item_button_option"
         android:gravity="center_vertical"
-        android:text="Ext"
+        android:text="Play"
         android:textColor="@color/white"
-        android:textSize="13sp" />
+        android:textSize="13sp"
+        app:layout_constraintLeft_toRightOf="@+id/fembed_option_tv_play"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintRight_toLeftOf="@+id/fembed_option_tv_cast"
+        app:layout_constraintBottom_toBottomOf="parent" />
 
     <TextView
         android:id="@+id/fembed_option_tv_cast"
@@ -62,10 +81,11 @@
         android:gravity="center_vertical"
         android:text="Cast"
         android:textColor="@color/white"
-        android:textSize="13sp" />
-    <View
-        android:layout_width="50dp"
-        android:layout_height="0dp"/>
+        android:textSize="13sp"
+        app:layout_constraintLeft_toRightOf="@+id/fembed_option_tv_external"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
 
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
 

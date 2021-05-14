@@ -237,7 +237,7 @@ public class HomeFragment extends Fragment implements
 
     @Override
     public void onClickCard(VideoCard videoCard) {
-        ((MainActivity)getActivity()).showInterstitialAd();
+        //((MainActivity)getActivity()).showInterstitialAd();
 
         NavController navController = Navigation.findNavController(getActivity(), R.id.nav_host_fragment);
         int id_nav=navController.getCurrentDestination().getId();
@@ -305,7 +305,7 @@ public class HomeFragment extends Fragment implements
 
     @Override
     public void onClickCardItem(String url) {
-        ((MainActivity)getActivity()).showInterstitialAd();
+        //((MainActivity)getActivity()).showInterstitialAd();
         if(!url.contains("pelisplushd.net"))
             url="https://pelisplushd.net/"+url;
         pelisplushdService.loadMenuCards(url);

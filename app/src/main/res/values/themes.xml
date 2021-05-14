@@ -22,4 +22,21 @@
     <style name="Theme.OtroPelisPlusMas.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="Theme.OtroPelisPlusMas.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <style name="ThemeOverlay.OtroPelisPlusMas.FullscreenContainer" parent="">
+        <item name="fullscreenBackgroundColor">@color/light_blue_600</item>
+        <item name="fullscreenTextColor">@color/light_blue_A200</item>
+    </style>
+
+
+
+    <!--  tema para full screen en fragment   -->
+    <style name="Theme.FullScreen.Fullscreen" parent="Theme.OtroPelisPlusMas">
+        <item name="android:actionBarStyle">@style/Widget.Theme.FullScreen.ActionBar.Fullscreen</item>
+        <item name="android:windowActionBarOverlay">true</item>
+        <item name="android:windowBackground">@null</item>
+    </style>
+    <style name="Widget.Theme.FullScreen.ActionBar.Fullscreen" parent="Widget.AppCompat.ActionBar">
+        <item name="android:background">@color/black_overlay</item>
+    </style>
 </resources>

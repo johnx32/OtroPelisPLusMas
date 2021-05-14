@@ -16,6 +16,7 @@ import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.google.android.gms.ads.AdSize;
+import com.google.android.material.snackbar.Snackbar;
 import com.squareup.picasso.Picasso;
 
 import org.kaizoku.otropelisplusmas.R;
@@ -102,6 +103,9 @@ public class VideoCartelFragment extends Fragment implements VideoServerAdapter.
                 Intent intent = new Intent(Intent.ACTION_VIEW);
                 intent.setDataAndType(Uri.parse(file_url), "video/*");
                 startActivity(Intent.createChooser(intent, "PLay video..."));
+                break;
+            case VideoServerAdapter.OPTION_CAST:
+                Snackbar.make(getView(),"Proximamente",Snackbar.LENGTH_LONG).show();
                 break;
         }
     }

@@ -80,7 +80,7 @@ public class SeasonPlaceholderFragment extends Fragment implements ChapterAdapte
 
     @Override
     public void onClickCardChapter(String href) {
-        ((MainActivity)getActivity()).showInterstitialAd();
+        //((MainActivity)getActivity()).showInterstitialAd();
         Bundle b=new Bundle();
         b.putString("url",href);
         NavHostFragment.findNavController(this)
