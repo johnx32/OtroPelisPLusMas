@@ -21,5 +21,8 @@
     </string-array>
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="version_num">https://raw.githubusercontent.com/kaizokuapps/OtroPelisPlusMas/main/version.num</string>
+    <string name="apk_url">https://github.com/kaizokuapps/OtroPelisPlusMas/raw/main/release/app-release.apk</string>
+    <string name="menu_about">Acerca de</string>
 
 </resources>

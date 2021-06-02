@@ -11,7 +11,6 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
@@ -19,13 +18,6 @@ import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
-
-
-import com.google.android.ads.nativetemplates.NativeTemplateStyle;
-import com.google.android.ads.nativetemplates.TemplateView;
-import com.google.android.gms.ads.AdLoader;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.formats.UnifiedNativeAd;
 
 import org.kaizoku.otropelisplusmas.MainActivity;
 import org.kaizoku.otropelisplusmas.R;
@@ -237,7 +229,8 @@ public class HomeFragment extends Fragment implements
 
     @Override
     public void onClickCard(VideoCard videoCard) {
-        //((MainActivity)getActivity()).showInterstitialAd();
+        //#adsblock
+        ((MainActivity)getActivity()).showInterstitialAd();
 
         NavController navController = Navigation.findNavController(getActivity(), R.id.nav_host_fragment);
         int id_nav=navController.getCurrentDestination().getId();
@@ -305,7 +298,9 @@ public class HomeFragment extends Fragment implements
 
     @Override
     public void onClickCardItem(String url) {
-        //((MainActivity)getActivity()).showInterstitialAd();
+        //#adsblock
+        ((MainActivity)getActivity()).showInterstitialAd();
+        //Toast.makeText(getContext(),"mostrar ads",Toast.LENGTH_LONG).show();
         if(!url.contains("pelisplushd.net"))
             url="https://pelisplushd.net/"+url;
         pelisplushdService.loadMenuCards(url);

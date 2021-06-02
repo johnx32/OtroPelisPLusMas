@@ -14,6 +14,10 @@
         <!-- Customize your theme here. -->
     </style>
 
+    <!--<style name="progress.dark" parent="Widget.AppCompat.ProgressBar.Horizontal">
+        <item name="actionBarItemBackground">@color/white</item>
+    </style>-->
+
     <style name="Theme.OtroPelisPlusMas.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>

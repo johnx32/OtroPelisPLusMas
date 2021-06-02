@@ -102,7 +102,7 @@ public class VideoCartelFragment extends Fragment implements VideoServerAdapter.
             case VideoServerAdapter.OPTION_EXT:
                 Intent intent = new Intent(Intent.ACTION_VIEW);
                 intent.setDataAndType(Uri.parse(file_url), "video/*");
-                startActivity(Intent.createChooser(intent, "PLay video..."));
+                startActivity(Intent.createChooser(intent, "Play Video"));
                 break;
             case VideoServerAdapter.OPTION_CAST:
                 Snackbar.make(getView(),"Proximamente",Snackbar.LENGTH_LONG).show();

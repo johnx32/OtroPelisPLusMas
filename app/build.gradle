@@ -3,6 +3,14 @@ plugins {
 }
 
 android {
+    signingConfigs {
+        otroPelisplusmas {
+            storeFile file('D:\\ExportadoAPK\\OtroPelisPlusMas\\OtroPelisPlusMas.jks')
+            storePassword 'kPel1splus.'
+            keyAlias 'aliaspelisplus'
+            keyPassword 'kPel1splus.'
+        }
+    }
     compileSdkVersion 30
     buildToolsVersion "30.0.3"
 
@@ -23,6 +31,7 @@ android {
             resValue "string", "banner_adaptative01", "ca-app-pub-3940256099942544/6300978111"
             resValue "string", "banner_adaptative02", "ca-app-pub-3940256099942544/6300978111"
             resValue "string", "intersticial01", "ca-app-pub-3940256099942544/1033173712"
+
         }
         release {
             //buildConfigField "String", "id_app", "\"FOO RELEASE\""
@@ -31,8 +40,9 @@ android {
             resValue "string", "banner_adaptative02", "ca-app-pub-6323075080626234/9819626373"
             resValue "string", "intersticial01", "ca-app-pub-6323075080626234/2347781727"
 
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.otroPelisplusmas
         }
     }
     compileOptions {
@@ -66,6 +76,9 @@ dependencies {
     implementation 'com.google.android.exoplayer:exoplayer:2.13.3'
     // picasso
     implementation 'com.squareup.picasso:picasso:2.71828'
+
+    implementation 'com.mani:ThinDownloadManager:1.4.0'
+
 
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'

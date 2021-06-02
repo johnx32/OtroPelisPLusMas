@@ -1,29 +1,50 @@
 package org.kaizoku.otropelisplusmas;
 
+import android.Manifest;
 import android.app.Activity;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.DialogTitle;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
+
 import com.google.android.gms.ads.AdError;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.FullScreenContentCallback;
 import com.google.android.gms.ads.LoadAdError;
 import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.RequestConfiguration;
 import com.google.android.gms.ads.initialization.InitializationStatus;
 import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 import com.google.android.gms.ads.interstitial.InterstitialAd;
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
 import com.google.android.material.navigation.NavigationView;
+
+import org.jetbrains.annotations.NotNull;
+import org.kaizoku.otropelisplusmas.updater.Checker;
+
+import java.util.Arrays;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "tmain";
@@ -60,12 +81,64 @@ public class MainActivity extends AppCompatActivity {
                 R.id.nav_peliculas,
                 R.id.nav_series,
                 R.id.nav_animes,
-                R.id.nav_reproductor)
+                R.id.nav_about
+                //R.id.nav_reproductor
+                )
                 .setDrawerLayout(drawer)
                 .build();
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
+
+        //mAppBarConfiguration.
+        //drawer
+        //navController.
+        navigationView.getMenu().findItem(R.id.nav_about).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this,R.style.Theme_AppCompat_Dialog);
+                builder.setTitle("Acerca de")
+                        .setMessage("Aplicación de Entretenimiento\n" +
+                                "disfruta de tus series y películas favoritas\n\n" +
+                                "https://kaizokuapps.ga")
+                        //.setCancelable(false)
+                        .setPositiveButton("ir", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                String url = "https://kaizokuapps.ga";
+                                Intent i = new Intent(Intent.ACTION_VIEW);
+                                //i.addCategory(Intent.CATEGORY_APP_BROWSER);
+                                //i.addCategory(Intent.ACTION_VIEW);
+                                i.setData(Uri.parse(url));
+                                startActivity(Intent.createChooser(i,"Abrir Navegador"));
+                            }
+                        });
+                        //.setPositiveButton("si", null);
+                AlertDialog dialog = builder.create();
+                dialog.show();
+                drawer.close();
+                return false;
+            }
+        });
+        /*navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull @NotNull MenuItem item) {
+                switch (item.getItemId()){
+                    case R.id.nav_about:
+                        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this,R.style.Theme_AppCompat_Dialog);
+                        builder.setTitle("Actualización")
+                                .setMessage("Aplicación de Entretenimiento\n" +
+                                        "disfruta de tus series y películas favoritas\n" +
+                                        "https://kaizokuapps.ga")
+                                //.setCancelable(false)
+                                .setPositiveButton("si", null);
+                        AlertDialog dialog = builder.create();
+                        dialog.show();
+                        break;
+                }
+                return true;
+            }
+        });*/
 
         //setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 
@@ -75,14 +148,105 @@ public class MainActivity extends AppCompatActivity {
             public void onInitializationComplete(InitializationStatus initializationStatus) {
             }
         });
+        List<String> testDeviceIds = Arrays.asList("AAFFE0B4F0C8C25E830B12A27616C1D4");
+        RequestConfiguration configuration = new RequestConfiguration.Builder().setTestDeviceIds(testDeviceIds).build();
+        MobileAds.setRequestConfiguration(configuration);
+
+
 
         loadInterstitialAd();
-        Activity a = this;
-        a.getWindowManager().getDefaultDisplay();
+        //Activity a = this;
+        //a.getWindowManager().getDefaultDisplay();
+
+        /*
+        AlertDialog.Builder builder = new AlertDialog.Builder(this,R.style.Theme_AppCompat_Dialog);
+        builder.setTitle("Actualización")
+                .setMessage("Parece que la versión " + 10 + " está disponible,\n ¿Quieres actualizar?")
+                //.setCancelable(true)
+                .setNegativeButton("despues",null)
+                .setPositiveButton("si",null);
+        AlertDialog dialog = builder.create();
+        //dialog.getWindow().setBackgroundDrawableResource(R.color.red);
+        dialog.show();*/
+
+        Checker.check(this, new Checker.CheckerListener() {
+            @Override
+            public void onNeedUpdate(String code, String code_new) {
+                Log.i(TAG, "onNeedUpdate: ");
+                runOnUiThread(() -> {
+                    try {
+                        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this,R.style.Theme_AppCompat_Dialog);
+                                builder.setTitle("Actualización")
+                                    .setMessage("Hay una versión más reciente disponible,\n versión "+code_new+", ¿desea actualizar ahora?")
+                                    //.setCancelable(false)
+                                    .setNegativeButton("despues",null)
+                                    .setPositiveButton("si", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            // Need to ask for write permissions on SDK 23 and up, this is ignored on older versions
+                                            if (ContextCompat.checkSelfPermission(MainActivity.this,
+                                                    Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
+                                            {
+
+                                                ActivityCompat.requestPermissions(MainActivity.this,new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+                                            }else{
+                                                Intent i = new Intent(MainActivity.this, UpdateActivity.class);
+                                                startActivity(i);
+                                            }
+
+
+
+                                            /*
+                                            if (ActivityCompat.shouldShowRequestPermissionRationale(MainActivity.this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+
+                                            } else {
+                                                ActivityCompat.requestPermissions(MainActivity.this, new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSION_REQUEST_CODE);
+                                            }
+                                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+                                                if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                                                        == PackageManager.PERMISSION_GRANTED) {
+
+                                                }
+                                            if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                                                Log.v(TAG,"Permission is granted");
+                                                //File write logic here
+                                                return true;
+                                            }*/
+                                            //Intent i = new Intent(MainActivity.this,UpdateActivity.class);
+                                            //startActivity(i);
+                                        }
+                                    });
+                            AlertDialog dialog = builder.create();
+                            dialog.show();
+                        /*
+                        new MaterialDialog.Builder(Main.this)
+                                .title("Actualización")
+                                .content("Parece que la versión " + n_code + " está disponible, ¿Quieres actualizar?")
+                                .positiveText("si")
+                                .negativeText("despues")
+                                .onPositive((dialog, which) -> UpdateActivity.start(Main.this)).build().show();
+                        */
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                });
+            }
+        });
+    }
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull @NotNull String[] permissions, @NonNull @NotNull int[] grantResults) {
+        //super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if(requestCode == 1) {
+            Intent i = new Intent(MainActivity.this, UpdateActivity.class);
+            startActivity(i);
+        }
     }
 
     private void loadInterstitialAd(){
-        AdRequest adRequest = new AdRequest.Builder().build();
+        AdRequest adRequest = new AdRequest.Builder()
+                .build();
 
         InterstitialAd.load(MainActivity.this,getResources().getString(R.string.intersticial01), adRequest, new InterstitialAdLoadCallback() {
             @Override
@@ -96,13 +260,14 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
                 // Handle the error
-                Log.e(TAG, loadAdError.getMessage());
+                Log.e(TAG, "Error loadInterstitialAd - "+loadAdError.getMessage());
                 mInterstitialAd = null;
             }
         });
     }
 
-    public  void showInterstitialAd(){
+    public void showInterstitialAd(){
+        //Toast.makeText(getApplicationContext(),"showInterstitialAd ads",Toast.LENGTH_LONG).show();
         if (mInterstitialAd != null) {
 
             mInterstitialAd.setFullScreenContentCallback(new FullScreenContentCallback(){
@@ -131,7 +296,7 @@ public class MainActivity extends AppCompatActivity {
 
             mInterstitialAd.show(MainActivity.this);
         } else {
-            Log.d("TAG", "The interstitial ad wasn't ready yet.");
+            Log.d("TAG", "mInterstitialAd es nulo - The interstitial ad wasn't ready yet.");
         }
     }
 
@@ -142,12 +307,13 @@ public class MainActivity extends AppCompatActivity {
         //super.setTitle(title);
     }
 
+    /*
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
-    }
+    }*/
 
     @Override
     public boolean onSupportNavigateUp() {

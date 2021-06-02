@@ -186,6 +186,7 @@ public class ReproductorFragment extends Fragment implements  StyledPlayerContro
     public void onStart() {
         super.onStart();
         Log.i(TAGs, "onStart: ");
+        getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         //PowerManager pm = (PowerManager) getActivity().getSystemService(Context.POWER_SERVICE);
         //wakeLock = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK | PowerManager.ON_AFTER_RELEASE, "My Tag:");
         getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -195,6 +196,8 @@ public class ReproductorFragment extends Fragment implements  StyledPlayerContro
     public void onResume() {
         super.onResume();
         Log.i(TAGs, "onResume: ");
+        //getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+
         getActivity().setVolumeControlStream(AudioManager.STREAM_MUSIC);
         getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
@@ -212,9 +215,17 @@ public class ReproductorFragment extends Fragment implements  StyledPlayerContro
     }
 
     @Override
+    public void onStop() {
+        super.onStop();
+    }
+
+    @Override
     public void onPause() {
         super.onPause();
         Log.i(TAGs, "onPause: ");
+
+
+
         //releasePlayer();
         pausePlayer();
         getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -231,6 +242,8 @@ public class ReproductorFragment extends Fragment implements  StyledPlayerContro
     public void onDestroy() {
         super.onDestroy();
         Log.i(TAGs, "onDestroy: ");
+        //getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+
         releasePlayer();
         //pausePlayer();
         //if (wakeLock != null) wakeLock.release();

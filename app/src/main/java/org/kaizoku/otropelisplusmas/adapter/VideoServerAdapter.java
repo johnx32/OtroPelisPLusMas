@@ -13,9 +13,11 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.LoadAdError;
 
 import org.kaizoku.otropelisplusmas.R;
 import org.kaizoku.otropelisplusmas.model.video_server.FembedServer;
@@ -26,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class VideoServerAdapter extends RecyclerView.Adapter<VideoServerAdapter.VideoServerViewHolder> {
+    public static final String TAG="skce";
     public static final byte OPTION_PLAY=1;
     public static final byte OPTION_EXT=2;
     public static final byte OPTION_CAST=3;
@@ -106,6 +109,43 @@ public class VideoServerAdapter extends RecyclerView.Adapter<VideoServerAdapter.
             //adView = itemView.findViewById(R.id.cv_video_server_ll_adView);
             adView = new AdView(itemView.getContext());
             adView.setAdUnitId(itemView.getContext().getString(R.string.banner_adaptative01));
+            adView.setAdListener(new AdListener() {
+                @Override
+                public void onAdClosed() {
+                    Log.e(TAG, "onAdClosed: ");
+                    super.onAdClosed();
+                }
+
+                @Override
+                public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+                    Log.e(TAG, "onAdFailedToLoad: mensaje: "+loadAdError.getMessage());
+                    super.onAdFailedToLoad(loadAdError);
+                }
+
+                @Override
+                public void onAdOpened() {
+                    Log.i(TAG, "onAdOpened: ");
+                    super.onAdOpened();
+                }
+
+                @Override
+                public void onAdLoaded() {
+                    Log.i(TAG, "onAdLoaded: ");
+                    super.onAdLoaded();
+                }
+
+                @Override
+                public void onAdClicked() {
+                    Log.i(TAG, "onAdClicked: ");
+                    super.onAdClicked();
+                }
+
+                @Override
+                public void onAdImpression() {
+                    Log.i(TAG, "onAdImpression: ");
+                    super.onAdImpression();
+                }
+            });
             linearLayout.addView(adView);
             loadBanner();
         }
