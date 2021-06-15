@@ -8,7 +8,7 @@ public class VideoCartel extends Cartel{
     public List<VideoServer> videoServerList;
 
     public VideoCartel(Cartel cartel, List<VideoServer> videoServerList) {
-        super(cartel.src_img, cartel.name, cartel.sinopsis, cartel.rating);
+        super(cartel.src_img, cartel.name, cartel.sinopsis, cartel.rating,cartel.url_disqus);
         this.videoServerList = videoServerList;
     }
 }

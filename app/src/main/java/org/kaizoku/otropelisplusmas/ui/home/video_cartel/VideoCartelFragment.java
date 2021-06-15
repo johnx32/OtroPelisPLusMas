@@ -4,10 +4,15 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.CookieManager;
+import android.webkit.WebSettings;
+import android.webkit.WebViewClient;
+import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -51,6 +56,35 @@ public class VideoCartelFragment extends Fragment implements VideoServerAdapter.
                         if(throwable==null&&videoCartel!=null){
                             setVideoCartel(videoCartel);
                             videoServerAdapter.setList(videoCartel.videoServerList);
+                            //agregar webview aqui
+
+                            Log.i("TAG", "onCreateView: url disqus: "+videoCartel.url_disqus);
+
+                            if(videoCartel.url_disqus!=null) {
+                                // use cookies to remember a logged in status
+                                //CookieSyncManager.createInstance(this);
+                                //CookieSyncManager.getInstance().startSync();
+
+                                binding.webview.setVerticalScrollBarEnabled(true);
+                                binding.webview.requestFocus();
+                                binding.webview.getSettings().setJavaScriptEnabled(true);
+                                binding.webview.setWebViewClient(new WebViewClient());
+                                binding.webview.loadUrl(videoCartel.url_disqus);
+
+                                    //If you are using Android Lollipop i.e. SDK 21, then:
+                                //CookieManager.getInstance().setAcceptCookie(true);
+                                    //won't work. You need to use:
+                                CookieManager.getInstance().setAcceptThirdPartyCookies(binding.webview, true);
+
+                                binding.refresh.setOnClickListener(v -> {
+                                    binding.webview.loadUrl(videoCartel.url_disqus);
+                                });
+
+                            }else{
+                                //binding.webview.setVisibility(View.GONE);
+                                Log.i("TAG", "onCreateView: info");
+                            }
+                            //binding.webview.loadUrl("https://disqus.com/embed/comments/?base=default&amp;f=https-animeflv-net&amp;t_i=episode_58508&amp;t_u=https%3A%2F%2Fwww3.animeflv.net%2Fver%2Fseijo-no-maryoku-wa-bannou-desu-10&amp;t_d=Seijo%20no%20Maryoku%20wa%20Bannou%20Desu%20Episodio%2010&amp;t_t=Seijo%20no%20Maryoku%20wa%20Bannou%20Desu%20Episodio%2010&amp;s_o=default#version=a5921af07b365f6dfd62075d2dee3735");
                         }
                     });
         }

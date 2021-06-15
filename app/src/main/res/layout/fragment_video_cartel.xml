@@ -13,7 +13,7 @@
         android:layout_height="match_parent">
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:orientation="vertical">
 
             <ImageView
@@ -47,7 +47,34 @@
                 android:layout_height="wrap_content"
                 android:background="@color/fondo"
                 tools:listitem="@layout/cardview_video_server"/>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <android.widget.Button
+                    android:id="@+id/refresh"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:backgroundTint="@color/white"
+                    android:background="@drawable/ic_home_black_24dp"/>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/white"
+                    android:textStyle="bold"
+                    android:gravity="center_horizontal"
+                    android:textSize="15sp"
+                    android:text="Comentarios"/>
+            </LinearLayout>
+            <WebView
+                android:id="@+id/webview"
+                
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginVertical="10dp"
+                android:verticalScrollbarPosition="right"/>
         </LinearLayout>
+
     </androidx.core.widget.NestedScrollView>
 
 </LinearLayout>

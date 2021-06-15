@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -19,10 +20,12 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.DialogTitle;
 import androidx.appcompat.widget.Toolbar;
+import androidx.appcompat.widget.TooltipCompat;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.navigation.NavController;
+import androidx.navigation.NavHostController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
@@ -41,6 +44,7 @@ import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
 import com.google.android.material.navigation.NavigationView;
 
 import org.jetbrains.annotations.NotNull;
+import org.kaizoku.otropelisplusmas.databinding.ActivityMainBinding;
 import org.kaizoku.otropelisplusmas.updater.Checker;
 
 import java.util.Arrays;
@@ -65,6 +69,7 @@ public class MainActivity extends AppCompatActivity {
         cast video, notificaciones,
          pagina en la app
      */
+    ActivityMainBinding binding;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -90,6 +95,15 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
 
+        //binding = ActivityMainBinding.inflate(getLayoutInflater());
+        ImageView im = findViewById(R.id.icon_changelog);
+        TooltipCompat.setTooltipText(navigationView.getHeaderView(0).findViewById(R.id.icon_changelog),"Changelog");
+        navigationView.getHeaderView(0).findViewById(R.id.icon_changelog).setOnClickListener(v -> {
+            drawer.close();
+            navController.navigate(R.id.changelogFragment);
+        });
+
+
         //mAppBarConfiguration.
         //drawer
         //navController.
@@ -99,8 +113,8 @@ public class MainActivity extends AppCompatActivity {
                 AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this,R.style.Theme_AppCompat_Dialog);
                 builder.setTitle("Acerca de")
                         .setMessage("Aplicación de Entretenimiento\n" +
-                                "disfruta de tus series y películas favoritas\n\n" +
-                                "https://kaizokuapps.ga")
+                                    "disfruta de tus series y películas favoritas\n\n" +
+                                    "https://kaizokuapps.ga")
                         //.setCancelable(false)
                         .setPositiveButton("ir", new DialogInterface.OnClickListener() {
                             @Override

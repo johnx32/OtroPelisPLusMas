@@ -95,5 +95,10 @@
             android:id="@+id/action_videoCartelFragment_to_nav_reproductor"
             app:destination="@id/nav_reproductor" />
     </fragment>
+    <fragment
+        android:id="@+id/changelogFragment"
+        android:name="org.kaizoku.otropelisplusmas.ui.changelog.ChangelogFragment"
+        android:label="Changelog"
+        tools:layout="@layout/fragment_changelog" />
 
 </navigation>

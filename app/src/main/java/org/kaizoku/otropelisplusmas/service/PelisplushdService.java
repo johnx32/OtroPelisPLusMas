@@ -1,5 +1,7 @@
 package org.kaizoku.otropelisplusmas.service;
 
+import android.util.Log;
+
 import org.kaizoku.otropelisplusmas.model.Cartel;
 import org.kaizoku.otropelisplusmas.model.Chapter;
 import org.kaizoku.otropelisplusmas.model.ItemPagination;
@@ -16,7 +18,10 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -131,6 +136,9 @@ public class PelisplushdService {
                     .get();
             Cartel cartel = getCartelFromDoc(doc);
 
+            cartel.url_disqus = getDisqusComments(doc);
+            Log.i(TAG, "getVideoCartel: url disqus: "+cartel.url_disqus);
+
             Elements listNameServers = doc.select("div.player>div>ul>li>a");
             Elements scrypts=doc.getElementsByTag("script");
             for(Element script:scrypts)
@@ -151,6 +159,47 @@ public class PelisplushdService {
             return new VideoCartel(cartel, listServers);
         }catch(Exception e){e.printStackTrace();}
         return null;
+    }
+
+    private String getDisqusComments(Document doc){
+        String url="";
+        try{
+            //      Buscar el script
+            String title = doc.getElementsByTag("title").first().text();
+            String disqus_config = "";
+            Elements scrypts = doc.getElementsByTag("script");
+            for(Element script:scrypts)
+                if(script.toString().contains("disqus_config")){
+                    disqus_config = script.toString();
+                    break;
+                }
+
+            String pageUrl="";
+            String match_page_url="this.page.url = '(.*)'";
+            Pattern pattern = Pattern.compile(match_page_url);
+            Matcher matcher = pattern.matcher(disqus_config);
+            while(matcher.find())
+                if(matcher.groupCount()>0)
+                    pageUrl = matcher.group(1);
+
+            String pageIdentifier="";
+            String match_page_identifier="this.page.identifier = '(.*)'";
+                pattern = Pattern.compile(match_page_identifier);
+                matcher = pattern.matcher(disqus_config);
+            while(matcher.find())
+                if(matcher.groupCount()>0)
+                    pageIdentifier = matcher.group(1);
+
+            url = "https://disqus.com/embed/comments/?base=default&amp;"+
+                    "f=pelisplus-hd&amp;"+
+                    "t_i="+pageIdentifier+"&amp;"+
+                    "t_u="+URLEncoder.encode(pageUrl, "UTF-8")+"&amp;"+
+                    "t_d="+URLEncoder.encode(title, "UTF-8")+"&amp;"+
+                    "t_t="+URLEncoder.encode(title, "UTF-8")+"&amp;"+
+                    "s_o=default#version=a5921af07b365f6dfd62075d2dee3735";
+            return url;
+        }catch(Exception e){e.printStackTrace();}
+        return url;
     }
 
     /*private List<VideoCard> getVideoItemsFromMenu(String url) {
