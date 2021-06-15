@@ -7,7 +7,6 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="verde">#33C314</color>
     <color name="gris">#C0C0C0</color>
 
     <color name="fondo">#223143</color>
@@ -24,5 +23,7 @@
     <color name="light_blue_A400">#FF00B0FF</color>
     <color name="black_overlay">#66000000</color>
     <color name="red">#F31D0E</color>
+    <color name="amarillo">#FFEB3B</color>
+    <color name="verde">#33C314</color>
     <color name="oscuro">#425667</color>
 </resources>

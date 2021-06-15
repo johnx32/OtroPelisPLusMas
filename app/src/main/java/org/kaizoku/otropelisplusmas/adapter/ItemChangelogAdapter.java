@@ -43,8 +43,7 @@ public class ItemChangelogAdapter extends Adapter<ItemChangelogViewHolder> {
         holder.name.setText(list.get(position).name);
         int size = list.get(position).changes.size();
         for (int i=0;i<size;i++) {
-            String type = ItemChangelog.getType(list.get(position).changes.get(i).type);
-            ItemChangeLayout item = new ItemChangeLayout(holder.itemView.getContext(), type, list.get(position).changes.get(i).text);
+            ItemChangeLayout item = new ItemChangeLayout(holder.itemView.getContext(), list.get(position).changes.get(i).type, list.get(position).changes.get(i).text);
             holder.ll.addView(item);
         }
     }

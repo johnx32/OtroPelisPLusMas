@@ -21,7 +21,7 @@ public class ItemChangelog {
 
     public static String getType(int type){
         switch (type){
-            case 1:return "BUG";
+            case 1:return "FIX";
             case 2:return "CHANGE";
             case 3:return "NEW";
         }

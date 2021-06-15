@@ -1,31 +1,26 @@
 package org.kaizoku.otropelisplusmas;
 
 import android.Manifest;
-import android.app.Activity;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.DialogTitle;
 import androidx.appcompat.widget.Toolbar;
 import androidx.appcompat.widget.TooltipCompat;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.navigation.NavController;
-import androidx.navigation.NavHostController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
@@ -232,20 +227,45 @@ public class MainActivity extends AppCompatActivity {
                                     });
                             AlertDialog dialog = builder.create();
                             dialog.show();
-                        /*
-                        new MaterialDialog.Builder(Main.this)
-                                .title("Actualización")
-                                .content("Parece que la versión " + n_code + " está disponible, ¿Quieres actualizar?")
-                                .positiveText("si")
-                                .negativeText("despues")
-                                .onPositive((dialog, which) -> UpdateActivity.start(Main.this)).build().show();
-                        */
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                 });
             }
         });
+
+        mostrarChangelog(navController);
+
+    }
+
+    private void mostrarChangelog(NavController navController){
+        SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        //editor.putBoolean("changelog", true);
+        //editor.apply();
+
+        try {
+            int oldcode = sharedPref.getInt("code",1);
+            int newcode = getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
+            Log.i(TAG, "mostrarChangelog: oldcode: "+oldcode+" newcode: "+newcode);
+            if(newcode>oldcode) {
+                editor.putInt("code", newcode);
+                editor.apply();
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this,R.style.Theme_AppCompat_Dialog);
+                builder.setTitle("Changelog")
+                        .setMessage("¿Desea ver el registro de cambios de esta versión?")
+                        .setPositiveButton("SI",(dialog, which) -> {
+                            navController.navigate(R.id.changelogFragment);
+                        });
+
+                AlertDialog dialog = builder.create();
+                dialog.show();
+            }
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+
     }
 
 
@@ -281,7 +301,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void showInterstitialAd(){
-        //Toast.makeText(getApplicationContext(),"showInterstitialAd ads",Toast.LENGTH_LONG).show();
         if (mInterstitialAd != null) {
 
             mInterstitialAd.setFullScreenContentCallback(new FullScreenContentCallback(){

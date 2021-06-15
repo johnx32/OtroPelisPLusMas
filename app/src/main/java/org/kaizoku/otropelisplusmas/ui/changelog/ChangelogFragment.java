@@ -17,6 +17,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.kaizoku.otropelisplusmas.R;
 import org.kaizoku.otropelisplusmas.adapter.ItemChangelogAdapter;
 import org.kaizoku.otropelisplusmas.adapter.VideoCardAdapter;
 import org.kaizoku.otropelisplusmas.databinding.FragmentChangelogBinding;
@@ -60,21 +61,18 @@ public class ChangelogFragment extends Fragment {
                         int sizeChanges = joChanges.length();
                         for (int j=0;j<sizeChanges;j++){
                             Change cambio = new Change();
-                            cambio.type = joChanges.getJSONObject(j).getInt("type");
+                            cambio.type = (byte)joChanges.getJSONObject(j).getInt("type");
                             cambio.text = joChanges.getJSONObject(j).getString("text");
                             item.changes.add(cambio);
                         }
                         list.add(item);
                     }
-                    Log.i(TAG, "onCreateView: start");
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            Log.i("TAG", "onCreateView: echo");
                             adapter.setList(list);
                         }
                     });
-                    Log.i(TAG, "onCreateView: end");
                 }catch (Exception e){e.printStackTrace();}
             }
         );
@@ -91,7 +89,8 @@ public class ChangelogFragment extends Fragment {
     }
 
     private String getChangelog(){
-        String urlJson = "https://raw.githubusercontent.com/kaizokuapps/OtroPelisPlusMas/main/changelog.json";
+        String url = getContext().getResources().getString(R.string.url_changelog);
+        String urlJson = url;
         String json="";
         try {
             Document doc = Jsoup.connect(urlJson)

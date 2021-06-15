@@ -52,16 +52,7 @@ public class HomeFragment extends Fragment implements
         String url=getUrlFromBundle();
 
         pelisplushdService=new PelisplushdService(this);
-        /*String finalUrl = url;
-        Thread h = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                pelisplushdService.getMenuPaginacion(finalUrl);
-            }
-        });
-        h.start();*/
 
-        //(new Thread(() -> pelisplushdService.getInfoCartel("https://pelisplushd.net/serie/bones"))).start();
 
         //setTitle();
 
@@ -298,9 +289,9 @@ public class HomeFragment extends Fragment implements
 
     @Override
     public void onClickCardItem(String url) {
-        //#adsblock
-        ((MainActivity)getActivity()).showInterstitialAd();
-        //Toast.makeText(getContext(),"mostrar ads",Toast.LENGTH_LONG).show();
+            //#adsblock
+            //((MainActivity)getActivity()).showInterstitialAd();
+
         if(!url.contains("pelisplushd.net"))
             url="https://pelisplushd.net/"+url;
         pelisplushdService.loadMenuCards(url);
