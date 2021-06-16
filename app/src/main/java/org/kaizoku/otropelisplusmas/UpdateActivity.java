@@ -30,7 +30,7 @@ public class UpdateActivity extends AppCompatActivity {
         binding.updateCard.setVisibility(View.VISIBLE);
         binding.downloadBtn.setOnClickListener(v -> {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                Intent intent = new Intent(Intent.ACTION_INSTALL_PACKAGE, FileProvider.getUriForFile(this, "knf.kuma.fileprovider", getUpdate()))
+                Intent intent = new Intent(Intent.ACTION_INSTALL_PACKAGE, FileProvider.getUriForFile(this, "org.kaizoku.otropelisplusmas", getUpdate()))
                         .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
                         .putExtra(Intent.EXTRA_NOT_UNKNOWN_SOURCE, false)
                         .putExtra(Intent.EXTRA_INSTALLER_PACKAGE_NAME, getPackageName());
@@ -75,10 +75,15 @@ public class UpdateActivity extends AppCompatActivity {
     }
 
     private File getUpdate() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
-            return new File(getFilesDir(), "update.apk");
+        String name = "update.apk";
+        //Log.i("TAG", "getUpdate: getFilesDir(): "+getFilesDir());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            //return new File(getFilesDir(), "update.apk");
+            return new File(getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), name);
+        }else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
+            return new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), name);
         else
-            return new File(getDownloadsDir(), "update.apk");
+            return new File(getDownloadsDir(), name);
     }
 
     private File getDownloadsDir() {

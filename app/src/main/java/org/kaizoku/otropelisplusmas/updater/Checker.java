@@ -21,6 +21,7 @@ public class Checker {
                         int code_new = Integer.parseInt(document.select("body").first().ownText().trim());
                         int code = contexto.getPackageManager().getPackageInfo(contexto.getPackageName(), 0).versionCode;
                         //listener.onNeedUpdate(String.valueOf(code), String.valueOf(code_new));
+                        Log.i("Version", "run:  code: "+code+" new: "+code_new);
                         if (code_new > code) {
                             listener.onNeedUpdate(String.valueOf(code), String.valueOf(code_new));
                         } else {
