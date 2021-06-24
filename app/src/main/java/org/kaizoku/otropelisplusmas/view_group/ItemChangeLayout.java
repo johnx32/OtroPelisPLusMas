@@ -22,9 +22,9 @@ public class ItemChangeLayout extends LinearLayout {
             chip.setText(tipo);
             Log.i("TAG", "ItemChangeLayout: type: "+type);
             switch (type){
-                case 3: chip.setChipBackgroundColor(ColorStateList.valueOf(getResources().getColor(R.color.verde))); break;
-                case 2: chip.setChipBackgroundColor(ColorStateList.valueOf(getResources().getColor(R.color.amarillo))); break;
                 case 1: chip.setChipBackgroundColor(ColorStateList.valueOf(getResources().getColor(R.color.red))); break;
+                case 2: chip.setChipBackgroundColor(ColorStateList.valueOf(getResources().getColor(R.color.amarillo))); break;
+                case 3: chip.setChipBackgroundColor(ColorStateList.valueOf(getResources().getColor(R.color.verde))); break;
             }
         TextView textview = v.findViewById(R.id.change_text);
             textview.setText(text);
