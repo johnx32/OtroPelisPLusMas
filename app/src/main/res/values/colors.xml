@@ -26,4 +26,7 @@
     <color name="amarillo">#FFEB3B</color>
     <color name="verde">#33C314</color>
     <color name="oscuro">#425667</color>
+    <color name="item_pag_bg">#EFF1F3</color>
+    <color name="text_item">#000000</color>
+    <color name="text_item_rev">#ffffff</color>
 </resources>

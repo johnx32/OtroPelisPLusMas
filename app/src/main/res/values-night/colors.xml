@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="item_pag_bg">#237FC7</color>
+    <color name="text_item">#FFFFFF</color>
+    <color name="text_item_rev">#000000</color>
+</resources>

@@ -9,7 +9,8 @@
         android:id="@+id/bt_item_pagination"
         android:layout_width="40dp"
         android:layout_height="40dp"
-        android:textSize="10sp"
+        android:textColor="@color/text_item"
+        android:textSize="12sp"
         android:background="@drawable/item_pagination"
         android:text="1"/>
 </LinearLayout>

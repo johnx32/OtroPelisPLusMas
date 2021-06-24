@@ -9,7 +9,7 @@
                 android:width="30dp"
                 android:height="30dp"/>
             <solid
-                android:color="#62F352"/>
+                android:color="#3CC52D"/>
             <corners
                 android:radius="5dp"/>
             <stroke
@@ -26,7 +26,7 @@
                 android:width="30dp"
                 android:height="30dp"/>
             <solid
-                android:color="#ffffff"/>
+                android:color="@color/item_pag_bg"/>
             <corners
                 android:radius="5dp"/>
             <stroke
