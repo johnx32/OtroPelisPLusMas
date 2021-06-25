@@ -34,7 +34,13 @@
         <item name="fullscreenTextColor">@color/light_blue_A200</item>
     </style>
 
-
+    <style name="DialogoTema" parent="Theme.AppCompat.Dialog">
+        <item name="buttonBarPositiveButtonStyle">@style/DialogButtonStyle.textColor</item>
+        <item name="buttonBarNegativeButtonStyle">@style/DialogButtonStyle.textColor</item>
+    </style>
+    <style name="DialogButtonStyle.textColor" parent="@style/Widget.MaterialComponents.Button.TextButton.Dialog">
+        <item name="android:textColor">@color/white</item>
+    </style>
 
     <!--  tema para full screen en fragment   -->
     <style name="Theme.FullScreen.Fullscreen" parent="Theme.OtroPelisPlusMas">

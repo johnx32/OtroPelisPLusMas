@@ -98,6 +98,7 @@ public class MainActivity extends AppCompatActivity {
             navController.navigate(R.id.changelogFragment);
         });
 
+        Log.i(TAG, "onStart: orientacion: "+getRequestedOrientation());
 
         //mAppBarConfiguration.
         //drawer
@@ -105,12 +106,13 @@ public class MainActivity extends AppCompatActivity {
         navigationView.getMenu().findItem(R.id.nav_about).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this,R.style.Theme_AppCompat_Dialog);
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this,R.style.DialogoTema);
                 builder.setTitle("Acerca de")
                         .setMessage("Aplicación de Entretenimiento\n" +
                                     "disfruta de tus series y películas favoritas\n\n" +
                                     "https://kaizokuapps.ga")
                         //.setCancelable(false)
+                        .setNegativeButton("Cancelar",null)
                         .setPositiveButton("ir", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
@@ -125,6 +127,7 @@ public class MainActivity extends AppCompatActivity {
                         //.setPositiveButton("si", null);
                 AlertDialog dialog = builder.create();
                 dialog.show();
+                //dialog.getButton(DialogInterface.BUTTON_NEGATIVE).setTextColor(getResources().getColor(R.color.verde));
                 drawer.close();
                 return false;
             }
@@ -184,7 +187,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.i(TAG, "onNeedUpdate: ");
                 runOnUiThread(() -> {
                     try {
-                        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this,R.style.Theme_AppCompat_Dialog);
+                        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this,R.style.DialogoTema);
                                 builder.setTitle("Actualización")
                                     .setMessage("Hay una versión más reciente disponible,\n versión "+code_new+", ¿desea actualizar ahora?")
                                     //.setCancelable(false)
@@ -196,7 +199,6 @@ public class MainActivity extends AppCompatActivity {
                                             if (ContextCompat.checkSelfPermission(MainActivity.this,
                                                     Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
                                             {
-
                                                 ActivityCompat.requestPermissions(MainActivity.this,new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
                                             }else{
                                                 Intent i = new Intent(MainActivity.this, UpdateActivity.class);

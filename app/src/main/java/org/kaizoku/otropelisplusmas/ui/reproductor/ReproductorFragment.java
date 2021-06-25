@@ -34,6 +34,7 @@ import org.kaizoku.otropelisplusmas.databinding.FragmentReproductorBinding;
 import org.kaizoku.otropelisplusmas.ui.home.HomeViewModel;
 
 public class ReproductorFragment extends Fragment implements  StyledPlayerControlView.VisibilityListener{
+    private static final String TAG = "DL1CS";
     private FragmentReproductorBinding binding;
     private HomeViewModel homeViewModel;
     private MediaItem mediaItem;
@@ -190,6 +191,7 @@ public class ReproductorFragment extends Fragment implements  StyledPlayerContro
         //PowerManager pm = (PowerManager) getActivity().getSystemService(Context.POWER_SERVICE);
         //wakeLock = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK | PowerManager.ON_AFTER_RELEASE, "My Tag:");
         getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        Log.i(TAG, "onStart: orientacion: "+getActivity().getRequestedOrientation());
     }
 
     @Override
@@ -247,7 +249,7 @@ public class ReproductorFragment extends Fragment implements  StyledPlayerContro
         releasePlayer();
         //pausePlayer();
         //if (wakeLock != null) wakeLock.release();
-        //getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
 
         //exitFullscreen();
         show();
