@@ -1,6 +1,7 @@
 package org.kaizoku.otropelisplusmas.ui.home.video_cartel;
 
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
@@ -17,6 +18,7 @@ import android.widget.LinearLayout;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
@@ -34,15 +36,29 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
 public class VideoCartelFragment extends Fragment implements VideoServerAdapter.OnCardListener{
+    private static final String TAG = "flub1";
     private FragmentVideoCartelBinding binding;
-    private VideoServerAdapter videoServerAdapter;
     private PelisplushdService pelisplushdService;
-    
+    private VideoServerAdapter videoServerAdapter;
+    private VideoCartelViewModel videoCartelViewModel;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        Log.i(TAG, "onCreateView: ");
+        getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+
         binding = FragmentVideoCartelBinding.inflate(inflater,container,false);
 
+
+
+        videoCartelViewModel = new ViewModelProvider(this).get(VideoCartelViewModel.class);
+        videoCartelViewModel.getListVideoCartel().observe(getViewLifecycleOwner(), videoCartel -> {
+            // update UI
+            //Log.i(TAG, "onCreateView; size: "+videoCartel.videoServerList.size());
+            setVideoCartel(videoCartel);
+            videoServerAdapter.setList(videoCartel.videoServerList);
+        });
         pelisplushdService = new PelisplushdService(null);
         intiAdapterServer();
 
@@ -54,8 +70,11 @@ public class VideoCartelFragment extends Fragment implements VideoServerAdapter.
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe((videoCartel, throwable) -> {
                         if(throwable==null&&videoCartel!=null){
-                            setVideoCartel(videoCartel);
-                            videoServerAdapter.setList(videoCartel.videoServerList);
+                            Log.i(TAG, "onCreateView: entro getSingleVideoCartel");
+                            videoCartelViewModel.setVideoCartel(videoCartel);
+                            //setVideoCartel(videoCartel);
+                            //videoServerAdapter.setList(videoCartel.videoServerList);
+
                             //agregar webview aqui
 
                             Log.i("TAG", "onCreateView: url disqus: "+videoCartel.url_disqus);
@@ -143,4 +162,5 @@ public class VideoCartelFragment extends Fragment implements VideoServerAdapter.
                 break;
         }
     }
+
 }

@@ -57,6 +57,7 @@ public class VideoServerAdapter extends RecyclerView.Adapter<VideoServerAdapter.
     public void onBindViewHolder(@NonNull VideoServerViewHolder holder, int position) {
         holder.name.setText(list.get(position).nameServer);
         Log.i("TAG", "onBindViewHolder: type: "+getItemViewType(position));
+        holder.contenedor.removeAllViews();
         switch (getItemViewType(position)){
             case VideoServer.SERVER_FEMBED:
                 FembedServer fServer=(FembedServer)list.get(position);

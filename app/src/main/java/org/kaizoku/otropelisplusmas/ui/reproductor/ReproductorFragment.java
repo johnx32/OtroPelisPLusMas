@@ -94,20 +94,14 @@ public class ReproductorFragment extends Fragment implements  StyledPlayerContro
     //private PlayerView exoPlayerView;
     private StyledPlayerView playerView;
     private SimpleExoPlayer player;
-    private String TAGs ="asasd";
     //private SlideshowViewModel slideshowViewModel;
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        Log.i(TAG, "onCreateView: ");
         //slideshowViewModel = new ViewModelProvider(this).get(SlideshowViewModel.class);
         binding = FragmentReproductorBinding.inflate(inflater,container,false);
-        //getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-
-
 
         hide();
-
-
-
 
         Bundle b=getArguments();
         if(b!=null){
@@ -121,7 +115,9 @@ public class ReproductorFragment extends Fragment implements  StyledPlayerContro
         //playerView.setErrorMessageProvider(new PlayerErrorMessageProvider());
         playerView.requestFocus();
 
-        player = new SimpleExoPlayer.Builder(getContext()).build();
+        player = new SimpleExoPlayer
+                        .Builder(getContext())
+                        .build();
         playerView.setPlayer(player);
 
 
@@ -139,6 +135,8 @@ public class ReproductorFragment extends Fragment implements  StyledPlayerContro
         player.play();
 
         getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
+        //getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         return binding.getRoot();
     }
 
@@ -186,18 +184,18 @@ public class ReproductorFragment extends Fragment implements  StyledPlayerContro
     @Override
     public void onStart() {
         super.onStart();
-        Log.i(TAGs, "onStart: ");
-        getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        Log.i(TAG, "onStart: ");
+
         //PowerManager pm = (PowerManager) getActivity().getSystemService(Context.POWER_SERVICE);
         //wakeLock = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK | PowerManager.ON_AFTER_RELEASE, "My Tag:");
         getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        Log.i(TAG, "onStart: orientacion: "+getActivity().getRequestedOrientation());
+
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        Log.i(TAGs, "onResume: ");
+        Log.i(TAG, "onResume: ");
         //getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 
         getActivity().setVolumeControlStream(AudioManager.STREAM_MUSIC);
@@ -214,17 +212,17 @@ public class ReproductorFragment extends Fragment implements  StyledPlayerContro
         // created, to briefly hint to the user that UI controls
         // are available.
         delayedHide(100);
+        //Log.i(TAG, "onStart: onResume1: "+getActivity().getRequestedOrientation());
+        getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        //Log.i(TAG, "onStart: onResume2: "+getActivity().getRequestedOrientation());
     }
 
-    @Override
-    public void onStop() {
-        super.onStop();
-    }
+
 
     @Override
     public void onPause() {
         super.onPause();
-        Log.i(TAGs, "onPause: ");
+        Log.i(TAG, "onPause: ");
 
 
 
@@ -241,15 +239,21 @@ public class ReproductorFragment extends Fragment implements  StyledPlayerContro
     }
 
     @Override
+    public void onStop() {
+        Log.i(TAG, "onStop: ");
+        super.onStop();
+    }
+
+    @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.i(TAGs, "onDestroy: ");
+        Log.i(TAG, "onDestroy: ");
         //getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
 
         releasePlayer();
         //pausePlayer();
         //if (wakeLock != null) wakeLock.release();
-        getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+        //getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
 
         //exitFullscreen();
         show();
