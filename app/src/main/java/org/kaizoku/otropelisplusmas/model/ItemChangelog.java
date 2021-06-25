@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ItemChangelog {
-    public static final int TYPE_BUG = 1;
+    public static final int TYPE_FIX = 1;
     public static final int TYPE_CHANGE = 2;
     public static final int TYPE_NEW = 3;
     public int code;
