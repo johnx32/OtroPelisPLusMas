@@ -115,7 +115,11 @@ public class ReproductorFragment extends Fragment implements  StyledPlayerContro
         Log.i(TAG, "onCreateView: ");
         binding = FragmentReproductorBinding.inflate(inflater,container,false);
 
-        if(getActivity().getRequestedOrientation()==ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE){
+        Log.i(TAG, "onCreateView: getConfiguration orientation : "+getResources().getConfiguration().orientation);
+
+        Log.i(TAG, "onCreateView: orientacion: "+getActivity().getRequestedOrientation());
+        //if(getActivity().getRequestedOrientation()==ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE){
+        if(getResources().getConfiguration().orientation==ActivityInfo.SCREEN_ORIENTATION_USER){
             hide();
 
             pelisplushdService = new PelisplushdService(null);
@@ -403,7 +407,8 @@ public class ReproductorFragment extends Fragment implements  StyledPlayerContro
     public void onStart() {
         super.onStart();
         Log.i(TAG, "onStart: ");
-        if(getActivity().getRequestedOrientation()==ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE) {
+        //if(getActivity().getRequestedOrientation()==ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE) {
+        if(getResources().getConfiguration().orientation==ActivityInfo.SCREEN_ORIENTATION_USER){
             //PowerManager pm = (PowerManager) getActivity().getSystemService(Context.POWER_SERVICE);
             //wakeLock = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK | PowerManager.ON_AFTER_RELEASE, "My Tag:");
             getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -414,7 +419,8 @@ public class ReproductorFragment extends Fragment implements  StyledPlayerContro
     public void onResume() {
         super.onResume();
         Log.i(TAG, "onResume: ");
-        if(getActivity().getRequestedOrientation()==ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE) {
+        //if(getActivity().getRequestedOrientation()==ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE) {
+        if(getResources().getConfiguration().orientation==ActivityInfo.SCREEN_ORIENTATION_USER){
             //getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 
             getActivity().setVolumeControlStream(AudioManager.STREAM_MUSIC);
