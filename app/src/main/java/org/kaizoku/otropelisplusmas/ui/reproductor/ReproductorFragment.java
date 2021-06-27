@@ -2,13 +2,11 @@ package org.kaizoku.otropelisplusmas.ui.reproductor;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.PowerManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,15 +21,25 @@ import androidx.fragment.app.Fragment;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.MediaMetadata;
+import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout;
 import com.google.android.exoplayer2.ui.StyledPlayerControlView;
 import com.google.android.exoplayer2.ui.StyledPlayerView;
-import com.google.android.exoplayer2.upstream.BandwidthMeter;
-import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 
 import org.kaizoku.otropelisplusmas.databinding.FragmentReproductorBinding;
+import org.kaizoku.otropelisplusmas.model.Chapter;
+import org.kaizoku.otropelisplusmas.model.Season;
+import org.kaizoku.otropelisplusmas.model.video_server.FembedServer;
+import org.kaizoku.otropelisplusmas.service.PelisplushdService;
 import org.kaizoku.otropelisplusmas.ui.home.HomeViewModel;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 
 public class ReproductorFragment extends Fragment implements  StyledPlayerControlView.VisibilityListener{
     private static final String TAG = "DL1CS";
@@ -40,6 +48,12 @@ public class ReproductorFragment extends Fragment implements  StyledPlayerContro
     private MediaItem mediaItem;
     private String url_video="";
     //private PowerManager.WakeLock wakeLock;
+    private PelisplushdService pelisplushdService;
+
+    // Controls de season & chapter
+    private List<Season> seasonList=new ArrayList<>();
+    private int seasonPos;
+    private int chapterPos;
 
 
     private static final int UI_ANIMATION_DELAY = 300;
@@ -94,50 +108,254 @@ public class ReproductorFragment extends Fragment implements  StyledPlayerContro
     //private PlayerView exoPlayerView;
     private StyledPlayerView playerView;
     private SimpleExoPlayer player;
-    //private SlideshowViewModel slideshowViewModel;
+
+    private boolean isSeekReplace=true;
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         Log.i(TAG, "onCreateView: ");
-        //slideshowViewModel = new ViewModelProvider(this).get(SlideshowViewModel.class);
         binding = FragmentReproductorBinding.inflate(inflater,container,false);
 
-        hide();
+        if(getActivity().getRequestedOrientation()==ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE){
+            hide();
 
-        Bundle b=getArguments();
-        if(b!=null){
-            url_video=b.getString("url","");
+            pelisplushdService = new PelisplushdService(null);
+
+            Bundle b=getArguments();
+            if(b!=null){
+                url_video=b.getString("url","");
+                seasonList=b.getParcelableArrayList("season_list");
+                seasonPos=b.getInt("season_pos",-1);
+                chapterPos=b.getInt("chapter_pos",-1);
+                if(seasonList!=null)
+                    Log.i(TAG, "onCreateView: sp: "+seasonPos+" cp: "+chapterPos+" size: "+seasonList.size());
+            }
+
+            playerView = binding.playerView;
+            //playerView.setPlayer(player);
+            playerView.setControllerVisibilityListener(this);
+            //playerView.setErrorMessageProvider(new PlayerErrorMessageProvider());
+            playerView.requestFocus();
+
+            /*ImageButton n = binding.getRoot().findViewById(R.id.exo_next);
+            n.setOnClickListener(v -> {
+                Log.i(TAG, "onCreateView: otro siguiente");
+                Toast.makeText(getContext(), "Siguiente", Toast.LENGTH_SHORT).show();
+            });*/
+            player = new SimpleExoPlayer
+                    .Builder(getContext())
+                    .build();
+            player.addListener(new Player.EventListener() {
+                @Override
+                public void onPlayWhenReadyChanged(boolean playWhenReady, int reason) {
+                    switch (reason){
+                        case Player.PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST:Log.i(TAG, "onPlayWhenReadyChanged: user request");break;
+                        case Player.PLAY_WHEN_READY_CHANGE_REASON_AUDIO_FOCUS_LOSS:Log.i(TAG, "onPlayWhenReadyChanged: audio focus loss");break;
+                        case Player.PLAY_WHEN_READY_CHANGE_REASON_AUDIO_BECOMING_NOISY:Log.i(TAG, "onPlayWhenReadyChanged: audio becoming noise");break;
+                        case Player.PLAY_WHEN_READY_CHANGE_REASON_REMOTE:Log.i(TAG, "onPlayWhenReadyChanged: remote");break;
+                        case Player.PLAY_WHEN_READY_CHANGE_REASON_END_OF_MEDIA_ITEM:Log.i(TAG, "onPlayWhenReadyChanged: end of media item");break;
+                    }
+                }
+
+                @Override
+                public void onIsPlayingChanged(boolean isPlaying) {
+                    if(isPlaying)
+                        Log.i(TAG, "onIsPlayingChanged: le dio play");
+                    else
+                        Log.i(TAG, "onIsPlayingChanged: le dio pause");
+                }
+
+                @Override
+                public void onPlaybackStateChanged(int state) {
+                    switch (state){
+                        case Player.STATE_IDLE:Log.i(TAG, "onPlaybackStateChanged: idle");break;
+                        case Player.STATE_BUFFERING:Log.i(TAG, "onPlaybackStateChanged: buffering");break;
+                        case Player.STATE_READY:Log.i(TAG, "onPlaybackStateChanged: ready");break;
+                        case Player.STATE_ENDED:Log.i(TAG, "onPlaybackStateChanged: ended");break;
+                    }
+                }
+
+                @Override
+                public void onMediaItemTransition(@Nullable @org.jetbrains.annotations.Nullable MediaItem mediaItem, int reason) {
+                    switch (reason){
+                        case Player.MEDIA_ITEM_TRANSITION_REASON_REPEAT:Log.i(TAG, "onMediaItemTransition: repeat");break;
+                        case Player.MEDIA_ITEM_TRANSITION_REASON_AUTO:Log.i(TAG, "onMediaItemTransition: auto");
+                            playerControlFlow();
+                            break;
+                        case Player.MEDIA_ITEM_TRANSITION_REASON_SEEK:Log.i(TAG, "onMediaItemTransition: seek");
+                            //printPlaylist();
+                                    //playFromPlaylistTest(mediaItem);
+                            //Log.i(TAG, "onMediaItemTransition: getPlaybackState"+player.getPlaybackState()+" - getPlayWhenReady"+player.getPlayWhenReady());
+                            Log.i(TAG, "onMediaItemTransition: isSeekReplace: "+isSeekReplace);
+                            if(isSeekReplace) playerControlFlow();
+                            isSeekReplace=true;
+                            //printPlaylist();
+                            break;
+                        case Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED:Log.i(TAG, "onMediaItemTransition: playlist changed");break;
+                    }
+
+                }
+
+            });
+            playerView.setPlayer(player);
+
+            //MediaMetadata md = new MediaMetadata.Builder().setTitle("algo title").build();
+
+            //mediaItem = MediaItem.fromUri("https://ftp.mi.fu-berlin.de/pub/schiller/00_Telematics_Organizational_2015.mp4");
+            //mediaItem = MediaItem.fromUri("https://fvs.io/redirector?token=TzVYU0VqMFlZVmNhQVIxMmw1RkJ4RDVFcU5xYjZDbW9ScnZqTEZ1aGlpYnlsYkVRMC8zclJBL1A3Tndya3p6UkIrenJ0Q1ppb1NnSmtlTURIMkh3ekplcjU4SEE4V0R2czJmaHlBZlV2QmU5MXFiK2Q3akg5eW9jSy9NRkE1eUllRkd6bGxxSEtxVndlazVTZzhDaW5LOUt2UEhMZVVrUmJ6a3o6VkFkV2p4K1VLa0tLQUVNem1BSFRJUT09");
+
+            //si es lista de reproduccion
+            if(seasonList!=null && seasonPos>=0 && chapterPos>=0){
+                setPlayerList();
+                printPlaylist();
+            }
+            //si es un solo video
+            else{
+                // Build the media item.
+                mediaItem = MediaItem.fromUri(url_video);
+                //mediaItem = new MediaItem.Builder().setUri(url_video).setMediaMetadata(md).build();
+
+                // Set the media item to be played.
+                player.setMediaItem(mediaItem);
+                /*player.setMediaItem(MediaItem.fromUri("https://archive.org/download/amv-7/Amv7.mp4"));//movies Amv 7
+                player.addMediaItem(MediaItem.fromUri("https://archive.org/download/twitter-1351192681494573058/1351192681494573058.ia.mp4"));//Anime Pics & Gifs ツ - ^-^
+                player.addMediaItem(MediaItem.fromUri("https://archive.org/download/capitulo-1-tokyo-revengers-latino-wiloc-anime-app/Capitulo%201%20-%20Tokyo%20Revengers%20Latino%20-%20Wiloc%20Anime%20App.ia.mp4"));//Capitulo 1 Tokyo Revengers Latino Wiloc Anime App
+                player.addMediaItem(MediaItem.fromUri("https://archive.org/download/capitulo-22-wiloc-anime-jujutsu-kaisen-latino/Cap%C3%ADtulo%2022%20-%20Wiloc%20Anime%20-%20Jujutsu%20Kaisen%20Latino.ia.mp4"));//Capítulo 22 Wiloc Anime Jujutsu Kaisen Latino
+                player.addMediaItem(MediaItem.fromUri("https://archive.org/download/anime-kcd-boku-no-hero-08/%5BAnimeKCD%5D%20Boku%20no%20Hero%2008.mp4"));//[ Anime KCD] Boku No Hero 08
+                player.addMediaItem(MediaItem.fromUri("https://archive.org/download/twitter-1351186954864488456/1351186954864488456.mp4"));//Anime SauceBot - @PinkyeBoy @itanimeirl @PinkyeBoy I found this in the Anime database!  𝗧𝗶𝘁𝗹𝗲: Keijo!!!!!!!! 𝗘𝗽𝗶𝘀𝗼𝗱𝗲: 05 ( ⏱️ 00:18:02 / 00:23:42 ) 𝗔𝗰𝗰𝘂𝗿𝗮𝗰𝘆: 73.35% ( 🟡 Medium )
+                player.addMediaItem(MediaItem.fromUri("https://archive.org/download/capitulo-2-slime-taoshite-latino-wiloc-anime-app/Capitulo%202%20-%20Tokyo%20Revengers%20Latino%20-%20Wiloc%20Anime%20App.ia.mp4"));//Capitulo 2 Slime Taoshite Latino Wiloc Anime App- revenge
+                player.addMediaItem(MediaItem.fromUri("https://archive.org/download/capitulo-24-kimetsu-no-yaiba-latino-wiloc-anime/Capitulo%2023%20-%20Kimetsu%20no%20Yaiba%20Latino%20-%20Wiloc%20Anime.ia.mp4"));//Capitulo 24 Kimetsu No Yaiba Latino Wiloc Anime
+                player.addMediaItem(MediaItem.fromUri("https://archive.org/download/Anime_Abandon_Teknoman-x0BpVvXTwlk/Anime_Abandon_Teknoman-x0BpVvXTwlk.mp4"));//Anime Abandon   Teknoman
+                //player.addMediaItem(MediaItem.fromUri("https://archive.org/download/parasyte-ep-7-anime-balkan/Parasyte%20EP7%20%28AnimeBalkan%29.mp4"));//Parasyte: The Maxim EP 7 ( Anime Balkan)
+                //player.addMediaItem(MediaItem.fromUri(""));
+                //player.addMediaItem(new MediaItem.Builder().setUri("url3").setMediaId("mediaId").setMediaMetadata(md).build());
+                */
+                // Prepare the player.
+                player.prepare();
+                //player.seekTo(4,0);
+                // Start the playback.
+                player.play();
+            }
+            getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         }
 
-
-        playerView = binding.playerView;
-        //playerView.setPlayer(player);
-        playerView.setControllerVisibilityListener(this);
-        //playerView.setErrorMessageProvider(new PlayerErrorMessageProvider());
-        playerView.requestFocus();
-
-        player = new SimpleExoPlayer
-                        .Builder(getContext())
-                        .build();
-        playerView.setPlayer(player);
-
-
-        //mediaItem = MediaItem.fromUri("https://ftp.mi.fu-berlin.de/pub/schiller/00_Telematics_Organizational_2015.mp4");
-        //mediaItem = MediaItem.fromUri("https://fvs.io/redirector?token=TzVYU0VqMFlZVmNhQVIxMmw1RkJ4RDVFcU5xYjZDbW9ScnZqTEZ1aGlpYnlsYkVRMC8zclJBL1A3Tndya3p6UkIrenJ0Q1ppb1NnSmtlTURIMkh3ekplcjU4SEE4V0R2czJmaHlBZlV2QmU5MXFiK2Q3akg5eW9jSy9NRkE1eUllRkd6bGxxSEtxVndlazVTZzhDaW5LOUt2UEhMZVVrUmJ6a3o6VkFkV2p4K1VLa0tLQUVNem1BSFRJUT09");
-        mediaItem = MediaItem.fromUri(url_video);
-
-        // Build the media item.
-
-        // Set the media item to be played.
-        player.setMediaItem(mediaItem);
-        // Prepare the player.
-        player.prepare();
-        // Start the playback.
-        player.play();
-
-        getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
-        //getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         return binding.getRoot();
+    }
+
+    private void playerControlFlow() {
+        Log.i(TAG, "playerControlFlow: ");
+        //Log.i(TAG, "playerControlFlow: pause");
+        //player.pause();
+        String url = player.getCurrentMediaItem().mediaMetadata.title;
+        pelisplushdService.getSingleVideoCartel(url)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe((videoCartel, throwable) -> {
+                    if(throwable==null){
+                        if(videoCartel.videoServerList.get(0) instanceof FembedServer) {
+                            FembedServer fserver = (FembedServer) videoCartel.videoServerList.get(0);//el cero no es baner, es el 4
+                            String url_video = fserver.options.get(0).file;
+                            //MediaMetadata mediaMetadata = new MediaMetadata.Builder().setTitle(player.getCurrentMediaItem().mediaMetadata.title).build();
+                            MediaItem mediaItem = new MediaItem.Builder()
+                                    .setUri(url_video)
+                                    .setMediaMetadata(player.getCurrentMediaItem().mediaMetadata)
+                                    .build();
+                            player.addMediaItem(player.getCurrentWindowIndex()+1,mediaItem);
+                            player.removeMediaItem(player.getCurrentWindowIndex());
+                            player.prepare();
+                            player.play();
+                        }
+                    }else Log.e(TAG, "playerControlFlow: ", throwable);
+                    printPlaylist();
+                });
+    }
+
+    private void printPlaylist() {
+        String lista="{\n";
+        int l = player.getMediaItemCount();
+        for (int i = 0; i < l; i++) {
+            MediaItem mi = player.getMediaItemAt(i);
+            lista+="pos:"+i+",\ntitle: "+mi.mediaMetadata.title+",\nUri: "+mi.playbackProperties.uri+",\n";
+        }
+        lista+="index: "+player.getCurrentWindowIndex()+" }";
+        Log.i(TAG, "printPlaylist: salida: "+lista);
+    }
+
+    private void setPlayerList(){
+        Log.i(TAG, "setPlayerList: start");
+        //if(seasonList!=null && seasonPos>=0 && chapterPos>=0){
+            int size=seasonList.size();
+            for (int i = 0; i < size; i++) {
+                List<Chapter> chapters=seasonList.get(i).chapterList;
+                int lenght=chapters.size();
+                for (int j = 0; j < lenght; j++) {
+                    if(chapters.get(j).type==Chapter.TYPE_CHAPTER) {
+                        if(seasonPos==i && chapterPos==j) {
+                            MediaMetadata mdx = new MediaMetadata.Builder().setTitle(chapters.get(j).href).build();
+                            MediaItem mediaix = new MediaItem.Builder()
+                                    .setUri(url_video)
+                                    .setMediaMetadata(mdx)
+                                    .build();
+                            player.addMediaItem(mediaix);
+
+                            player.prepare();
+                            isSeekReplace=false;
+                            player.seekTo(player.getMediaItemCount()-1, 0);
+                            player.play();
+                        }else{
+                            MediaMetadata md = new MediaMetadata.Builder().setTitle(chapters.get(j).href).build();
+                            MediaItem mediai = new MediaItem.Builder()
+                                    .setUri("url")
+                                    .setMediaMetadata(md)
+                                    .build();
+                            player.addMediaItem(mediai);
+                        }
+                    }
+                }
+            }
+        //}
+        Log.i(TAG, "setPlayerList: end");
+    }
+
+    private void playFromPlaylistTest(MediaItem mediaItem){
+        Log.i(TAG, "playFromPlaylist: pause");
+        player.pause();
+        Log.i(TAG, "playFromPlaylist: reemplazando elemento de la lista");
+
+        MediaMetadata mdx = new MediaMetadata.Builder().setTitle("Parasyte: The Maxim EP 7 ( Anime Balkan)").build();
+        //Parasyte: The Maxim EP 7 ( Anime Balkan)
+        //MediaItem.fromUri("https://archive.org/download/parasyte-ep-7-anime-balkan/Parasyte%20EP7%20%28AnimeBalkan%29.mp4");
+        //MediaItem m = new MediaItem.Builder().setUri("https://archive.org/download/parasyte-ep-7-anime-balkan/Parasyte%20EP7%20%28AnimeBalkan%29.mp4").setMediaId("mediaId").setMediaMetadata(mdx).build();
+
+        MediaItem mediaix = new MediaItem.Builder()
+                .setUri("https://archive.org/download/parasyte-ep-7-anime-balkan/Parasyte%20EP7%20%28AnimeBalkan%29.mp4")
+                .setMediaMetadata(mdx)
+                .build();
+        player.addMediaItem(player.getCurrentWindowIndex()+1,mediaix);
+        player.removeMediaItem(player.getCurrentWindowIndex());
+        //player.prepare();
+        //player.seekTo(player.getPreviousWindowIndex(),0);
+        //player.play();
+
+
+        /*
+        pelisplushdService.getSingleVideoCartel(mediaItem.mediaMetadata.title)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe((videoCartel, throwable) -> {
+                    if(throwable==null){
+                        MediaMetadata mdx = new MediaMetadata.Builder().setTitle(videoCartel.videoServerLishref).build();
+                        MediaItem mediaix = new MediaItem.Builder()
+                                .setUri(url_video)
+                                .setMediaMetadata(mdx)
+                                .build();
+                        player.addMediaItem(mediaix);
+
+                        player.addMediaItem();
+                    }else{
+                        Log.e(TAG, "playFromPlaylist: error al leer url", throwable);
+                    }
+                });
+        */
     }
 
     public void initVideoPlayer(String url, String type) {
@@ -185,57 +403,59 @@ public class ReproductorFragment extends Fragment implements  StyledPlayerContro
     public void onStart() {
         super.onStart();
         Log.i(TAG, "onStart: ");
-
-        //PowerManager pm = (PowerManager) getActivity().getSystemService(Context.POWER_SERVICE);
-        //wakeLock = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK | PowerManager.ON_AFTER_RELEASE, "My Tag:");
-        getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-
+        if(getActivity().getRequestedOrientation()==ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE) {
+            //PowerManager pm = (PowerManager) getActivity().getSystemService(Context.POWER_SERVICE);
+            //wakeLock = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK | PowerManager.ON_AFTER_RELEASE, "My Tag:");
+            getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        }
     }
 
     @Override
     public void onResume() {
         super.onResume();
         Log.i(TAG, "onResume: ");
-        //getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        if(getActivity().getRequestedOrientation()==ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE) {
+            //getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 
-        getActivity().setVolumeControlStream(AudioManager.STREAM_MUSIC);
-        getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+            getActivity().setVolumeControlStream(AudioManager.STREAM_MUSIC);
+            getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-        //if (wakeLock != null) wakeLock.acquire(10*60*1000L /*10 minutes*/);
+            //if (wakeLock != null) wakeLock.acquire(10*60*1000L /*10 minutes*/);
 
 
-        if (getActivity() != null && getActivity().getWindow() != null) {
-            getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+            if (getActivity() != null && getActivity().getWindow() != null) {
+                getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+            }
+
+            // Trigger the initial hide() shortly after the activity has been
+            // created, to briefly hint to the user that UI controls
+            // are available.
+            delayedHide(100);
+            //Log.i(TAG, "onStart: onResume1: "+getActivity().getRequestedOrientation());
+        }else {
+            Log.i(TAG, "onResume: cambiando orientacion");
+            getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+            //Log.i(TAG, "onStart: onResume2: "+getActivity().getRequestedOrientation());
         }
-
-        // Trigger the initial hide() shortly after the activity has been
-        // created, to briefly hint to the user that UI controls
-        // are available.
-        delayedHide(100);
-        //Log.i(TAG, "onStart: onResume1: "+getActivity().getRequestedOrientation());
-        getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-        //Log.i(TAG, "onStart: onResume2: "+getActivity().getRequestedOrientation());
     }
-
-
 
     @Override
     public void onPause() {
         super.onPause();
         Log.i(TAG, "onPause: ");
 
+        //if(getActivity().getRequestedOrientation()==ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE) {
+            //releasePlayer();
+            pausePlayer();
+            getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+            if (getActivity() != null && getActivity().getWindow() != null) {
+                getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
 
-
-        //releasePlayer();
-        pausePlayer();
-        getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        if (getActivity() != null && getActivity().getWindow() != null) {
-            getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
-
-            // Clear the systemUiVisibility flag
-            getActivity().getWindow().getDecorView().setSystemUiVisibility(0);
-        }
-        show();
+                // Clear the systemUiVisibility flag
+                getActivity().getWindow().getDecorView().setSystemUiVisibility(0);
+            }
+            show();
+        //}
     }
 
     @Override
@@ -248,15 +468,17 @@ public class ReproductorFragment extends Fragment implements  StyledPlayerContro
     public void onDestroy() {
         super.onDestroy();
         Log.i(TAG, "onDestroy: ");
-        //getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+        //if(getActivity().getRequestedOrientation()==ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE) {
+            //getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
 
-        releasePlayer();
-        //pausePlayer();
-        //if (wakeLock != null) wakeLock.release();
-        //getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+            releasePlayer();
+            //pausePlayer();
+            //if (wakeLock != null) wakeLock.release();
+            //getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
 
-        //exitFullscreen();
-        show();
+            //exitFullscreen();
+            show();
+        //}
     }
 
     private void exitFullscreen(){
@@ -285,7 +507,6 @@ public class ReproductorFragment extends Fragment implements  StyledPlayerContro
         }
         //mControlsView.setVisibility(View.GONE);
 
-
         // Schedule a runnable to remove the status and navigation bar after a delay
         mHideHandler.removeCallbacks(mShowPart2Runnable);
         mHideHandler.postDelayed(mHidePart2Runnable, UI_ANIMATION_DELAY);
@@ -295,8 +516,6 @@ public class ReproductorFragment extends Fragment implements  StyledPlayerContro
     private void show() {
         // Show the system bar
         //mContentView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
-
-
         // Schedule a runnable to display UI elements after a delay
         mHideHandler.removeCallbacks(mHidePart2Runnable);
         mHideHandler.postDelayed(mShowPart2Runnable, UI_ANIMATION_DELAY);
@@ -378,10 +597,19 @@ public class ReproductorFragment extends Fragment implements  StyledPlayerContro
         }
         return actionBar;
     }
-    /*@Nullable
-    private ActionBar getSupportActionBar() {
 
-        return ((AppCompatActivity)getActivity()).getSupportActionBar();
-    }*/
+    private String getNextChapterUrl(){
+        if(seasonList!=null) {
+            int size = seasonList.size();
+            for (int i = 0; i < size; i++) {
+                List<Chapter> chapterList = seasonList.get(seasonPos).chapterList;
+                int length = chapterList.size();
+                for (int j = 0; j > length; j++) {
+
+                }
+            }
+        }
+        return "";
+    }
 
 }

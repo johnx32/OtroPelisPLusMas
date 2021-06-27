@@ -57,7 +57,7 @@ public class ChapterAdapter extends RecyclerView.Adapter<ChapterAdapter.ChapterV
         if(getItemViewType(position)==Chapter.TYPE_CHAPTER){
             holder.title.setText(list.get(position).title);
             holder.itemView.setOnClickListener(v -> {
-                onCardListener.onClickCardChapter(list.get(position).href);
+                onCardListener.onClickCardChapter(list.get(position).href,position);
             });
         }else{
             AdView adView = new AdView(holder.itemView.getContext());
@@ -90,9 +90,6 @@ public class ChapterAdapter extends RecyclerView.Adapter<ChapterAdapter.ChapterV
             cardView = itemView.findViewById(R.id.cv_chapter_title_cardview);
             ll = itemView.findViewById(R.id.cv_chapter_linearlayout);
         }
-
-
-
     }
 
     private void loadBanner(AdView adView) {
@@ -113,20 +110,20 @@ public class ChapterAdapter extends RecyclerView.Adapter<ChapterAdapter.ChapterV
     }
 
 
-
+    /*
     public class BannerViewHolder extends BaseViewHolder{
         TextView title;
         public BannerViewHolder(@NonNull View itemView) {
             super(itemView);
             title = itemView.findViewById(R.id.cv_chapter_title);
             itemView.setOnClickListener(v -> {
-                onCardListener.onClickCardChapter(list.get(getAdapterPosition()).href);
+                onCardListener.onClickCardChapter(list.get(getAdapterPosition()).href,getAdapterPosition());
             });
         }
-    }
+    }*/
 
     private OnCardChapterListener onCardListener;
     public interface OnCardChapterListener{
-        void onClickCardChapter(String href);
+        void onClickCardChapter(String href,int chapterPos);
     }
 }

@@ -42,7 +42,6 @@ public class SerieCartelFragment extends Fragment {
         Bundle b = getArguments();
         if(b!=null) {
             String url = b.getString("url", "");
-            Log.i(TAG, "onCreate: url: " + url);
 
             pelisplushdService.getSingleSerieCartel(url)
                     .subscribeOn(Schedulers.io())
@@ -64,7 +63,6 @@ public class SerieCartelFragment extends Fragment {
     }
 
     private void setSerieCartel(SerieCartel serieCartel){
-        //binding.fragCartelTitle.setText(serieCartel.name);
         getActivity().setTitle(serieCartel.name);
         binding.fragCartelSinopsis.setText(serieCartel.sinopsis);
         Picasso.get()

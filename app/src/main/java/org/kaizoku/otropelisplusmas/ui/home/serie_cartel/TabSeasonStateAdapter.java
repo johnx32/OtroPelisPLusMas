@@ -25,7 +25,7 @@ public class TabSeasonStateAdapter extends FragmentStateAdapter {
     @NonNull
     @Override
     public Fragment createFragment(int position) {
-        return SeasonPlaceholderFragment.newInstance(seasonList.get(position));
+        return SeasonPlaceholderFragment.newInstance(seasonList,position);
     }
     @Override
     public int getItemCount() {
