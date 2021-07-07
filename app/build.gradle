@@ -18,8 +18,8 @@ android {
         applicationId "org.kaizoku.otropelisplusmas"
         minSdkVersion 21
         targetSdkVersion 30
-        versionCode 3
-        versionName "1.1.1"
+        versionCode 4
+        versionName "1.2.2"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -65,6 +65,13 @@ dependencies {
     // ADMOB
     implementation 'com.google.android.gms:play-services-ads:20.0.0'
     implementation project(':nativetemplates')
+
+    //ROOM ANDROID
+    def room_version = "2.2.6"
+    implementation "androidx.room:room-runtime:$room_version"
+    annotationProcessor "androidx.room:room-compiler:$room_version"
+    // optional - RxJava support for Room
+    implementation "androidx.room:room-rxjava2:$room_version"
 
     // rx
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'

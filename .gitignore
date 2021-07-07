@@ -9,7 +9,7 @@
 local.properties
 
 .idea
-app/src/main/res/mipmap-*
+app/src/main/res/mipmap*
 /app/src/main/res/drawable-v24/ic_launcher_foreground.xml
 /app/src/main/res/drawable/ic_menu_camera.xml
 /app/src/main/res/drawable/ic_launcher_background.xml

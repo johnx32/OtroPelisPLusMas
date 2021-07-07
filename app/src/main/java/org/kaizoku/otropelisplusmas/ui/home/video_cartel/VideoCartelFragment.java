@@ -11,9 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.CookieManager;
-import android.webkit.WebSettings;
 import android.webkit.WebViewClient;
-import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -26,11 +24,12 @@ import com.google.android.gms.ads.AdSize;
 import com.google.android.material.snackbar.Snackbar;
 import com.squareup.picasso.Picasso;
 
+import org.kaizoku.otropelisplusmas.MainActivity;
 import org.kaizoku.otropelisplusmas.R;
 import org.kaizoku.otropelisplusmas.adapter.VideoServerAdapter;
 import org.kaizoku.otropelisplusmas.databinding.FragmentVideoCartelBinding;
 import org.kaizoku.otropelisplusmas.model.Season;
-import org.kaizoku.otropelisplusmas.model.VideoCartel;
+import org.kaizoku.otropelisplusmas.model.CapituloCartel;
 import org.kaizoku.otropelisplusmas.service.PelisplushdService;
 
 import java.util.ArrayList;
@@ -60,11 +59,11 @@ public class VideoCartelFragment extends Fragment implements VideoServerAdapter.
 
 
         videoCartelViewModel = new ViewModelProvider(this).get(VideoCartelViewModel.class);
-        videoCartelViewModel.getListVideoCartel().observe(getViewLifecycleOwner(), videoCartel -> {
+        videoCartelViewModel.getListVideoCartel().observe(getViewLifecycleOwner(), capituloCartel -> {
             // update UI
             //Log.i(TAG, "onCreateView; size: "+videoCartel.videoServerList.size());
-            setVideoCartel(videoCartel);
-            videoServerAdapter.setList(videoCartel.videoServerList);
+            setVideoCartel(capituloCartel);
+            videoServerAdapter.setList(capituloCartel.videoServerList);
         });
         pelisplushdService = new PelisplushdService(null);
         intiAdapterServer();
@@ -79,18 +78,18 @@ public class VideoCartelFragment extends Fragment implements VideoServerAdapter.
             pelisplushdService.getSingleVideoCartel(url)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe((videoCartel, throwable) -> {
-                        if(throwable==null&&videoCartel!=null){
+                    .subscribe((capituloCartel, throwable) -> {
+                        if(throwable==null&& capituloCartel !=null){
                             Log.i(TAG, "onCreateView: entro getSingleVideoCartel");
-                            videoCartelViewModel.setVideoCartel(videoCartel);
+                            videoCartelViewModel.setVideoCartel(capituloCartel);
                             //setVideoCartel(videoCartel);
                             //videoServerAdapter.setList(videoCartel.videoServerList);
 
                             //agregar webview aqui
 
-                            Log.i("TAG", "onCreateView: url disqus: "+videoCartel.url_disqus);
+                            Log.i("TAG", "onCreateView: url disqus: "+ capituloCartel.url_disqus);
 
-                            if(videoCartel.url_disqus!=null) {
+                            if(capituloCartel.url_disqus!=null) {
                                 // use cookies to remember a logged in status
                                 //CookieSyncManager.createInstance(this);
                                 //CookieSyncManager.getInstance().startSync();
@@ -99,7 +98,7 @@ public class VideoCartelFragment extends Fragment implements VideoServerAdapter.
                                 binding.webview.requestFocus();
                                 binding.webview.getSettings().setJavaScriptEnabled(true);
                                 binding.webview.setWebViewClient(new WebViewClient());
-                                binding.webview.loadUrl(videoCartel.url_disqus);
+                                binding.webview.loadUrl(capituloCartel.url_disqus);
 
                                     //If you are using Android Lollipop i.e. SDK 21, then:
                                 //CookieManager.getInstance().setAcceptCookie(true);
@@ -107,7 +106,7 @@ public class VideoCartelFragment extends Fragment implements VideoServerAdapter.
                                 CookieManager.getInstance().setAcceptThirdPartyCookies(binding.webview, true);
 
                                 binding.refresh.setOnClickListener(v -> {
-                                    binding.webview.loadUrl(videoCartel.url_disqus);
+                                    binding.webview.loadUrl(capituloCartel.url_disqus);
                                 });
 
                             }else{
@@ -130,13 +129,14 @@ public class VideoCartelFragment extends Fragment implements VideoServerAdapter.
         binding.fragSerieRvServers.setAdapter(videoServerAdapter);
     }
 
-    private void setVideoCartel(VideoCartel videoCartel){
+    private void setVideoCartel(CapituloCartel capituloCartel){
         //binding.fragSerieTitle.setText(videoCartel.name);
-        getActivity().setTitle(videoCartel.name);
-        binding.fragSerieSinopsis.setText(videoCartel.sinopsis);
-        Picasso.get()
-                .load(videoCartel.src_img)
-                .into(binding.fragSerieSrc);
+        ((MainActivity)getActivity()).setDisplayShowTitleEnabled(true);
+        getActivity().setTitle(capituloCartel.name);
+        binding.fragSerieSinopsis.setText(capituloCartel.sinopsis);
+        try {
+            ((MainActivity)getActivity()).loadImgToolbar(capituloCartel.src_img);
+        }catch (Exception e){e.printStackTrace();}
     }
 
     private AdSize getAdSize() {
@@ -177,4 +177,9 @@ public class VideoCartelFragment extends Fragment implements VideoServerAdapter.
         }
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        ((MainActivity)getActivity()).setDisplayShowTitleEnabled(false);
+    }
 }

@@ -8,7 +8,7 @@ import org.kaizoku.otropelisplusmas.model.ItemPagination;
 import org.kaizoku.otropelisplusmas.model.Season;
 import org.kaizoku.otropelisplusmas.model.SerieCartel;
 import org.kaizoku.otropelisplusmas.model.VideoCard;
-import org.kaizoku.otropelisplusmas.model.VideoCartel;
+import org.kaizoku.otropelisplusmas.model.CapituloCartel;
 import org.kaizoku.otropelisplusmas.model.video_server.FembedServer;
 import org.kaizoku.otropelisplusmas.model.video_server.VideoServer;
 import org.json.JSONObject;
@@ -18,10 +18,8 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -34,6 +32,9 @@ public class PelisplushdService {
     public  static final String url_base="https://pelisplushd.net";
     public  static final String base_series="/serie";
     private static final String TAG = "slcsa2";
+
+    public PelisplushdService() {
+    }
 
     public PelisplushdService(OnMenuVideoListener onMenuVideoListener) {
         this.onMenuVideoListener = onMenuVideoListener;
@@ -122,12 +123,14 @@ public class PelisplushdService {
                 if(i<tablist.size())title=tablist.get(i).text();
                 seasonList.add(new Season(title,chapterList));
             }
-            return new SerieCartel(cartel,seasonList);
+            SerieCartel serieCartel = new SerieCartel(cartel,seasonList);
+            serieCartel.hrefs = url;
+            return serieCartel;
         }catch(Exception e){e.printStackTrace();}
         return null;
     }
 
-    private VideoCartel getVideoCartel(String url){
+    private CapituloCartel getVideoCartel(String url){
         List<String> listUrlServer=new ArrayList<>();
         List<VideoServer> listServers=new ArrayList<>();
         try {
@@ -156,7 +159,7 @@ public class PelisplushdService {
                 }
             }
 
-            return new VideoCartel(cartel, listServers);
+            return new CapituloCartel(cartel, listServers);
         }catch(Exception e){e.printStackTrace();}
         return null;
     }
@@ -364,7 +367,7 @@ public class PelisplushdService {
         });
     }
 
-    public Single<VideoCartel> getSingleVideoCartel(String url){
+    public Single<CapituloCartel> getSingleVideoCartel(String url){
         return Single.create(emitter -> {
             try {
                 emitter.onSuccess(getVideoCartel(url));

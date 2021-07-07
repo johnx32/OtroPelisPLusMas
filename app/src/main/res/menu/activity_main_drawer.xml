@@ -21,6 +21,10 @@
             android:icon="@drawable/ic_noun_goku_58041"
             android:title="@string/menu_animes" />
         <item
+            android:id="@+id/nav_favoritos"
+            android:icon="@drawable/ic_grade_white_24dp"
+            android:title="@string/menu_favoritos" />
+        <item
             android:id="@+id/nav_about"
             android:icon="@drawable/ic_info_black_24dp"
             android:title="@string/menu_about" />

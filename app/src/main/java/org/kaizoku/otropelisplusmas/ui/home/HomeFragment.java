@@ -11,10 +11,12 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
+import androidx.navigation.fragment.FragmentNavigator;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -49,12 +51,12 @@ public class HomeFragment extends Fragment implements
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentHomeBinding.inflate(inflater,container,false);
 
+        ((MainActivity)getActivity()).setDisplayShowTitleEnabled(false);
+
         String url=getUrlFromBundle();
 
         pelisplushdService=new PelisplushdService(this);
 
-
-        //setTitle();
 
         initVideoCardAdapter();
         initItemPaginationAdapter();
@@ -148,15 +150,6 @@ public class HomeFragment extends Fragment implements
     private void loadAdapter(String url) {
         Log.i(TAG, "loadAdapter: ");
         pelisplushdService.loadMenuCards(url);
-        /*pelisplushdService.getSingleVideoItemsFromMenu(url)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe((videoCards, throwable) -> {
-                if(throwable==null){
-                    Log.i(TAG, "loadAdapter: single  size: "+videoCards.size());
-                    videoCardAdapter.setList(videoCards);
-                }else Log.e(TAG, "loadAdapter: ", throwable);
-            });*/
     }
 
     @Override
@@ -196,24 +189,6 @@ public class HomeFragment extends Fragment implements
             public void run() {
                 videoCardAdapter.setList(listCards);
                 itemPaginationAdapter.setList(paginationList);
-                /*int size = paginationList.size();
-                if(size>4) {
-                    Button b1 = new Button(getContext());
-                    b1.setText(paginationList.get(0).text);
-                    b1.setBackgroundResource(R.drawable.item_pagination);
-                    binding.llPagination.addView(b1);
-                    Button b2 = new Button(getContext());
-                    b2.setText(paginationList.get(1).text);
-                    b2.setBackgroundResource(R.drawable.item_pagination);
-                    binding.llPagination.addView(b2);
-
-                    Button b3 = new Button(getContext());
-                    b3.setText(paginationList.get(size-1).text);
-                    binding.llPagination.addView(b3);
-                    Button b4 = new Button(getContext());
-                    b4.setText(paginationList.get(size-2).text);
-                    binding.llPagination.addView(b4);
-                }*/
             }
         });
     }
@@ -230,14 +205,18 @@ public class HomeFragment extends Fragment implements
         b.putString("url",videoCard.url);
         switch (videoCard.type){
             case VideoCard.TYPE_PELICULA:
+                FragmentNavigator.Extras extras = new FragmentNavigator.Extras.Builder()
+                        .addSharedElement( getView().findViewById(R.id.cv_iv_video_src),"chapter_img")
+                        .build();
                 if(id_nav==R.id.nav_home)
                     NavHostFragment.findNavController(this)
-                            .navigate(R.id.action_nav_home_to_videoCartelFragment,b);
+                            .navigate(R.id.action_nav_home_to_videoCartelFragment,b,null,extras);
                 else
                     NavHostFragment.findNavController(this)
                             .navigate(R.id.action_nav_peliculas_to_videoCartelFragment,b);
                 break;
             case VideoCard.TYPE_SERIE:
+                //((AppCompatActivity)getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(true);
                 if(id_nav==R.id.nav_home)
                     NavHostFragment.findNavController(this)
                             .navigate(R.id.action_nav_home_to_cartelFragment2,b);

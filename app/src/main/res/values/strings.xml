@@ -25,5 +25,6 @@
     <string name="apk_url">https://github.com/kaizokuapps/OtroPelisPlusMas/raw/main/release/app-release.apk</string>
     <string name="menu_about">Acerca de</string>
     <string name="url_changelog">https://raw.githubusercontent.com/kaizokuapps/OtroPelisPlusMas/main/changelog.json</string>
+    <string name="menu_favoritos">Favoritos</string>
 
 </resources>

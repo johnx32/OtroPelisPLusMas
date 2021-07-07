@@ -36,9 +36,13 @@ import com.google.android.gms.ads.initialization.InitializationStatus;
 import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 import com.google.android.gms.ads.interstitial.InterstitialAd;
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
+import com.google.android.material.appbar.CollapsingToolbarLayout;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
+import com.squareup.picasso.Picasso;
 
 import org.jetbrains.annotations.NotNull;
+import org.kaizoku.otropelisplusmas.adapter.ChapterAdapter;
 import org.kaizoku.otropelisplusmas.databinding.ActivityMainBinding;
 import org.kaizoku.otropelisplusmas.updater.Checker;
 
@@ -64,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
         cast video, notificaciones,
          pagina en la app
      */
-    ActivityMainBinding binding;
+    //ActivityMainBinding binding;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -81,10 +85,12 @@ public class MainActivity extends AppCompatActivity {
                 R.id.nav_peliculas,
                 R.id.nav_series,
                 R.id.nav_animes,
+                R.id.nav_favoritos,
                 R.id.nav_about
                 //R.id.nav_reproductor
                 )
-                .setDrawerLayout(drawer)
+                //.setDrawerLayout(drawer)
+                .setOpenableLayout(drawer)
                 .build();
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
@@ -98,11 +104,9 @@ public class MainActivity extends AppCompatActivity {
             navController.navigate(R.id.changelogFragment);
         });
 
-        Log.i(TAG, "onStart: orientacion: "+getRequestedOrientation());
 
-        //mAppBarConfiguration.
-        //drawer
-        //navController.
+
+
         navigationView.getMenu().findItem(R.id.nav_about).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
@@ -152,23 +156,11 @@ public class MainActivity extends AppCompatActivity {
             }
         });*/
 
-        //setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 
-        //Log.i("TAG", "onCreate: test id app: "+getResources().getString(R.string.id_app));
-        MobileAds.initialize(this, new OnInitializationCompleteListener() {
-            @Override
-            public void onInitializationComplete(InitializationStatus initializationStatus) {
-            }
-        });
-        List<String> testDeviceIds = Arrays.asList("AAFFE0B4F0C8C25E830B12A27616C1D4");
-        RequestConfiguration configuration = new RequestConfiguration.Builder().setTestDeviceIds(testDeviceIds).build();
-        MobileAds.setRequestConfiguration(configuration);
+        initAds();
 
+        setFloatingactionButtonOnClick();
 
-
-        loadInterstitialAd();
-        //Activity a = this;
-        //a.getWindowManager().getDefaultDisplay();
 
         /*
         AlertDialog.Builder builder = new AlertDialog.Builder(this,R.style.Theme_AppCompat_Dialog);
@@ -237,7 +229,34 @@ public class MainActivity extends AppCompatActivity {
         });
 
         mostrarChangelog(navController);
+    }
 
+    private void initAds() {
+        MobileAds.initialize(this, new OnInitializationCompleteListener() {
+            @Override
+            public void onInitializationComplete(InitializationStatus initializationStatus) {
+            }
+        });
+        List<String> testDeviceIds = Arrays.asList("AAFFE0B4F0C8C25E830B12A27616C1D4");
+        RequestConfiguration configuration = new RequestConfiguration.Builder().setTestDeviceIds(testDeviceIds).build();
+        MobileAds.setRequestConfiguration(configuration);
+
+        loadInterstitialAd();
+    }
+
+    private void setFloatingactionButtonOnClick() {
+        FloatingActionButton f = findViewById(R.id.fab_main);
+        f.setOnClickListener(v -> {
+            Log.i(TAG, "setFloatingactionButtonOnClick: ");
+            if(onFabListener!=null) {
+                Log.i(TAG, "setFloatingactionButtonOnClick: fablistener no es null");
+                onFabListener.onClickFab(f);
+            }else Log.i(TAG, "setFloatingactionButtonOnClick: fablis es null");
+        });
+    }
+    public void setFabImage(int resId){
+        FloatingActionButton f = findViewById(R.id.fab_main);
+        f.setImageResource(resId);
     }
 
     private void mostrarChangelog(NavController navController){
@@ -337,18 +356,31 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void setTitle(CharSequence title) {
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        toolbar.setTitle(title);
-        //super.setTitle(title);
+        //Toolbar toolbar = findViewById(R.id.toolbar);
+        //toolbar.setTitle(title);
+        //getSupportActionBar().setTitle(title);
+        CollapsingToolbarLayout c = findViewById(R.id.coll_toolbar_layout);
+        c.setTitle(title);
     }
 
-    /*
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
+    public void setDisplayShowTitleEnabled(boolean enabled){
+        CollapsingToolbarLayout c = findViewById(R.id.coll_toolbar_layout);
+        c.setTitleEnabled(enabled);
+        ImageView im = findViewById(R.id.img_toolbar);
+        im.setImageDrawable(null);
+    }
+
+    public void loadImgToolbar(String src_img) {
+        Picasso.get()
+                .load(src_img)
+                .into((ImageView) findViewById(R.id.img_toolbar));
+    }
+
+    /*public void setTitleToolbar(String title){
+        CollapsingToolbarLayout c = findViewById(R.id.coll_toolbar_layout);
+        c.setTitle(title);
     }*/
+
 
     @Override
     public boolean onSupportNavigateUp() {
@@ -356,4 +388,13 @@ public class MainActivity extends AppCompatActivity {
         return NavigationUI.navigateUp(navController, mAppBarConfiguration)
                 || super.onSupportNavigateUp();
     }
+
+    public void setOnFabListener(OnFabListener onFabListener){
+        this.onFabListener = onFabListener;
+    }
+    private OnFabListener onFabListener;
+    public interface OnFabListener{
+        void onClickFab(FloatingActionButton fab);
+    }
+
 }
