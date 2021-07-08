@@ -20,6 +20,8 @@ import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.google.android.material.snackbar.Snackbar;
+
 import org.kaizoku.otropelisplusmas.MainActivity;
 import org.kaizoku.otropelisplusmas.R;
 import org.kaizoku.otropelisplusmas.adapter.ItemPageAdapter;
@@ -61,7 +63,6 @@ public class HomeFragment extends Fragment implements
         String url=getUrlFromBundle();
         initVideoCardAdapter();
         initItemPaginationAdapter();
-        //loadAdapters(url);//borar
         cargarPagina(url);
         return binding.getRoot();
     }
@@ -92,15 +93,6 @@ public class HomeFragment extends Fragment implements
         binding.rvPagination.setLayoutManager(linearLayout);
         itemPageAdapter = new ItemPageAdapter(this);
         binding.rvPagination.setAdapter(itemPageAdapter);
-    }
-
-    private void loadAdapters(String url) {//todo:borrar
-        Log.i(TAG, "loadAdapter: ");
-        binding.pbHomeLoadContent.setVisibility(View.GONE);
-        pelisplushdService.loadMenuCardsSingle(url)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(onload);
     }
 
     @Override
@@ -206,20 +198,14 @@ public class HomeFragment extends Fragment implements
 
     @Override
     public void onClickCardItem(String url) {
-            //#adsblock
-            //((MainActivity)getActivity()).showInterstitialAd();
-
         if(!url.contains("pelisplushd.net"))
             url="https://pelisplushd.net/"+url;
         cargarPagina(url);
-        /*pelisplushdService.loadMenuCardsSingle(url)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(onload);*/
     }
 
     private void cargarPagina(String url){
-        if(homeViewModel.getListaFullpage().getValue()!=null){
+        if(homeViewModel.getListaFullpage().getValue()!=null &&
+                homeViewModel.getListaFullpage().getValue().url.equals(url)){
             Log.i(TAG, "lista con elementos: ");
             FullPage fp = homeViewModel.getListaFullpage().getValue();
             videoCardAdapter.setList(fp.listCard);
@@ -242,6 +228,7 @@ public class HomeFragment extends Fragment implements
         }else{
             Log.e(TAG, "onload, error al cargar: ",throwable );
             //todo:error intentar denuevo
+            Snackbar.make(getView(),"Ocurrio un error al cargar la pagina, intente denuevo",Snackbar.LENGTH_LONG).show();
         }
     };
 }

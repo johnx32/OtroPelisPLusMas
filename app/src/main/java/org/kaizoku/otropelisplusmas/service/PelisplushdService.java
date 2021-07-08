@@ -77,9 +77,9 @@ public class PelisplushdService {
             for(Element a:pag)
                 paginacion.add(new ItemPage(a.text(),a.attr("href")));
             //if(onMenuVideoListener!=null)onMenuVideoListener.onLoadMenuVideos(listVideo,paginacion);
-            return new FullPage(listVideo,paginacion);
+            return new FullPage(url,listVideo,paginacion);
         }catch(Exception e){e.printStackTrace();}
-        return  new FullPage(null,null);
+        return  new FullPage(null,null,null);
     }
 
     public Single<FullPage> loadMenuCardsSingle(String url){
