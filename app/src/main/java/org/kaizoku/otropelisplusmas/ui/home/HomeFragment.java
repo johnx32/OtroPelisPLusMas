@@ -11,36 +11,37 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
-import androidx.navigation.fragment.FragmentNavigator;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import org.kaizoku.otropelisplusmas.MainActivity;
 import org.kaizoku.otropelisplusmas.R;
-import org.kaizoku.otropelisplusmas.adapter.ItemPaginationAdapter;
+import org.kaizoku.otropelisplusmas.adapter.ItemPageAdapter;
 import org.kaizoku.otropelisplusmas.adapter.VideoCardAdapter;
+import org.kaizoku.otropelisplusmas.database.entity.MediaEnt;
 import org.kaizoku.otropelisplusmas.databinding.FragmentHomeBinding;
-import org.kaizoku.otropelisplusmas.model.ItemPagination;
-import org.kaizoku.otropelisplusmas.model.VideoCard;
+import org.kaizoku.otropelisplusmas.model.FullPage;
 import org.kaizoku.otropelisplusmas.service.PelisplushdService;
 
-import java.util.List;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.BiConsumer;
+import io.reactivex.schedulers.Schedulers;
 
 public class HomeFragment extends Fragment implements
         VideoCardAdapter.OnCardListener,
-        ItemPaginationAdapter.OnCardPaginationListener,
-        PelisplushdService.OnMenuVideoListener {
+        ItemPageAdapter.OnCardPaginationListener {
     private static final String TAG = "sfa4e";
     private FragmentHomeBinding binding;
     private VideoCardAdapter videoCardAdapter;
-    private ItemPaginationAdapter itemPaginationAdapter;
+    private ItemPageAdapter itemPageAdapter;
     private PelisplushdService pelisplushdService;
+    private HomeViewModel homeViewModel;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -50,73 +51,19 @@ public class HomeFragment extends Fragment implements
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentHomeBinding.inflate(inflater,container,false);
-
+        pelisplushdService=new PelisplushdService();
+        homeViewModel = new ViewModelProvider(this).get(HomeViewModel.class);
+        homeViewModel.getListaFullpage().observe(getViewLifecycleOwner(),fullPage -> {
+            videoCardAdapter.setList(fullPage.listCard);
+            itemPageAdapter.setList(fullPage.paginacion);
+        });
         ((MainActivity)getActivity()).setDisplayShowTitleEnabled(false);
-
         String url=getUrlFromBundle();
-
-        pelisplushdService=new PelisplushdService(this);
-
-
         initVideoCardAdapter();
         initItemPaginationAdapter();
-        loadAdapter(url);
-
-        /*AdView mAdView = binding.getRoot().findViewById(R.id.adView);
-        AdRequest adRequest = new AdRequest.Builder().build();
-        mAdView.loadAd(adRequest);*/
-
-        /*AdLoader adLoader = new AdLoader.Builder(getContext(), "ca-app-pub-3940256099942544/2247696110")
-                .forUnifiedNativeAd(new UnifiedNativeAd.OnUnifiedNativeAdLoadedListener() {
-                    @Override
-                    public void onUnifiedNativeAdLoaded(@NonNull UnifiedNativeAd unifiedNativeAd) {
-                        NativeTemplateStyle styles = new
-                                NativeTemplateStyle.Builder().build();
-                        //.withMainBackgroundColor(background).build();
-
-                        TemplateView template = binding.myTemplate;
-                        template.setStyles(styles);
-                        template.setNativeAd(unifiedNativeAd);
-                    }
-                }).build();
-                .forNativeAd(new NativeAd.OnNativeAdLoadedListener() {
-                    @Override
-                    public void onNativeAdLoaded(NativeAd nativeAd) {
-                        NativeTemplateStyle styles = new NativeTemplateStyle.Builder().build();
-                                //.withMainBackgroundColor(background).build();
-
-                        //TemplateView template = binding.getRoot().findViewById(R.id.my_template);
-                        //template.setStyles(styles);
-                        binding.myTemplate.setStyles(styles);
-                        //template.setNativeAd(NativeAd);
-                        binding.myTemplate.setNativeAd(nativeAd);
-                    }
-                })
-                .build();
-
-        adLoader.loadAd(new AdRequest.Builder().build());*/
-
+        //loadAdapters(url);//borar
+        cargarPagina(url);
         return binding.getRoot();
-    }
-
-    private void setTitle() {
-        NavController navController = Navigation.findNavController(getActivity(), R.id.nav_host_fragment);
-        int id_nav=navController.getCurrentDestination().getId();
-        switch (id_nav){
-            case R.id.nav_home:
-                //getActivity().setTitle("");
-                break;
-            case R.id.nav_peliculas:
-                getActivity().setTitle("Peliculas");
-                break;
-            case R.id.nav_series:
-                getActivity().setTitle("Series");
-                break;
-            case R.id.nav_animes:
-                getActivity().setTitle("Animes");
-                break;
-        }
-
     }
 
     private String getUrlFromBundle(){
@@ -143,13 +90,17 @@ public class HomeFragment extends Fragment implements
         binding.rvPagination.setHasFixedSize(true);
         LinearLayoutManager linearLayout = new LinearLayoutManager(getContext(),LinearLayoutManager.HORIZONTAL,false);
         binding.rvPagination.setLayoutManager(linearLayout);
-        itemPaginationAdapter = new ItemPaginationAdapter(this);
-        binding.rvPagination.setAdapter(itemPaginationAdapter);
+        itemPageAdapter = new ItemPageAdapter(this);
+        binding.rvPagination.setAdapter(itemPageAdapter);
     }
 
-    private void loadAdapter(String url) {
+    private void loadAdapters(String url) {//todo:borrar
         Log.i(TAG, "loadAdapter: ");
-        pelisplushdService.loadMenuCards(url);
+        binding.pbHomeLoadContent.setVisibility(View.GONE);
+        pelisplushdService.loadMenuCardsSingle(url)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(onload);
     }
 
     @Override
@@ -170,7 +121,11 @@ public class HomeFragment extends Fragment implements
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                pelisplushdService.loadMenuCards("https://pelisplushd.net/search?s="+query);
+                cargarPagina("https://pelisplushd.net/search?s="+query);
+                /*pelisplushdService.loadMenuCardsSingle("https://pelisplushd.net/search?s="+query)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(onload);*/
                 return false;
             }
             @Override
@@ -183,18 +138,7 @@ public class HomeFragment extends Fragment implements
     }
 
     @Override
-    public void onLoadMenuVideos(List<VideoCard> listCards, List<ItemPagination> paginationList) {
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                videoCardAdapter.setList(listCards);
-                itemPaginationAdapter.setList(paginationList);
-            }
-        });
-    }
-
-    @Override
-    public void onClickCard(VideoCard videoCard) {
+    public void onClickCard(MediaEnt mediaEnt) {
         //#adsblock
         ((MainActivity)getActivity()).showInterstitialAd();
 
@@ -202,9 +146,34 @@ public class HomeFragment extends Fragment implements
         int id_nav=navController.getCurrentDestination().getId();
 
         Bundle b=new Bundle();
-        b.putString("url",videoCard.url);
-        switch (videoCard.type){
-            case VideoCard.TYPE_PELICULA:
+        b.putString("url",mediaEnt.href);
+
+        switch (id_nav){
+            case R.id.nav_home:
+                if(mediaEnt.getTypeHref()==MediaEnt.TYPE_PELICULA)
+                    NavHostFragment.findNavController(this)
+                            .navigate(R.id.action_nav_home_to_videoCartelFragment,b);
+                else if(mediaEnt.getTypeHref()==MediaEnt.TYPE_SERIE || mediaEnt.getTypeHref()==MediaEnt.TYPE_ANIME)
+                    NavHostFragment.findNavController(this)
+                            .navigate(R.id.action_nav_home_to_cartelFragment,b);
+                break;
+            case R.id.nav_peliculas:
+                NavHostFragment.findNavController(this)
+                        .navigate(R.id.action_nav_peliculas_to_videoCartelFragment,b);
+                break;
+            case R.id.nav_series:
+                NavHostFragment.findNavController(this)
+                        .navigate(R.id.action_nav_series_to_cartelFragment,b);
+                break;
+            case R.id.nav_animes:
+                NavHostFragment.findNavController(this)
+                        .navigate(R.id.action_nav_animes_to_cartelFragment,b);
+                break;
+        }
+
+        /*
+        switch (mediaEnt.type){
+            case MediaEnt.TYPE_PELICULA:
                 FragmentNavigator.Extras extras = new FragmentNavigator.Extras.Builder()
                         .addSharedElement( getView().findViewById(R.id.cv_iv_video_src),"chapter_img")
                         .build();
@@ -215,7 +184,7 @@ public class HomeFragment extends Fragment implements
                     NavHostFragment.findNavController(this)
                             .navigate(R.id.action_nav_peliculas_to_videoCartelFragment,b);
                 break;
-            case VideoCard.TYPE_SERIE:
+            case MediaEnt.TYPE_SERIE:
                 //((AppCompatActivity)getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(true);
                 if(id_nav==R.id.nav_home)
                     NavHostFragment.findNavController(this)
@@ -224,7 +193,7 @@ public class HomeFragment extends Fragment implements
                     NavHostFragment.findNavController(this)
                             .navigate(R.id.action_nav_series_to_cartelFragment,b);
                 break;
-            case VideoCard.TYPE_ANIME:
+            case MediaEnt.TYPE_ANIME:
                 if(id_nav==R.id.nav_home)
                     NavHostFragment.findNavController(this)
                             .navigate(R.id.action_nav_home_to_cartelFragment2,b);
@@ -232,38 +201,7 @@ public class HomeFragment extends Fragment implements
                     NavHostFragment.findNavController(this)
                             .navigate(R.id.action_nav_animes_to_cartelFragment,b);
                 break;
-        }
-
-        /*
-        pelisplushdService.getSingleSeridores(videoCard.url)
-                .subscribeOn(Schedulers.io())
-                .subscribeOn(AndroidSchedulers.mainThread())
-                .subscribe((servidores, throwable) -> {
-                    if(throwable==null) {
-
-
-                        for(String s:servidores) {
-                            Log.i(TAG, "onClickCard: s: "+s);
-                            if (s.contains("fembed"))
-                                pelisplushdService.getSingleVideoUrl(s)
-                                        .subscribeOn(Schedulers.io())
-                                        .observeOn(AndroidSchedulers.mainThread())
-                                        .subscribe((stream, throwable1) -> {
-                                            Log.i(TAG, "onClickCard: stream: "+stream);
-                                            if (throwable1==null){
-                                                JSONObject jsonResponse = new JSONObject(stream);
-                                                String video_file_url = jsonResponse.getJSONArray("data").getJSONObject(0).getString("file");
-                                                Bundle b=new Bundle();
-                                                b.putString("url",video_file_url);
-                                                NavHostFragment.findNavController(this)
-                                                        .navigate(R.id.action_nav_home_to_nav_reproductor,b);
-                                            }else Log.e(TAG, "onClickCard: ", throwable1);
-                                        });
-                        }
-                    }else Log.e(TAG, "onClickCard: ", throwable);
-                });
-
-         */
+        }*/
     }
 
     @Override
@@ -273,6 +211,37 @@ public class HomeFragment extends Fragment implements
 
         if(!url.contains("pelisplushd.net"))
             url="https://pelisplushd.net/"+url;
-        pelisplushdService.loadMenuCards(url);
+        cargarPagina(url);
+        /*pelisplushdService.loadMenuCardsSingle(url)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(onload);*/
     }
+
+    private void cargarPagina(String url){
+        if(homeViewModel.getListaFullpage().getValue()!=null){
+            Log.i(TAG, "lista con elementos: ");
+            FullPage fp = homeViewModel.getListaFullpage().getValue();
+            videoCardAdapter.setList(fp.listCard);
+            itemPageAdapter.setList(fp.paginacion);
+            binding.pbHomeLoadContent.setVisibility(View.GONE);
+        }else {
+            Log.i(TAG, "cargarPagina: lista vacia");
+            pelisplushdService.loadMenuCardsSingle(url)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(onload);
+        }
+
+    }
+
+    private BiConsumer<FullPage, Throwable> onload = (fullPage, throwable)->{
+        binding.pbHomeLoadContent.setVisibility(View.GONE);
+        if(throwable==null) {//todo: mover vista de recycler to top
+            homeViewModel.setListaFullpage(fullPage);
+        }else{
+            Log.e(TAG, "onload, error al cargar: ",throwable );
+            //todo:error intentar denuevo
+        }
+    };
 }

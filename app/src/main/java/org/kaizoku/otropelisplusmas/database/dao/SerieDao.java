@@ -24,7 +24,7 @@ public interface SerieDao {
     //READ
     @Query("select * from serie where id=:id;")
     Single<SerieEnt> getSerie(long id);
-    @Query("select * from serie where hrefs=:href;")
+    @Query("select * from serie where href=:href;")
     Single<SerieEnt> getSerie(String href);
     @Query("select * from serie;")
     Single<List<SerieEnt>> getSeries();

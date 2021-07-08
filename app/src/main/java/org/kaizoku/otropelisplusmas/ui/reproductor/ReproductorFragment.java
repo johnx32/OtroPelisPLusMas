@@ -117,12 +117,11 @@ public class ReproductorFragment extends Fragment implements  StyledPlayerContro
 
         Log.i(TAG, "onCreateView: getConfiguration orientation : "+getResources().getConfiguration().orientation);
 
-        Log.i(TAG, "onCreateView: orientacion: "+getActivity().getRequestedOrientation());
         //if(getActivity().getRequestedOrientation()==ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE){
         if(getResources().getConfiguration().orientation==ActivityInfo.SCREEN_ORIENTATION_USER){
             hide();
 
-            pelisplushdService = new PelisplushdService(null);
+            pelisplushdService = new PelisplushdService();
 
             Bundle b=getArguments();
             if(b!=null){

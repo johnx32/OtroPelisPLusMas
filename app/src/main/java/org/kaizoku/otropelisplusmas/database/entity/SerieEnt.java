@@ -7,21 +7,9 @@ import androidx.room.PrimaryKey;
 
 import java.util.Date;
 
-@Entity(tableName = "serie",indices =  {@Index(value = {"hrefs"},unique = true)})
-public class SerieEnt {
-    @PrimaryKey(autoGenerate = true)
-    public long id;
-    public String titulo;
-    public String src_img;
-    public String sinopsis;
-    public String rating;
-    public String hrefs;
-    public String url_disqus;
+@Entity(tableName = "serie",indices =  {@Index(value = {"href"},unique = true)})
+public class SerieEnt extends MediaEnt{
     public int capProgres;
-    public long favorito_id;
-
-    public Date created_at;
-    public Date updated_at;
 
     public SerieEnt() {
     }

@@ -65,7 +65,7 @@ public class VideoCartelFragment extends Fragment implements VideoServerAdapter.
             setVideoCartel(capituloCartel);
             videoServerAdapter.setList(capituloCartel.videoServerList);
         });
-        pelisplushdService = new PelisplushdService(null);
+        pelisplushdService = new PelisplushdService();
         intiAdapterServer();
 
         Bundle b = getArguments();

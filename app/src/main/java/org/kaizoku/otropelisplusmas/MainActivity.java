@@ -56,17 +56,9 @@ public class MainActivity extends AppCompatActivity {
     //admob app-ads.txt
     //google.com, pub-6323075080626234, DIRECT, f08c47fec0942fa0
     /*todo:
-        id publicidad test prod,
-        publicidad,
-        quitar menu activity,
-        fullscream,
-         quitar reproductor de menu,
-        abrir la app desde link,
-       ofuscar codigo,
-       autoupdate ukiku,
-         crash analitic,
+        crash analitic,
         cast video, notificaciones,
-         pagina en la app
+        imagen toolbar en tablet
      */
     //ActivityMainBinding binding;
     @Override

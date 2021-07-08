@@ -14,19 +14,20 @@ import com.squareup.picasso.Picasso;
 
 import org.kaizoku.otropelisplusmas.R;
 import org.kaizoku.otropelisplusmas.adapter.VideoCardAdapter.VideoViewHolder;
+import org.kaizoku.otropelisplusmas.database.entity.MediaEnt;
 import org.kaizoku.otropelisplusmas.model.VideoCard;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class VideoCardAdapter extends Adapter<VideoViewHolder> {
-    private List<VideoCard> list=new ArrayList<>();
+    private List<MediaEnt> list=new ArrayList<>();
 
     public VideoCardAdapter(OnCardListener onCardListener) {
         this.onCardListener = onCardListener;
     }
 
-    public void setList(List<VideoCard> list) {
+    public void setList(List<MediaEnt> list) {
         this.list = list;
         notifyDataSetChanged();
     }
@@ -41,7 +42,7 @@ public class VideoCardAdapter extends Adapter<VideoViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull VideoViewHolder holder, int position) {
-        holder.name.setText(list.get(position).name);
+        holder.name.setText(list.get(position).titulo);
         holder.rating.setText(list.get(position).rating);
         Picasso
             .get()
@@ -92,7 +93,7 @@ public class VideoCardAdapter extends Adapter<VideoViewHolder> {
 
     private OnCardListener onCardListener;
     public interface OnCardListener{
-        void onClickCard(VideoCard videoCard);
+        void onClickCard(MediaEnt mediaEnt);
     }
 
 }

@@ -9,19 +9,19 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import org.kaizoku.otropelisplusmas.R;
-import org.kaizoku.otropelisplusmas.model.ItemPagination;
+import org.kaizoku.otropelisplusmas.model.ItemPage;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ItemPaginationAdapter extends RecyclerView.Adapter<ItemPaginationAdapter.ItemPaginationViewHolder> {
-    List<ItemPagination> list = new ArrayList<>();
+public class ItemPageAdapter extends RecyclerView.Adapter<ItemPageAdapter.ItemPaginationViewHolder> {
+    List<ItemPage> list = new ArrayList<>();
 
-    public ItemPaginationAdapter(OnCardPaginationListener onCardPaginationListener) {
+    public ItemPageAdapter(OnCardPaginationListener onCardPaginationListener) {
         this.onCardPaginationListener = onCardPaginationListener;
     }
 
-    public void setList(List<ItemPagination> list) {
+    public void setList(List<ItemPage> list) {
         this.list = list;
         notifyDataSetChanged();
     }

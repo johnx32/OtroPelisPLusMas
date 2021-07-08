@@ -58,7 +58,7 @@ public class FavoritosFragment extends Fragment implements FavoritosAdapter.OnCa
     @Override
     public void onClickCard(SerieEnt serie) {
         Bundle b=new Bundle();
-        b.putString("url",serie.hrefs);
+        b.putString("url",serie.href);
         //if is serie
         NavHostFragment.findNavController(this)
                 .navigate(R.id.action_nav_favoritos_to_cartelFragment,b);

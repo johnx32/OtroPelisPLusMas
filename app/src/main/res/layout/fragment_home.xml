@@ -1,44 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
+
     tools:context=".ui.home.HomeFragment">
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_series"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:background="@color/fondo2"
-        android:layout_weight="1"
-        app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
-        app:spanCount="3"
-        tools:listitem="@layout/cardview_video"/>
-    <!--<com.google.android.gms.ads.AdView
-        xmlns:ads="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/adView"
-        android:layout_gravity="bottom"
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_centerHorizontal="true"
-        android:layout_alignParentBottom="true"
-        android:visibility="gone"
-        ads:adSize="BANNER"
-        ads:adUnitId="@string/id_baner1">
-    </com.google.android.gms.ads.AdView> gnt_medium_template_view-->
-    <!--<com.google.android.ads.nativetemplates.TemplateView
-        android:id="@+id/my_template"
-        app:gnt_template_type="@layout/gnt_small_template_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />-->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_pagination"
-        android:layout_width="match_parent"
+        android:orientation="vertical">
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_series"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:background="@color/fondo2"
+            android:layout_weight="1"
+            app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+            app:spanCount="3"
+            tools:listitem="@layout/cardview_video"/>
+        <!--<com.google.android.gms.ads.AdView
+            xmlns:ads="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/adView"
+            android:layout_gravity="bottom"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_centerHorizontal="true"
+            android:layout_alignParentBottom="true"
+            android:visibility="gone"
+            ads:adSize="BANNER"
+            ads:adUnitId="@string/id_baner1">
+        </com.google.android.gms.ads.AdView> gnt_medium_template_view-->
+        <!--<com.google.android.ads.nativetemplates.TemplateView
+            android:id="@+id/my_template"
+            app:gnt_template_type="@layout/gnt_small_template_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />-->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_pagination"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/fondo2"
+            android:orientation="horizontal"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            tools:listitem="@layout/cardview_item_pagination"/>
+    </LinearLayout>
+    <ProgressBar
+        android:id="@+id/pb_home_load_content"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@color/fondo2"
-        android:orientation="horizontal"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        tools:listitem="@layout/cardview_item_pagination"/>
-</LinearLayout>
+        android:layout_gravity="center"
+        />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

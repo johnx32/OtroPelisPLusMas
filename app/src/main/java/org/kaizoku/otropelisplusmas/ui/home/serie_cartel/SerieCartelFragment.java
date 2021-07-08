@@ -99,7 +99,7 @@ public class SerieCartelFragment extends Fragment {
                     }else{
                         Log.i(TAG, "getSerie: thr error");
                         SerieEnt serieNew = new SerieEnt();
-                        serieNew.hrefs=serieCartel.hrefs;
+                        serieNew.href=serieCartel.hrefs;
                         serieNew.rating=serieCartel.rating;
                         serieNew.sinopsis=serieCartel.sinopsis;
                         serieNew.titulo=serieCartel.name;

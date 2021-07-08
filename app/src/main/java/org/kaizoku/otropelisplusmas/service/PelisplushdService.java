@@ -2,9 +2,11 @@ package org.kaizoku.otropelisplusmas.service;
 
 import android.util.Log;
 
+import org.kaizoku.otropelisplusmas.database.entity.MediaEnt;
 import org.kaizoku.otropelisplusmas.model.Cartel;
 import org.kaizoku.otropelisplusmas.model.Chapter;
-import org.kaizoku.otropelisplusmas.model.ItemPagination;
+import org.kaizoku.otropelisplusmas.model.FullPage;
+import org.kaizoku.otropelisplusmas.model.ItemPage;
 import org.kaizoku.otropelisplusmas.model.Season;
 import org.kaizoku.otropelisplusmas.model.SerieCartel;
 import org.kaizoku.otropelisplusmas.model.VideoCard;
@@ -36,7 +38,7 @@ public class PelisplushdService {
     public PelisplushdService() {
     }
 
-    public PelisplushdService(OnMenuVideoListener onMenuVideoListener) {
+    /*public PelisplushdService(OnMenuVideoListener onMenuVideoListener) {
         this.onMenuVideoListener = onMenuVideoListener;
     }
 
@@ -48,11 +50,12 @@ public class PelisplushdService {
             }
         });
         h.start();
-    }
+    }*/
 
-    private void loadMenuCardsCallback(String url){
-        List<VideoCard> listVideo=new ArrayList<>();
-        List<ItemPagination> paginacion = new ArrayList<>();
+    private FullPage loadMenuCards(String url){
+        FullPage fullPage;
+        List<MediaEnt> listVideo=new ArrayList<>();
+        List<ItemPage> paginacion = new ArrayList<>();
 
         try{
             Document doc = Jsoup.connect(url)
@@ -60,28 +63,34 @@ public class PelisplushdService {
                     .get();
             Elements ele = doc.select("div.Posters>a.Posters-link");
             for(Element e:ele){
-                String name="", rating="", urlv="", src="";
-                if(e.selectFirst("p")!=null)name=e.selectFirst("p").text();
+                String title="", rating="", urlv="", src="";
+                if(e.selectFirst("p")!=null)title=e.selectFirst("p").text();
                 if(e.selectFirst("div.stars span")!=null)rating=e.selectFirst("div.stars span").text();
                 if(e.attr("href")!=null)urlv=e.attr("href");
                 if(e.selectFirst("img")!=null)src=e.selectFirst("img").attr("src");
-                byte type = getType(urlv);
-                listVideo.add(new VideoCard(name,rating,urlv,src,type));
+                //byte type = getType(urlv);
+                listVideo.add(new MediaEnt(title,rating,urlv,src));
+
             }
 
             Elements pag = doc.select("ul.pagination>li>a");
             for(Element a:pag)
-                paginacion.add(new ItemPagination(a.text(),a.attr("href")));
-            if(onMenuVideoListener!=null)onMenuVideoListener.onLoadMenuVideos(listVideo,paginacion);
+                paginacion.add(new ItemPage(a.text(),a.attr("href")));
+            //if(onMenuVideoListener!=null)onMenuVideoListener.onLoadMenuVideos(listVideo,paginacion);
+            return new FullPage(listVideo,paginacion);
         }catch(Exception e){e.printStackTrace();}
+        return  new FullPage(null,null);
     }
 
-    private byte getType(String link){
-        if(link.contains("/pelicula"))return VideoCard.TYPE_PELICULA;
-        if(link.contains("/serie"))return VideoCard.TYPE_SERIE;
-        if(link.contains("/anime"))return VideoCard.TYPE_ANIME;
-        return 0;
+    public Single<FullPage> loadMenuCardsSingle(String url){
+        return Single.create(emitter -> {
+            try {
+                emitter.onSuccess(loadMenuCards(url));
+            }catch (Exception e){emitter.onError(e);e.printStackTrace();}
+        });
     }
+
+
 
     private Cartel getCartelFromDoc(Document doc){
         try {
@@ -316,16 +325,16 @@ public class PelisplushdService {
         return json;
     }
 
-    public List<ItemPagination> getMenuPaginacion(String html) {
+    public List<ItemPage> getMenuPaginacion(String html) {
         //String url="https://pelisplushd.net/series";
-        List<ItemPagination> paginacion = new ArrayList<>();
+        List<ItemPage> paginacion = new ArrayList<>();
         try{
             Document doc = Jsoup.connect(html)
                     .timeout(12000)
                     .get();
             Elements ele = doc.select("ul.pagination>li>a");
             for(Element a:ele)
-                paginacion.add(new ItemPagination(a.text(),a.attr("href")));
+                paginacion.add(new ItemPage(a.text(),a.attr("href")));
         }catch(Exception e){e.printStackTrace();}
         return paginacion;
     }
@@ -375,8 +384,10 @@ public class PelisplushdService {
         });
     }
 
+    /*
     private OnMenuVideoListener onMenuVideoListener;
     public interface OnMenuVideoListener{
-        void onLoadMenuVideos(List<VideoCard> listCards, List<ItemPagination> paginationList);
+        void onLoadMenuVideos(List<MediaEnt> listCards, List<ItemPage> paginationList);
     }
+    */
 }

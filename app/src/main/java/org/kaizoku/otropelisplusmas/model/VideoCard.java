@@ -1,9 +1,7 @@
 package org.kaizoku.otropelisplusmas.model;
 
 public class VideoCard {
-    public static final byte TYPE_PELICULA = 1;
-    public static final byte TYPE_SERIE = 2;
-    public static final byte TYPE_ANIME = 3;
+
     public String name;
     public String rating;
     public String url;
