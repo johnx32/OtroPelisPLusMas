@@ -139,6 +139,7 @@ public class HomeFragment extends Fragment implements
 
         Bundle b=new Bundle();
         b.putString("url",mediaEnt.href);
+        b.putParcelable("media",mediaEnt);
 
         switch (id_nav){
             case R.id.nav_home:

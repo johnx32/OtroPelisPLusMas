@@ -27,6 +27,7 @@ import com.squareup.picasso.Picasso;
 import org.kaizoku.otropelisplusmas.MainActivity;
 import org.kaizoku.otropelisplusmas.R;
 import org.kaizoku.otropelisplusmas.adapter.VideoServerAdapter;
+import org.kaizoku.otropelisplusmas.database.entity.MediaEnt;
 import org.kaizoku.otropelisplusmas.databinding.FragmentVideoCartelBinding;
 import org.kaizoku.otropelisplusmas.model.Season;
 import org.kaizoku.otropelisplusmas.model.CapituloCartel;
@@ -54,9 +55,8 @@ public class VideoCartelFragment extends Fragment implements VideoServerAdapter.
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         Log.i(TAG, "onCreateView: ");
         getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
-
         binding = FragmentVideoCartelBinding.inflate(inflater,container,false);
-
+        pelisplushdService = new PelisplushdService();
 
         videoCartelViewModel = new ViewModelProvider(this).get(VideoCartelViewModel.class);
         videoCartelViewModel.getListVideoCartel().observe(getViewLifecycleOwner(), capituloCartel -> {
@@ -65,9 +65,15 @@ public class VideoCartelFragment extends Fragment implements VideoServerAdapter.
             setVideoCartel(capituloCartel);
             videoServerAdapter.setList(capituloCartel.videoServerList);
         });
-        pelisplushdService = new PelisplushdService();
+
         intiAdapterServer();
 
+        loadArguments();
+
+        return binding.getRoot();
+    }
+
+    private void loadArguments() {
         Bundle b = getArguments();
         if(b!=null) {
             String url = b.getString("url","");
@@ -100,9 +106,9 @@ public class VideoCartelFragment extends Fragment implements VideoServerAdapter.
                                 binding.webview.setWebViewClient(new WebViewClient());
                                 binding.webview.loadUrl(capituloCartel.url_disqus);
 
-                                    //If you are using Android Lollipop i.e. SDK 21, then:
+                                //If you are using Android Lollipop i.e. SDK 21, then:
                                 //CookieManager.getInstance().setAcceptCookie(true);
-                                    //won't work. You need to use:
+                                //won't work. You need to use:
                                 CookieManager.getInstance().setAcceptThirdPartyCookies(binding.webview, true);
 
                                 binding.refresh.setOnClickListener(v -> {
@@ -117,8 +123,6 @@ public class VideoCartelFragment extends Fragment implements VideoServerAdapter.
                         }
                     });
         }
-
-        return binding.getRoot();
     }
 
     private void intiAdapterServer() {
