@@ -135,6 +135,7 @@ public class VideoCartelFragment extends Fragment implements VideoServerAdapter.
 
     private void setVideoCartel(CapituloCartel capituloCartel){
         //binding.fragSerieTitle.setText(videoCartel.name);
+        //if(capituloCartel.)
         ((MainActivity)getActivity()).setDisplayShowTitleEnabled(true);
         getActivity().setTitle(capituloCartel.name);
         binding.fragSerieSinopsis.setText(capituloCartel.sinopsis);

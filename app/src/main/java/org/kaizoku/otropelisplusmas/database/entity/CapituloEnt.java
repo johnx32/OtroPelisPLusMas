@@ -8,8 +8,10 @@ import java.util.Date;
 
 @Entity(tableName = "capitulo",indices =  {@Index(value = {"href"},unique = true)})
 public class CapituloEnt extends MediaEnt{
+    public boolean visto=false;
+    public long progress;
     public String href_serie;
-    public long progres;
+    public long id_serie;
 
     public CapituloEnt() {
     }

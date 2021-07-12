@@ -75,21 +75,14 @@ public class SerieCartelFragment extends Fragment {
         if(b!=null) {
             MediaEnt media = b.getParcelable("media");
             //String url = b.getString("url", "");
-            OPelisplusRoom.getInstance(getContext()).serieDao().getSerie(media.href).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
+            OPelisplusRoom.getInstance(getContext()).serieDao().getSerie(media.href)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
                     .flatMap(new Function<SerieEnt, SingleSource<Long>>() {
                         @Override
                         public SingleSource<Long> apply(SerieEnt serieEnt)  {
                             Log.i(TAG, "loadArgumentos: insertSerie hilo: "+Thread.currentThread().getName());
                             serie=serieEnt;
-                            /*if(serieEnt!=null){
-                                Log.i(TAG, "loadArgumentos: la serie ya esta en la db");
-                                serie=serieEnt;
-                                Log.i(TAG, "loadArgumentos: serie: "+serie);
-                                return null;
-                            }else{
-                                Log.i(TAG, "loadArgumentos: insertSerie - agregando la serie en la db");
-                                return OPelisplusRoom.getInstance(getContext()).serieDao().insertSerie((SerieEnt) media);
-                            }*/
                             return Single.just(serie.id);
                         }
                     }).onErrorResumeNext(new Function<Throwable, SingleSource<? extends Long>>() {
@@ -97,34 +90,19 @@ public class SerieCartelFragment extends Fragment {
                         public SingleSource<? extends Long> apply(@NotNull Throwable throwable) throws Exception {
                             Log.e(TAG, "apply: onErrorResumeNext", throwable);
                             Log.i(TAG, "apply: insertSerie");
-                            return OPelisplusRoom.getInstance(getContext()).serieDao().insertSerie(new SerieEnt(media)).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread());
+                            return OPelisplusRoom.getInstance(getContext()).serieDao().insertSerie(new SerieEnt(media))
+                                    .subscribeOn(Schedulers.io())
+                                    .observeOn(AndroidSchedulers.mainThread());
                         }
-                    })
-
-                    /*.onErrorResumeNext(new Function<Throwable, SingleSource<? extends Long>>() {
-                        @Override
-                        public SingleSource<? extends Long> apply(@NotNull Throwable throwable) throws Exception {
-                            Log.i(TAG, "loadArgumentos: doOnError1 hilo: "+Thread.currentThread().getName());
-                            Log.e(TAG, "loadArgumentos: doOnError1: "+throwable, throwable);
-                            return OPelisplusRoom.getInstance(getContext()).serieDao().insertSerie((SerieEnt) media);
-                        }
-                    })*/
-                    .flatMap(aLong -> {
+                    }).flatMap(aLong -> {
                         Log.i(TAG, "loadArgumentos: getSerie hilo: "+Thread.currentThread().getName());
                         Log.i(TAG, "loadArgumentos: getSerie- obteniendo la serie long: "+aLong);
                         if(serie!=null && serie.id==aLong) return Single.just(serie);
-                        return OPelisplusRoom.getInstance(getContext()).serieDao().getSerie(aLong).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread());
+                        return OPelisplusRoom.getInstance(getContext()).serieDao().getSerie(aLong)
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(AndroidSchedulers.mainThread());
                         //return null;
-                    })
-
-                    /*.onErrorResumeNext(new Function<Throwable, SingleSource<?>>() {
-                        @Override
-                        public SingleSource<?> apply(@NotNull Throwable throwable) throws Exception {
-                            return null;
-                        }
-                    })*/
-
-                    .subscribe((serieEnt, throwable) -> {
+                    }).subscribe((serieEnt, throwable) -> {
                         Log.i(TAG, "loadArgumentos: subscribe hilo: " + Thread.currentThread().getName());
                         if (throwable == null){
                             if( serieEnt!=null){
@@ -136,7 +114,18 @@ public class SerieCartelFragment extends Fragment {
                                 else Log.i(TAG, "loadArgumentos: serie y serieEnt distintos!");
                             }else Log.e(TAG, "loadArgumentos: serieEnt es null");
                         }else Log.e(TAG, "loadArgumentos: subscribe - hubo un error: "+throwable,throwable);
+
+
+                        setSerieCartel(serie);
+                        getSerie(serie);
+                        tabSeasonStateAdapter.setTabSeasonList(serie.seasonList);
+                        new TabLayoutMediator(binding.fragCartelViewpagerTabs, binding.fragCartelViewpagerVp2,
+                                (tab, position) -> {
+                                    tab.setText(serie.seasonList.get(position).seasonTitle);
+                                }
+                        ).attach();
                     });
+            //OPelisplusRoom.getInstance(getContext()).serieDao().getSerieConCapitulos();
 
             /*pelisplushdService.getSingleSerieCartel(media.href).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
                 .subscribe((serieCartel, throwable) -> {
@@ -154,9 +143,19 @@ public class SerieCartelFragment extends Fragment {
         }
     }
 
-    private void getSerie(SerieCartel serieCartel) {
+    private void setSerieCartel(SerieEnt serie){
+        ((MainActivity)getActivity()).setDisplayShowTitleEnabled(true);
+        //((MainActivity)getActivity()).setTitleToolbar(serieCartel.name);
+        getActivity().setTitle(serie.titulo);
+        binding.fragCartelSinopsis.setText(serie.sinopsis);
+        try {
+            ((MainActivity)getActivity()).loadImgToolbar(serie.src_img);
+        }catch (Exception e){e.printStackTrace();}
+    }
+
+    private void getSerie(SerieEnt serie) {
         Log.i(TAG, "getSerie: ");
-        OPelisplusRoom.getInstance(getContext()).serieDao().getSerie(serieCartel.hrefs)
+        OPelisplusRoom.getInstance(getContext()).serieDao().getSerie(serie.href)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe((serieEnt, throwable) -> {
@@ -167,14 +166,14 @@ public class SerieCartelFragment extends Fragment {
                         setFloatingactionbuttonCallback();
                     }else{
                         Log.i(TAG, "getSerie: thr error");
-                        SerieEnt serieNew = new SerieEnt();
-                        serieNew.href=serieCartel.hrefs;
-                        serieNew.rating=serieCartel.rating;
-                        serieNew.sinopsis=serieCartel.sinopsis;
+                        /*SerieEnt serieNew = new SerieEnt();
+                        serieNew.href=serie.href;
+                        serieNew.rating=serie.rating;
+                        serieNew.sinopsis=serie.sinopsis;
                         serieNew.titulo=serieCartel.name;
                         serieNew.src_img=serieCartel.src_img;
-                        serieNew.url_disqus=serieCartel.url_disqus;
-                        OPelisplusRoom.getInstance(getContext()).serieDao().insertSerie(serieNew)
+                        serieNew.url_disqus=serieCartel.url_disqus;*/
+                        OPelisplusRoom.getInstance(getContext()).serieDao().insertSerie(serie)
                                 .subscribeOn(Schedulers.io())
                                 .observeOn(AndroidSchedulers.mainThread())
                                 .subscribe((aLong, throwable1) -> {
@@ -225,16 +224,6 @@ public class SerieCartelFragment extends Fragment {
                         }
                     });
         });
-    }
-
-    private void setSerieCartel(SerieCartel serieCartel){
-        ((MainActivity)getActivity()).setDisplayShowTitleEnabled(true);
-        //((MainActivity)getActivity()).setTitleToolbar(serieCartel.name);
-        getActivity().setTitle(serieCartel.name);
-        binding.fragCartelSinopsis.setText(serieCartel.sinopsis);
-        try {
-            ((MainActivity)getActivity()).loadImgToolbar(serieCartel.src_img);
-        }catch (Exception e){e.printStackTrace();}
     }
 
     @Override

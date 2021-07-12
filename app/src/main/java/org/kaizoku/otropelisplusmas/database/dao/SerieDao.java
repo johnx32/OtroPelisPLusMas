@@ -4,10 +4,11 @@ import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
+import androidx.room.Transaction;
 import androidx.room.Update;
 
-import org.kaizoku.otropelisplusmas.database.entity.CapituloEnt;
 import org.kaizoku.otropelisplusmas.database.entity.SerieEnt;
+import org.kaizoku.otropelisplusmas.database.entity.query.SerieConCapitulos;
 
 import java.util.List;
 
@@ -28,6 +29,9 @@ public interface SerieDao {
     Single<SerieEnt> getSerie(String href);
     @Query("select * from serie;")
     Single<List<SerieEnt>> getSeries();
+    @Transaction
+    @Query("select * from serie;")
+    Single<List<SerieConCapitulos>> getSerieConCapitulos();
 
     //UPDATE
     @Update
