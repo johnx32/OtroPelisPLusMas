@@ -123,15 +123,8 @@ public class ReproductorFragment extends Fragment implements  StyledPlayerContro
 
             pelisplushdService = new PelisplushdService();
 
-            Bundle b=getArguments();
-            if(b!=null){
-                url_video=b.getString("url","");
-                seasonList=b.getParcelableArrayList("season_list");
-                seasonPos=b.getInt("season_pos",-1);
-                chapterPos=b.getInt("chapter_pos",-1);
-                if(seasonList!=null)
-                    Log.i(TAG, "onCreateView: sp: "+seasonPos+" cp: "+chapterPos+" size: "+seasonList.size());
-            }
+            loadArguments();
+
 
             playerView = binding.playerView;
             //playerView.setPlayer(player);
@@ -242,6 +235,18 @@ public class ReproductorFragment extends Fragment implements  StyledPlayerContro
         }
 
         return binding.getRoot();
+    }
+
+    private void loadArguments(){
+        Bundle b=getArguments();
+        if(b!=null){
+            url_video=b.getString("url","");
+            seasonList=b.getParcelableArrayList("season_list");
+            seasonPos=b.getInt("season_pos",-1);
+            chapterPos=b.getInt("chapter_pos",-1);
+            if(seasonList!=null)
+                Log.i(TAG, "onCreateView: sp: "+seasonPos+" cp: "+chapterPos+" size: "+seasonList.size());
+        }
     }
 
     private void playerControlFlow() {

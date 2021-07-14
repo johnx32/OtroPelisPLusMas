@@ -37,24 +37,22 @@ public class MediaEnt implements Parcelable {
 
     public MediaEnt(MediaEnt media){
         this.id=media.id;
-        this.href=media.href;
-        this.titulo=media.href;
-        this.src_img=media.src_img;
+            this.href=media.href;
+            this.titulo=media.href;
+            this.src_img=media.src_img;
         this.sinopsis=media.sinopsis;
         this.url_disqus=media.url_disqus;
-        this.rating=media.rating;
         this.favorito_id=media.favorito_id;
         this.created_at=media.created_at;
         this.updated_at=media.updated_at;
+            this.rating=media.rating;
     }
-
     public MediaEnt(String titulo,String rating,String href, String src_img) {
         this.titulo = titulo;
         this.rating=rating;
         this.href=href;
         this.src_img=src_img;
     }
-
     public byte getType(String url){
         if(url.contains("/pelicula"))return MediaEnt.TYPE_PELICULA;
         if(url.contains("/serie"))return MediaEnt.TYPE_SERIE;

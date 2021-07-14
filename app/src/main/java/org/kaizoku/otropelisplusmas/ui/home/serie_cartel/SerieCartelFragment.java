@@ -5,51 +5,38 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
-import androidx.transition.ChangeBounds;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.tabs.TabLayoutMediator;
-import com.squareup.picasso.Picasso;
 
 import org.jetbrains.annotations.NotNull;
 import org.kaizoku.otropelisplusmas.MainActivity;
 import org.kaizoku.otropelisplusmas.R;
 import org.kaizoku.otropelisplusmas.database.OPelisplusRoom;
-import org.kaizoku.otropelisplusmas.database.entity.FavoritoEnt;
 import org.kaizoku.otropelisplusmas.database.entity.MediaEnt;
 import org.kaizoku.otropelisplusmas.database.entity.SerieEnt;
-import org.kaizoku.otropelisplusmas.databinding.AppBarMainBinding;
+import org.kaizoku.otropelisplusmas.database.viewmodel.SerieViewModel;
 import org.kaizoku.otropelisplusmas.databinding.FragmentSerieCartelBinding;
-import org.kaizoku.otropelisplusmas.model.SerieCartel;
 import org.kaizoku.otropelisplusmas.service.PelisplushdService;
-import org.reactivestreams.Publisher;
 
-import java.util.Iterator;
-
-import io.reactivex.Observable;
-import io.reactivex.ObservableSource;
 import io.reactivex.Single;
-import io.reactivex.SingleObserver;
 import io.reactivex.SingleSource;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.disposables.Disposables;
-import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
-import io.reactivex.internal.subscribers.BlockingBaseSubscriber;
 import io.reactivex.schedulers.Schedulers;
 
 public class SerieCartelFragment extends Fragment {
     private static final String TAG = "bf5t1";
     private FragmentSerieCartelBinding binding;
     private PelisplushdService pelisplushdService;
+    private SerieViewModel serieViewModel;
     private TabSeasonStateAdapter tabSeasonStateAdapter;
     private SerieEnt serie;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,7 +47,7 @@ public class SerieCartelFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         binding = FragmentSerieCartelBinding.inflate(inflater,container,false);
-
+        serieViewModel = new ViewModelProvider(this).get(SerieViewModel.class);
         tabSeasonStateAdapter = new TabSeasonStateAdapter(getChildFragmentManager(),getLifecycle());
         binding.fragCartelViewpagerVp2.setAdapter(tabSeasonStateAdapter);
 
@@ -75,21 +62,69 @@ public class SerieCartelFragment extends Fragment {
         if(b!=null) {
             MediaEnt media = b.getParcelable("media");
             //String url = b.getString("url", "");
+            serieViewModel.getSerie(media.href)
+                    .flatMap(new Function<SerieEnt, SingleSource<SerieEnt>>() {
+                        @Override
+                        public SingleSource<SerieEnt> apply(@NotNull SerieEnt serieEnt) throws Exception {
+                            Log.i(TAG, "apply: 1 obtenido de la db");
+                            serie=serieEnt;
+                            loadSerieEnt(serie);
+                            return pelisplushdService.getSingleSerieCartel(media.href)
+                                    .subscribeOn(Schedulers.io())
+                                    .observeOn(AndroidSchedulers.mainThread());
+                        }
+                    }).onErrorResumeNext(new Function<Throwable, SingleSource<SerieEnt>>() {
+                        @Override
+                        public SingleSource<SerieEnt> apply(@NotNull Throwable throwable) throws Exception {
+                            Log.e(TAG, "apply: 2 onErrorResumeNext ", throwable);
+                            return pelisplushdService.getSingleSerieCartel(media.href)
+                                    .subscribeOn(Schedulers.io())
+                                    .observeOn(AndroidSchedulers.mainThread());
+                        }
+                    }).flatMap(new Function<SerieEnt, SingleSource<Long>>() {
+                        @Override
+                        public SingleSource<Long> apply(@NotNull SerieEnt serieEnt) throws Exception {
+                            Log.i(TAG, "apply: 3 serieEnt from web service");
+                            loadSerieEnt(serieEnt);
+                            if (serie == null){//from error - todo:if serie null insertar
+                                serie = serieEnt;
+                                return serieViewModel.insertSerie(serie);
+                            }else {//from db -
+                                serie.seasonList=serieEnt.seasonList;
+                                return Single.just(-1l);
+                            }
+                        }
+                    }).subscribe((id, throwable) -> {
+                        Log.i(TAG, "loadArgumentos: subscribe");
+                        if(throwable==null){
+                            if(id<0)
+                                serie.id=id;
+                            tabSeasonStateAdapter.setTabSeasonList(serie.seasonList);
+                            new TabLayoutMediator(binding.fragCartelViewpagerTabs, binding.fragCartelViewpagerVp2,
+                                    (tab, position) -> {
+                                        tab.setText(serie.seasonList.get(position).seasonTitle);
+                                    }
+                            ).attach();
+                        }else Log.e(TAG, "loadArgumentos: subscribe error", throwable);
+                    });
+
+            /*
             OPelisplusRoom.getInstance(getContext()).serieDao().getSerie(media.href)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .flatMap(new Function<SerieEnt, SingleSource<Long>>() {
                         @Override
                         public SingleSource<Long> apply(SerieEnt serieEnt)  {
-                            Log.i(TAG, "loadArgumentos: insertSerie hilo: "+Thread.currentThread().getName());
+                            Log.i(TAG, "loadArgumentos: 1 insertSerie hilo: "+Thread.currentThread().getName());
                             serie=serieEnt;
+                                loadSerieEnt(serie);
                             return Single.just(serie.id);
                         }
                     }).onErrorResumeNext(new Function<Throwable, SingleSource<? extends Long>>() {
                         @Override
                         public SingleSource<? extends Long> apply(@NotNull Throwable throwable) throws Exception {
-                            Log.e(TAG, "apply: onErrorResumeNext", throwable);
-                            Log.i(TAG, "apply: insertSerie");
+                            Log.e(TAG, "apply: 2 onErrorResumeNext", throwable);
+                            Log.i(TAG, "apply: 2 insertSerie");
                             return OPelisplusRoom.getInstance(getContext()).serieDao().insertSerie(new SerieEnt(media))
                                     .subscribeOn(Schedulers.io())
                                     .observeOn(AndroidSchedulers.mainThread());
@@ -116,7 +151,7 @@ public class SerieCartelFragment extends Fragment {
                         }else Log.e(TAG, "loadArgumentos: subscribe - hubo un error: "+throwable,throwable);
 
 
-                        setSerieCartel(serie);
+                        loadSerieEnt(serie);
                         getSerie(serie);
                         tabSeasonStateAdapter.setTabSeasonList(serie.seasonList);
                         new TabLayoutMediator(binding.fragCartelViewpagerTabs, binding.fragCartelViewpagerVp2,
@@ -125,6 +160,9 @@ public class SerieCartelFragment extends Fragment {
                                 }
                         ).attach();
                     });
+            */
+
+
             //OPelisplusRoom.getInstance(getContext()).serieDao().getSerieConCapitulos();
 
             /*pelisplushdService.getSingleSerieCartel(media.href).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
@@ -143,7 +181,8 @@ public class SerieCartelFragment extends Fragment {
         }
     }
 
-    private void setSerieCartel(SerieEnt serie){
+    private void loadSerieEnt(SerieEnt serie){
+        Log.i(TAG, "loadSerieEnt: serie: "+serie);
         ((MainActivity)getActivity()).setDisplayShowTitleEnabled(true);
         //((MainActivity)getActivity()).setTitleToolbar(serieCartel.name);
         getActivity().setTitle(serie.titulo);

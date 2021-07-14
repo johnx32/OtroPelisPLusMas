@@ -2,7 +2,11 @@ package org.kaizoku.otropelisplusmas.service;
 
 import android.util.Log;
 
+import androidx.annotation.Nullable;
+
+import org.kaizoku.otropelisplusmas.database.entity.CapituloEnt;
 import org.kaizoku.otropelisplusmas.database.entity.MediaEnt;
+import org.kaizoku.otropelisplusmas.database.entity.SerieEnt;
 import org.kaizoku.otropelisplusmas.model.Cartel;
 import org.kaizoku.otropelisplusmas.model.Chapter;
 import org.kaizoku.otropelisplusmas.model.FullPage;
@@ -105,7 +109,8 @@ public class PelisplushdService {
         return null;
     }
 
-    private SerieCartel getSerieCartel(String url){
+    private SerieEnt getSerieCartel(String url){
+        SerieEnt serie = new SerieEnt();
         try {
             Document doc = Jsoup.connect(url)
                     .timeout(12000)
@@ -132,24 +137,40 @@ public class PelisplushdService {
                 if(i<tablist.size())title=tablist.get(i).text();
                 seasonList.add(new Season(title,chapterList));
             }
-            SerieCartel serieCartel = new SerieCartel(cartel,seasonList);
-            serieCartel.hrefs = url;
-            return serieCartel;
+            //SerieCartel serieCartel = new SerieCartel(cartel,seasonList);
+            //serieCartel.hrefs = url;
+            serie.href=url;
+            serie.titulo=cartel.name;
+            serie.sinopsis=cartel.sinopsis;
+            serie.src_img=cartel.src_img;
+            serie.rating=cartel.rating;
+            serie.url_disqus=cartel.url_disqus;
+            serie.seasonList=seasonList;
+            return serie;
         }catch(Exception e){e.printStackTrace();}
         return null;
     }
 
-    private CapituloCartel getVideoCartel(String url){
+    private CapituloEnt getVideoCartel(String url){
+        //todo:obtener url serie
+        CapituloEnt capitulo;
         List<String> listUrlServer=new ArrayList<>();
         List<VideoServer> listServers=new ArrayList<>();
         try {
             Document doc = Jsoup.connect(url)
                     .timeout(12000)
                     .get();
+            capitulo = new CapituloEnt();
             Cartel cartel = getCartelFromDoc(doc);
+            //capitulo.href_serie =
+            capitulo.href = url;
+            capitulo.titulo = cartel.name;
+            capitulo.rating = cartel.rating;
+            capitulo.sinopsis = cartel.sinopsis;
+            capitulo.src_img = cartel.src_img;
 
-            cartel.url_disqus = getDisqusComments(doc);
-            Log.i(TAG, "getVideoCartel: url disqus: "+cartel.url_disqus);
+            capitulo.url_disqus = getDisqusComments(doc);
+            Log.i(TAG, "getVideoCartel: url disqus: "+capitulo.url_disqus);
 
             Elements listNameServers = doc.select("div.player>div>ul>li>a");
             Elements scrypts=doc.getElementsByTag("script");
@@ -167,8 +188,9 @@ public class PelisplushdService {
                     listServers.add(new FembedServer(nameServer,json));
                 }
             }
+            capitulo.videoServerList = listServers;
 
-            return new CapituloCartel(cartel, listServers);
+            return capitulo;
         }catch(Exception e){e.printStackTrace();}
         return null;
     }
@@ -368,7 +390,7 @@ public class PelisplushdService {
         });
     }*/
 
-    public Single<SerieCartel> getSingleSerieCartel(String url){
+    public Single<SerieEnt> getSingleSerieCartel(String url){
         return Single.create(emitter -> {
             try {
                 emitter.onSuccess(getSerieCartel(url));
@@ -376,7 +398,7 @@ public class PelisplushdService {
         });
     }
 
-    public Single<CapituloCartel> getSingleVideoCartel(String url){
+    public Single<CapituloEnt> getSingleVideoCartel(String url){
         return Single.create(emitter -> {
             try {
                 emitter.onSuccess(getVideoCartel(url));

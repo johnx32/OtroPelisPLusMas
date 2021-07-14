@@ -13,6 +13,8 @@ import org.kaizoku.otropelisplusmas.database.entity.SerieEnt;
 import java.util.List;
 
 import io.reactivex.Single;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 
 public class SerieViewModel extends AndroidViewModel {
     private SerieDao serieDao;
@@ -22,10 +24,18 @@ public class SerieViewModel extends AndroidViewModel {
     }
 
     public Single<Long> insertSerie(SerieEnt serie){
-        return serieDao.insertSerie(serie);
+        return serieDao.insertSerie(serie)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
     }
 
     public Single<List<SerieEnt>> getSeries(){
         return serieDao.getSeries();
+    }
+
+    public Single<SerieEnt> getSerie(String href) {
+        return serieDao.getSerie(href)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
     }
 }

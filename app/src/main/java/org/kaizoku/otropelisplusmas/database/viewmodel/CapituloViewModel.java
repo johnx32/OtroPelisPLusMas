@@ -26,8 +26,17 @@ public class CapituloViewModel extends AndroidViewModel {
     public Single<Long> insertCapitolo(CapituloEnt capitulo){
         return capituloDao.insertCapitulos(capitulo);
     }
-
+    public Single<CapituloEnt> getCapitulo(long id){
+        return capituloDao.getCapitulo(id);
+    }
+    public Single<CapituloEnt> getCapitulo(String href){
+        return capituloDao.getCapitulo(href);
+    }
     public Single<List<CapituloEnt>> getCapitulos(){
         return capituloDao.getCapitulos();
+    }
+
+    public Single<Integer> updateCapitulo(CapituloEnt capitulo){
+        return capituloDao.updateCapitulo(capitulo);
     }
 }

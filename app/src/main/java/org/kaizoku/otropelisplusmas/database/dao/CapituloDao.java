@@ -22,6 +22,8 @@ public interface CapituloDao {
     //READ
     @Query("select * from capitulo where id=:id")
     Single<CapituloEnt> getCapitulo(long id);
+    @Query("select * from capitulo where href=:href")
+    Single<CapituloEnt> getCapitulo(String href);
     @Query("select * from capitulo;")
     Single<List<CapituloEnt>> getCapitulos();
 

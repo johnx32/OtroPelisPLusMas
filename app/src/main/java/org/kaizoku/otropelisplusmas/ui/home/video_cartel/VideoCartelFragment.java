@@ -22,33 +22,39 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.google.android.gms.ads.AdSize;
 import com.google.android.material.snackbar.Snackbar;
-import com.squareup.picasso.Picasso;
 
+import org.jetbrains.annotations.NotNull;
 import org.kaizoku.otropelisplusmas.MainActivity;
 import org.kaizoku.otropelisplusmas.R;
 import org.kaizoku.otropelisplusmas.adapter.VideoServerAdapter;
-import org.kaizoku.otropelisplusmas.database.entity.MediaEnt;
+import org.kaizoku.otropelisplusmas.database.entity.CapituloEnt;
+import org.kaizoku.otropelisplusmas.database.viewmodel.CapituloViewModel;
 import org.kaizoku.otropelisplusmas.databinding.FragmentVideoCartelBinding;
-import org.kaizoku.otropelisplusmas.model.Season;
-import org.kaizoku.otropelisplusmas.model.CapituloCartel;
 import org.kaizoku.otropelisplusmas.service.PelisplushdService;
 
 import java.util.ArrayList;
-import java.util.List;
 
+import io.reactivex.Single;
+import io.reactivex.SingleSource;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.BiConsumer;
+import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 
 public class VideoCartelFragment extends Fragment implements VideoServerAdapter.OnCardListener{
     private static final String TAG = "flub1";
     private FragmentVideoCartelBinding binding;
     private PelisplushdService pelisplushdService;
+    private CapituloViewModel capituloViewModel;
     private VideoServerAdapter videoServerAdapter;
-    private VideoCartelViewModel videoCartelViewModel;
+    private CapituloEnt capitulo;
+    //private VideoCartelViewModel videoCartelViewModel;
     // Controls de season & chapter
+    /*
     private List<Season> seasonList=new ArrayList<>();
     private int seasonPos;
     private int chapterPos;
+    */
 
     @Nullable
     @Override
@@ -58,6 +64,9 @@ public class VideoCartelFragment extends Fragment implements VideoServerAdapter.
         binding = FragmentVideoCartelBinding.inflate(inflater,container,false);
         pelisplushdService = new PelisplushdService();
 
+        capituloViewModel = new ViewModelProvider(this).get(CapituloViewModel.class);
+
+        /*
         videoCartelViewModel = new ViewModelProvider(this).get(VideoCartelViewModel.class);
         videoCartelViewModel.getListVideoCartel().observe(getViewLifecycleOwner(), capituloCartel -> {
             // update UI
@@ -65,6 +74,7 @@ public class VideoCartelFragment extends Fragment implements VideoServerAdapter.
             setVideoCartel(capituloCartel);
             videoServerAdapter.setList(capituloCartel.videoServerList);
         });
+        */
 
         intiAdapterServer();
 
@@ -77,17 +87,97 @@ public class VideoCartelFragment extends Fragment implements VideoServerAdapter.
         Bundle b = getArguments();
         if(b!=null) {
             String url = b.getString("url","");
+
+
+            /*
             seasonList=b.getParcelableArrayList("season_list");
             seasonPos=b.getInt("season_pos",-1);
             chapterPos=b.getInt("chapter_pos",-1);
+            */
+
+            capituloViewModel.getCapitulo(url)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .flatMap(new Function<CapituloEnt, SingleSource<CapituloEnt>>() {
+                        @Override
+                        public SingleSource<CapituloEnt> apply(@NotNull CapituloEnt capituloEnt) throws Exception {
+                            capitulo = capituloEnt;
+                            loadCapituloEntCartel(capitulo);
+                            Log.i(TAG, "apply: 1 capituloEnt: "+capituloEnt);
+                            return pelisplushdService.getSingleVideoCartel(url)
+                                    .subscribeOn(Schedulers.io())
+                                    .observeOn(AndroidSchedulers.mainThread());
+                        }
+                    })
+                    .onErrorResumeNext(new Function<Throwable, SingleSource<? extends CapituloEnt>>() {
+                        @Override
+                        public SingleSource<? extends CapituloEnt> apply(@NotNull Throwable throwable) throws Exception {
+                            Log.i(TAG, "apply: 2 onErrorResumeNext ");
+                            Log.e(TAG, "apply: 2 onErrorResumeNext", throwable);
+                            return pelisplushdService.getSingleVideoCartel(url)
+                                    .subscribeOn(Schedulers.io())
+                                    .observeOn(AndroidSchedulers.mainThread());
+                        }
+                    })
+                    .flatMap(new Function<CapituloEnt, SingleSource<Long>>() {
+                        @Override
+                        public SingleSource<Long> apply(@NotNull CapituloEnt capituloGet) throws Exception {
+                            Log.i(TAG, "apply: 3 capituloGet: "+capituloGet);
+                            if(capitulo==null)//no insertado
+                                return capituloViewModel.insertCapitolo(capituloGet)
+                                        .subscribeOn(Schedulers.io())
+                                        .observeOn(AndroidSchedulers.mainThread());;
+                            return Single.just(capitulo.id);
+                        }
+                    })
+                    .flatMap(new Function<Long, SingleSource<CapituloEnt>>() {
+                        @Override
+                        public SingleSource<CapituloEnt> apply(@NotNull Long id) throws Exception {
+                            Log.i(TAG, "apply: 4 id: "+id);
+                            if(capitulo==null)
+                                return capituloViewModel.getCapitulo(id)
+                                        .subscribeOn(Schedulers.io())
+                                        .observeOn(AndroidSchedulers.mainThread());
+                            return Single.just(capitulo);
+                        }
+                    })
+                    .flatMap(new Function<CapituloEnt, SingleSource<Integer>>() {
+                        @Override
+                        public SingleSource<Integer> apply(@NotNull CapituloEnt capituloEnt) throws Exception {
+                            Log.i(TAG, "apply: 5 capituloEnt: "+capituloEnt);
+                            if(capitulo==null)
+                                capitulo = capituloEnt;
+                            else capitulo.videoServerList=capituloEnt.videoServerList;
+                            if(!capitulo.equals(capituloEnt)) {
+                                Log.i(TAG, "apply: 5 actualizando capitulo");
+                                capitulo.updateFrom(capituloEnt);
+                                return capituloViewModel.updateCapitulo(capitulo)
+                                        .subscribeOn(Schedulers.io())
+                                        .observeOn(AndroidSchedulers.mainThread());
+                            }else return Single.just(-1);
+                        }
+                    })
+                    .subscribe(new BiConsumer<Integer, Throwable>() {
+                        @Override
+                        public void accept(Integer cantidad, Throwable throwable) throws Exception {
+                            if(throwable==null){
+                                if(cantidad>0)
+                                    Log.i(TAG, "accept: actualizado cant: "+cantidad);
+                                if (capitulo!=null)
+                                    loadCapituloEntCartel(capitulo);
+                            }else Log.e(TAG, "accept: error ", throwable);
+                        }
+                    });
+
             //todo: hacer esta llamada solo si la lista esta vacia
+            /*
             pelisplushdService.getSingleVideoCartel(url)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe((capituloCartel, throwable) -> {
                         if(throwable==null&& capituloCartel !=null){
                             Log.i(TAG, "onCreateView: entro getSingleVideoCartel");
-                            videoCartelViewModel.setVideoCartel(capituloCartel);
+                            //videoCartelViewModel.setVideoCartel(capituloCartel);
                             //setVideoCartel(videoCartel);
                             //videoServerAdapter.setList(videoCartel.videoServerList);
 
@@ -122,6 +212,7 @@ public class VideoCartelFragment extends Fragment implements VideoServerAdapter.
                             //binding.webview.loadUrl("https://disqus.com/embed/comments/?base=default&amp;f=https-animeflv-net&amp;t_i=episode_58508&amp;t_u=https%3A%2F%2Fwww3.animeflv.net%2Fver%2Fseijo-no-maryoku-wa-bannou-desu-10&amp;t_d=Seijo%20no%20Maryoku%20wa%20Bannou%20Desu%20Episodio%2010&amp;t_t=Seijo%20no%20Maryoku%20wa%20Bannou%20Desu%20Episodio%2010&amp;s_o=default#version=a5921af07b365f6dfd62075d2dee3735");
                         }
                     });
+            */
         }
     }
 
@@ -133,14 +224,34 @@ public class VideoCartelFragment extends Fragment implements VideoServerAdapter.
         binding.fragSerieRvServers.setAdapter(videoServerAdapter);
     }
 
-    private void setVideoCartel(CapituloCartel capituloCartel){
+    private void loadCapituloEntCartel(CapituloEnt capitulo){
         //binding.fragSerieTitle.setText(videoCartel.name);
-        //if(capituloCartel.)
+        if(capitulo.visto)
+            binding.fragSerieChipVisto.setVisibility(View.VISIBLE);
+        else binding.fragSerieChipVisto.setVisibility(View.GONE);
         ((MainActivity)getActivity()).setDisplayShowTitleEnabled(true);
-        getActivity().setTitle(capituloCartel.name);
-        binding.fragSerieSinopsis.setText(capituloCartel.sinopsis);
+        getActivity().setTitle(capitulo.titulo);
+        binding.fragSerieSinopsis.setText(capitulo.sinopsis);
+        Log.i(TAG, "loadCapituloEntCartel: size: "+capitulo.videoServerList.size());
+        videoServerAdapter.setList(capitulo.videoServerList);
+
+        if(capitulo.url_disqus!=null) {
+            // use cookies to remember a logged in status
+            //CookieSyncManager.createInstance(this);
+            //CookieSyncManager.getInstance().startSync();
+            binding.webview.setVerticalScrollBarEnabled(true);
+            binding.webview.requestFocus();
+            binding.webview.getSettings().setJavaScriptEnabled(true);
+            binding.webview.setWebViewClient(new WebViewClient());
+            binding.webview.loadUrl(capitulo.url_disqus);
+            //If you are using Android Lollipop i.e. SDK 21, then:
+            //CookieManager.getInstance().setAcceptCookie(true);
+            //won't work. You need to use:
+            CookieManager.getInstance().setAcceptThirdPartyCookies(binding.webview, true);
+            binding.refresh.setOnClickListener(v -> binding.webview.loadUrl(capitulo.url_disqus));
+        }
         try {
-            ((MainActivity)getActivity()).loadImgToolbar(capituloCartel.src_img);
+            ((MainActivity)getActivity()).loadImgToolbar(capitulo.src_img);
         }catch (Exception e){e.printStackTrace();}
     }
 
@@ -164,10 +275,12 @@ public class VideoCartelFragment extends Fragment implements VideoServerAdapter.
         switch (option) {
             case VideoServerAdapter.OPTION_PLAY:
                 Bundle b=new Bundle();
+                    b.putParcelable("capitulo",capitulo);
                     b.putString("url",file_url);
-                    b.putParcelableArrayList("season_list", (ArrayList) seasonList);
+                    /*b.putParcelableArrayList("season_list", (ArrayList) seasonList);
                     b.putInt("season_pos",seasonPos);
                     b.putInt("chapter_pos",chapterPos);
+                    */
                 NavHostFragment.findNavController(this)
                         .navigate(R.id.action_videoCartelFragment_to_nav_reproductor,b);
                 break;
