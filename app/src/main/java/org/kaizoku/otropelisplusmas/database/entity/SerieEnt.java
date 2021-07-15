@@ -9,6 +9,7 @@ import androidx.room.Ignore;
 import androidx.room.Index;
 
 import org.jetbrains.annotations.NotNull;
+import org.kaizoku.otropelisplusmas.model.Chapter;
 import org.kaizoku.otropelisplusmas.model.Season;
 
 import java.util.ArrayList;
@@ -18,6 +19,10 @@ import java.util.List;
 public class SerieEnt extends MediaEnt {
     public int capProgres;
     @Ignore
+    public int seasonPos;
+    @Ignore
+    public int chapterPos;
+    @Ignore
     public List<Season> seasonList=new ArrayList<>();
 
     public SerieEnt() {
@@ -25,11 +30,18 @@ public class SerieEnt extends MediaEnt {
     public SerieEnt(MediaEnt media) {
         super(media);
     }
-
+    public List<Chapter> getCurrentSeason(){
+        return seasonList.get(seasonPos).chapterList;
+    }
+    public Chapter getCurrentSeasonChapter(){
+        return seasonList.get(seasonPos).chapterList.get(chapterPos);
+    }
 
     protected SerieEnt(Parcel in){
         super(in);
         capProgres = in.readInt();
+        seasonPos = in.readInt();
+        chapterPos = in.readInt();
         seasonList = in.readArrayList(Season.class.getClassLoader());
     }
 
@@ -54,6 +66,8 @@ public class SerieEnt extends MediaEnt {
     public void writeToParcel(Parcel dest, int flags) {
         super.writeToParcel(dest, flags);
         dest.writeInt(capProgres);
+        dest.writeInt(seasonPos);
+        dest.writeInt(chapterPos);
         dest.writeList(seasonList);
     }
 
@@ -64,4 +78,7 @@ public class SerieEnt extends MediaEnt {
         return super.toString()+"\n capProgres: "+capProgres+"\n seasonList-size: "+seasonList.size();
     }
 
+    public boolean isPlaylist() {// 0 es el 1er capitulo
+        return  seasonList!=null && seasonPos>=0 && chapterPos>=0;
+    }
 }

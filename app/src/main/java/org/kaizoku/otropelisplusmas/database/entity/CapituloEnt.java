@@ -4,12 +4,14 @@ import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
+import org.jetbrains.annotations.NotNull;
 import org.kaizoku.otropelisplusmas.model.video_server.VideoServer;
 
 import java.util.ArrayList;
@@ -87,5 +89,12 @@ public class CapituloEnt extends MediaEnt {
         dest.writeLong(progress);
         dest.writeLong(id_serie);
         dest.writeList(videoServerList);
+    }
+
+    @NonNull
+    @NotNull
+    @Override
+    public String toString() {
+        return "\nhref_serie: "+href_serie+"\n visto: "+"\nprogress: "+progress+"\n"+visto+super.toString();
     }
 }

@@ -20,6 +20,7 @@ import com.google.android.gms.ads.AdSize;
 import org.kaizoku.otropelisplusmas.MainActivity;
 import org.kaizoku.otropelisplusmas.R;
 import org.kaizoku.otropelisplusmas.adapter.ChapterAdapter;
+import org.kaizoku.otropelisplusmas.database.entity.SerieEnt;
 import org.kaizoku.otropelisplusmas.databinding.FragmentPlaceholderSeasonBinding;
 import org.kaizoku.otropelisplusmas.model.Chapter;
 import org.kaizoku.otropelisplusmas.model.Season;
@@ -32,8 +33,9 @@ public class SeasonPlaceholderFragment extends Fragment implements ChapterAdapte
     private FragmentPlaceholderSeasonBinding binding;
     private ChapterAdapter chapterAdapter;
     // Controls de season & chapter
-    private List<Season> seasonList=new ArrayList<>();
-    private int seasonPos;
+    //private List<Season> seasonList=new ArrayList<>();
+    //private int seasonPos;
+    private SerieEnt serie;
 
     public static SeasonPlaceholderFragment newInstance(List<Season> seasonList, int seasonPos) {
         //Log.i(TAG, "newInstance: s: "+season.chapterList.size());
@@ -45,21 +47,34 @@ public class SeasonPlaceholderFragment extends Fragment implements ChapterAdapte
         return fragment;
     }
 
+    public static SeasonPlaceholderFragment newInstance(SerieEnt serie) {
+        Bundle b = new Bundle();
+        b.putParcelable("serie",serie);
+        SeasonPlaceholderFragment fragment = new SeasonPlaceholderFragment();
+        fragment.setArguments(b);
+        return fragment;
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         binding = FragmentPlaceholderSeasonBinding.inflate(inflater,container,false);
 
         setRecycler();
-
-        Bundle bundle = getArguments();
-        if(bundle!=null){
-            seasonList=bundle.getParcelableArrayList("season_list");
-            seasonPos=bundle.getInt("season_pos");
-            chapterAdapter.setChapterList(seasonList.get(seasonPos).chapterList);
-        }else Log.i(TAG, "onCreateView: bundle es null");
+        loadArgumentos();
 
         return binding.getRoot();
+    }
+
+    private void loadArgumentos(){
+        Bundle bundle = getArguments();
+        if(bundle!=null){
+            serie=bundle.getParcelable("serie");
+            //seasonList=bundle.getParcelableArrayList("season_list");
+            //seasonPos=bundle.getInt("season_pos");
+            chapterAdapter.setChapterList(serie.getCurrentSeason());
+            //chapterAdapter.setChapterList(seasonList.get(seasonPos).chapterList);
+        }else Log.i(TAG, "onCreateView: bundle es null");
     }
 
     private void setRecycler() {
@@ -91,11 +106,17 @@ public class SeasonPlaceholderFragment extends Fragment implements ChapterAdapte
     public void onClickCardChapter(String href,int chapterPos) {
         //#adsblock
         ((MainActivity)getActivity()).showInterstitialAd();
+        serie.chapterPos=chapterPos;
+        if(serie.getCurrentSeasonChapter().href.equals(href))
+            Log.i(TAG, "onClickCardChapter: href iguales");
         Bundle b=new Bundle();
+        b.putParcelable("serie",serie);
+        /*
         b.putString("url",href);
         b.putParcelableArrayList("season_list", (ArrayList) seasonList);
         b.putInt("season_pos",seasonPos);
         b.putInt("chapter_pos",chapterPos);
+        */
         NavHostFragment.findNavController(this)
                 .navigate(R.id.action_cartelFragment_to_videoCartelFragment,b);
     }

@@ -124,15 +124,16 @@ public class PelisplushdService {
             for (int i=0;i<size;i++) {
                 List<Chapter> chapterList=new ArrayList<>();
                 Elements capitulos = tabpanel.get(i).select("a");
-                int j=0;
+                //int j=0;
                 for(Element e:capitulos){
-                    if((j%5)==0)
-                        chapterList.add(new Chapter("","",Chapter.TYPE_BANNER_ADAPTATIVE));
+                    //if((j%5)==0)
+                        //chapterList.add(new Chapter("","",Chapter.TYPE_BANNER_ADAPTATIVE));
                     String href=e.attr("href");
                     String titulo=e.text();
                     chapterList.add(new Chapter(href,titulo,Chapter.TYPE_CHAPTER));
-                    j++;
+                    //j++;
                 }
+
                 String title="";
                 if(i<tablist.size())title=tablist.get(i).text();
                 seasonList.add(new Season(title,chapterList));

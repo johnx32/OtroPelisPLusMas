@@ -229,7 +229,8 @@ public class MainActivity extends AppCompatActivity {
             public void onInitializationComplete(InitializationStatus initializationStatus) {
             }
         });
-        List<String> testDeviceIds = Arrays.asList("AAFFE0B4F0C8C25E830B12A27616C1D4");
+        //List<String> testDeviceIds = Arrays.asList("AAFFE0B4F0C8C25E830B12A27616C1D4");//mi celu mini j1
+        List<String> testDeviceIds = Arrays.asList("CF0594B70208DD4C10C0A2CBA8028333");//virtual device android 10
         RequestConfiguration configuration = new RequestConfiguration.Builder().setTestDeviceIds(testDeviceIds).build();
         MobileAds.setRequestConfiguration(configuration);
 
@@ -268,6 +269,7 @@ public class MainActivity extends AppCompatActivity {
                 AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this,R.style.Theme_AppCompat_Dialog);
                 builder.setTitle("Changelog")
                         .setMessage("¿Desea ver el registro de cambios de esta versión?")
+                        .setNegativeButton("NO",null)
                         .setPositiveButton("SI",(dialog, which) -> {
                             navController.navigate(R.id.changelogFragment);
                         });

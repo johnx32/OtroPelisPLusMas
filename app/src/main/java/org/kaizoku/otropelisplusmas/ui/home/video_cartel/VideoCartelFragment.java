@@ -28,6 +28,7 @@ import org.kaizoku.otropelisplusmas.MainActivity;
 import org.kaizoku.otropelisplusmas.R;
 import org.kaizoku.otropelisplusmas.adapter.VideoServerAdapter;
 import org.kaizoku.otropelisplusmas.database.entity.CapituloEnt;
+import org.kaizoku.otropelisplusmas.database.entity.SerieEnt;
 import org.kaizoku.otropelisplusmas.database.viewmodel.CapituloViewModel;
 import org.kaizoku.otropelisplusmas.databinding.FragmentVideoCartelBinding;
 import org.kaizoku.otropelisplusmas.service.PelisplushdService;
@@ -45,10 +46,12 @@ public class VideoCartelFragment extends Fragment implements VideoServerAdapter.
     private static final String TAG = "flub1";
     private FragmentVideoCartelBinding binding;
     private PelisplushdService pelisplushdService;
-    private CapituloViewModel capituloViewModel;
     private VideoServerAdapter videoServerAdapter;
+
+    private SerieEnt serie;
     private CapituloEnt capitulo;
     //private VideoCartelViewModel videoCartelViewModel;
+    private CapituloViewModel capituloViewModel;
     // Controls de season & chapter
     /*
     private List<Season> seasonList=new ArrayList<>();
@@ -86,7 +89,14 @@ public class VideoCartelFragment extends Fragment implements VideoServerAdapter.
     private void loadArguments() {
         Bundle b = getArguments();
         if(b!=null) {
-            String url = b.getString("url","");
+            serie = b.getParcelable("serie");
+            String url;
+            //String url = serie.getCurrentSeasonChapter().href;
+            if(serie==null) {
+                url = b.getString("url", "");//desde serie o home
+            }else{
+                url = serie.href;
+            }
 
 
             /*
@@ -96,8 +106,6 @@ public class VideoCartelFragment extends Fragment implements VideoServerAdapter.
             */
 
             capituloViewModel.getCapitulo(url)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
                     .flatMap(new Function<CapituloEnt, SingleSource<CapituloEnt>>() {
                         @Override
                         public SingleSource<CapituloEnt> apply(@NotNull CapituloEnt capituloEnt) throws Exception {
@@ -122,22 +130,23 @@ public class VideoCartelFragment extends Fragment implements VideoServerAdapter.
                     .flatMap(new Function<CapituloEnt, SingleSource<Long>>() {
                         @Override
                         public SingleSource<Long> apply(@NotNull CapituloEnt capituloGet) throws Exception {
-                            Log.i(TAG, "apply: 3 capituloGet: "+capituloGet);
-                            if(capitulo==null)//no insertado
-                                return capituloViewModel.insertCapitolo(capituloGet)
-                                        .subscribeOn(Schedulers.io())
-                                        .observeOn(AndroidSchedulers.mainThread());;
-                            return Single.just(capitulo.id);
+                            Log.i(TAG, "apply: 3 capituloGet from web service: "+capituloGet);
+                            loadCapituloEntCartel(capituloGet);
+                            if(capitulo==null) {//no insertado
+                                capitulo=capituloGet;
+                                return capituloViewModel.insertCapitolo(capituloGet);
+                            }else {
+                                capitulo.videoServerList=capituloGet.videoServerList;
+                                return Single.just(-1l);
+                            }
                         }
                     })
-                    .flatMap(new Function<Long, SingleSource<CapituloEnt>>() {
+                    /*.flatMap(new Function<Long, SingleSource<CapituloEnt>>() {
                         @Override
                         public SingleSource<CapituloEnt> apply(@NotNull Long id) throws Exception {
                             Log.i(TAG, "apply: 4 id: "+id);
                             if(capitulo==null)
-                                return capituloViewModel.getCapitulo(id)
-                                        .subscribeOn(Schedulers.io())
-                                        .observeOn(AndroidSchedulers.mainThread());
+                                return capituloViewModel.getCapitulo(id);
                             return Single.just(capitulo);
                         }
                     })
@@ -151,20 +160,18 @@ public class VideoCartelFragment extends Fragment implements VideoServerAdapter.
                             if(!capitulo.equals(capituloEnt)) {
                                 Log.i(TAG, "apply: 5 actualizando capitulo");
                                 capitulo.updateFrom(capituloEnt);
-                                return capituloViewModel.updateCapitulo(capitulo)
-                                        .subscribeOn(Schedulers.io())
-                                        .observeOn(AndroidSchedulers.mainThread());
+                                return capituloViewModel.updateCapitulo(capitulo);
                             }else return Single.just(-1);
                         }
-                    })
-                    .subscribe(new BiConsumer<Integer, Throwable>() {
+                    })*/
+                    .subscribe(new BiConsumer<Long, Throwable>() {
                         @Override
-                        public void accept(Integer cantidad, Throwable throwable) throws Exception {
+                        public void accept(Long id, Throwable throwable) throws Exception {
                             if(throwable==null){
-                                if(cantidad>0)
-                                    Log.i(TAG, "accept: actualizado cant: "+cantidad);
-                                if (capitulo!=null)
-                                    loadCapituloEntCartel(capitulo);
+                                Log.i(TAG, "accept: id: " + id);
+                                if(id>0)
+                                    capitulo.id=id;
+                                loadCapituloEntCartel(capitulo);
                             }else Log.e(TAG, "accept: error ", throwable);
                         }
                     });
@@ -272,11 +279,14 @@ public class VideoCartelFragment extends Fragment implements VideoServerAdapter.
 
     @Override
     public void onClickCard(String file_url,byte option) {
+        //todo:agregar visto
         switch (option) {
             case VideoServerAdapter.OPTION_PLAY:
                 Bundle b=new Bundle();
+                    if(serie!=null)
+                        b.putParcelable("serie",serie);
                     b.putParcelable("capitulo",capitulo);
-                    b.putString("url",file_url);
+                    //b.putString("url",file_url);
                     /*b.putParcelableArrayList("season_list", (ArrayList) seasonList);
                     b.putInt("season_pos",seasonPos);
                     b.putInt("chapter_pos",chapterPos);

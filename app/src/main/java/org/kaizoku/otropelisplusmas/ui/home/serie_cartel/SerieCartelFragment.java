@@ -49,7 +49,7 @@ public class SerieCartelFragment extends Fragment {
         binding = FragmentSerieCartelBinding.inflate(inflater,container,false);
         serieViewModel = new ViewModelProvider(this).get(SerieViewModel.class);
         tabSeasonStateAdapter = new TabSeasonStateAdapter(getChildFragmentManager(),getLifecycle());
-        binding.fragCartelViewpagerVp2.setAdapter(tabSeasonStateAdapter);
+        //binding.fragCartelViewpagerVp2.setAdapter(tabSeasonStateAdapter);
 
         //setSharedElementEnterTransition(new ChangeBounds());
         loadArgumentos();
@@ -95,15 +95,19 @@ public class SerieCartelFragment extends Fragment {
                             }
                         }
                     }).subscribe((id, throwable) -> {
-                        Log.i(TAG, "loadArgumentos: subscribe");
+                        Log.i(TAG, "loadArgumentos: 4 subscribe");
                         if(throwable==null){
-                            if(id<0)
+                            if(id>0)
                                 serie.id=id;
-                            tabSeasonStateAdapter.setTabSeasonList(serie.seasonList);
-                            new TabLayoutMediator(binding.fragCartelViewpagerTabs, binding.fragCartelViewpagerVp2,
-                                    (tab, position) -> {
-                                        tab.setText(serie.seasonList.get(position).seasonTitle);
-                                    }
+                            //tabSeasonStateAdapter.setTabSeasonList(serie.seasonList);
+                            tabSeasonStateAdapter.setSerie(serie);
+                            binding.fragCartelViewpagerVp2.setAdapter(tabSeasonStateAdapter);
+                            new TabLayoutMediator(
+                                    binding.fragCartelViewpagerTabs,
+                                    binding.fragCartelViewpagerVp2,
+                                (tab, position) -> {
+                                    tab.setText(serie.seasonList.get(position).seasonTitle);
+                                }
                             ).attach();
                         }else Log.e(TAG, "loadArgumentos: subscribe error", throwable);
                     });
@@ -163,8 +167,6 @@ public class SerieCartelFragment extends Fragment {
             */
 
 
-            //OPelisplusRoom.getInstance(getContext()).serieDao().getSerieConCapitulos();
-
             /*pelisplushdService.getSingleSerieCartel(media.href).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
                 .subscribe((serieCartel, throwable) -> {
                     if (throwable == null && serieCartel != null) {
@@ -192,6 +194,7 @@ public class SerieCartelFragment extends Fragment {
         }catch (Exception e){e.printStackTrace();}
     }
 
+    /*
     private void getSerie(SerieEnt serie) {
         Log.i(TAG, "getSerie: ");
         OPelisplusRoom.getInstance(getContext()).serieDao().getSerie(serie.href)
@@ -205,14 +208,14 @@ public class SerieCartelFragment extends Fragment {
                         setFloatingactionbuttonCallback();
                     }else{
                         Log.i(TAG, "getSerie: thr error");
-                        /*SerieEnt serieNew = new SerieEnt();
-                        serieNew.href=serie.href;
-                        serieNew.rating=serie.rating;
-                        serieNew.sinopsis=serie.sinopsis;
-                        serieNew.titulo=serieCartel.name;
-                        serieNew.src_img=serieCartel.src_img;
-                        serieNew.url_disqus=serieCartel.url_disqus;*/
-                        OPelisplusRoom.getInstance(getContext()).serieDao().insertSerie(serie)
+//                        SerieEnt serieNew = new SerieEnt();
+//                        serieNew.href=serie.href;
+//                        serieNew.rating=serie.rating;
+//                        serieNew.sinopsis=serie.sinopsis;
+//                        serieNew.titulo=serieCartel.name;
+//                        serieNew.src_img=serieCartel.src_img;
+//                        serieNew.url_disqus=serieCartel.url_disqus;
+                          OPelisplusRoom.getInstance(getContext()).serieDao().insertSerie(serie)
                                 .subscribeOn(Schedulers.io())
                                 .observeOn(AndroidSchedulers.mainThread())
                                 .subscribe((aLong, throwable1) -> {
@@ -233,6 +236,7 @@ public class SerieCartelFragment extends Fragment {
                     }
                 });
     }
+    */
 
     private void setFloatingactionbuttonCallback() {
         Log.i(TAG, "setFloatingactionbuttonCallback: fablistener inicializadondo");

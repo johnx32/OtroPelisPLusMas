@@ -28,6 +28,8 @@ import com.google.android.exoplayer2.ui.AspectRatioFrameLayout;
 import com.google.android.exoplayer2.ui.StyledPlayerControlView;
 import com.google.android.exoplayer2.ui.StyledPlayerView;
 
+import org.kaizoku.otropelisplusmas.database.entity.CapituloEnt;
+import org.kaizoku.otropelisplusmas.database.entity.SerieEnt;
 import org.kaizoku.otropelisplusmas.databinding.FragmentReproductorBinding;
 import org.kaizoku.otropelisplusmas.model.Chapter;
 import org.kaizoku.otropelisplusmas.model.Season;
@@ -44,17 +46,20 @@ import io.reactivex.schedulers.Schedulers;
 public class ReproductorFragment extends Fragment implements  StyledPlayerControlView.VisibilityListener{
     private static final String TAG = "DL1CS";
     private FragmentReproductorBinding binding;
-    private HomeViewModel homeViewModel;
-    private MediaItem mediaItem;
-    private String url_video="";
+
+
     //private PowerManager.WakeLock wakeLock;
     private PelisplushdService pelisplushdService;
 
+    private MediaItem mediaItem;
+    private SerieEnt serie;
+    private CapituloEnt capitulo;
+    //private String url_video="";
     // Controls de season & chapter
-    private List<Season> seasonList=new ArrayList<>();
-    private int seasonPos;
-    private int chapterPos;
-
+    //private List<Season> seasonList=new ArrayList<>();
+    //private int seasonPos;
+    //private int chapterPos;
+    private boolean isSeekReplace=true;
 
     private static final int UI_ANIMATION_DELAY = 300;
     private final Handler mHideHandler = new Handler();
@@ -109,13 +114,12 @@ public class ReproductorFragment extends Fragment implements  StyledPlayerContro
     private StyledPlayerView playerView;
     private SimpleExoPlayer player;
 
-    private boolean isSeekReplace=true;
+
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         Log.i(TAG, "onCreateView: ");
-        binding = FragmentReproductorBinding.inflate(inflater,container,false);
-
         Log.i(TAG, "onCreateView: getConfiguration orientation : "+getResources().getConfiguration().orientation);
+        binding = FragmentReproductorBinding.inflate(inflater,container,false);
 
         //if(getActivity().getRequestedOrientation()==ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE){
         if(getResources().getConfiguration().orientation==ActivityInfo.SCREEN_ORIENTATION_USER){
@@ -124,7 +128,6 @@ public class ReproductorFragment extends Fragment implements  StyledPlayerContro
             pelisplushdService = new PelisplushdService();
 
             loadArguments();
-
 
             playerView = binding.playerView;
             //playerView.setPlayer(player);
@@ -200,14 +203,15 @@ public class ReproductorFragment extends Fragment implements  StyledPlayerContro
             //mediaItem = MediaItem.fromUri("https://fvs.io/redirector?token=TzVYU0VqMFlZVmNhQVIxMmw1RkJ4RDVFcU5xYjZDbW9ScnZqTEZ1aGlpYnlsYkVRMC8zclJBL1A3Tndya3p6UkIrenJ0Q1ppb1NnSmtlTURIMkh3ekplcjU4SEE4V0R2czJmaHlBZlV2QmU5MXFiK2Q3akg5eW9jSy9NRkE1eUllRkd6bGxxSEtxVndlazVTZzhDaW5LOUt2UEhMZVVrUmJ6a3o6VkFkV2p4K1VLa0tLQUVNem1BSFRJUT09");
 
             //si es lista de reproduccion
-            if(seasonList!=null && seasonPos>=0 && chapterPos>=0){
+            if(serie!=null && serie.isPlaylist()){
                 setPlayerList();
                 printPlaylist();
             }
             //si es un solo video
             else{
                 // Build the media item.
-                mediaItem = MediaItem.fromUri(url_video);
+                //mediaItem = MediaItem.fromUri(url_video);
+                mediaItem = MediaItem.fromUri(capitulo.href);
                 //mediaItem = new MediaItem.Builder().setUri(url_video).setMediaMetadata(md).build();
 
                 // Set the media item to be played.
@@ -240,12 +244,18 @@ public class ReproductorFragment extends Fragment implements  StyledPlayerContro
     private void loadArguments(){
         Bundle b=getArguments();
         if(b!=null){
+            serie=b.getParcelable("serie");
+            capitulo=b.getParcelable("capitulo");
+
+            Log.i(TAG, "loadArguments: serie: "+serie==null?"null":serie+" capitulo: "+capitulo==null?"null":capitulo.toString());
+            /*
             url_video=b.getString("url","");
             seasonList=b.getParcelableArrayList("season_list");
             seasonPos=b.getInt("season_pos",-1);
             chapterPos=b.getInt("chapter_pos",-1);
             if(seasonList!=null)
                 Log.i(TAG, "onCreateView: sp: "+seasonPos+" cp: "+chapterPos+" size: "+seasonList.size());
+            */
         }
     }
 
@@ -277,6 +287,9 @@ public class ReproductorFragment extends Fragment implements  StyledPlayerContro
                 });
     }
 
+    /**
+     * Imprime el playlist player.getMediaItemAt
+     */
     private void printPlaylist() {
         String lista="{\n";
         int l = player.getMediaItemCount();
@@ -290,6 +303,7 @@ public class ReproductorFragment extends Fragment implements  StyledPlayerContro
 
     private void setPlayerList(){
         Log.i(TAG, "setPlayerList: start");
+        List<Season> seasonList = serie.seasonList;
         //if(seasonList!=null && seasonPos>=0 && chapterPos>=0){
             int size=seasonList.size();
             for (int i = 0; i < size; i++) {
@@ -297,10 +311,11 @@ public class ReproductorFragment extends Fragment implements  StyledPlayerContro
                 int lenght=chapters.size();
                 for (int j = 0; j < lenght; j++) {
                     if(chapters.get(j).type==Chapter.TYPE_CHAPTER) {
-                        if(seasonPos==i && chapterPos==j) {
+                        if(serie.seasonPos==i && serie.chapterPos==j) {
                             MediaMetadata mdx = new MediaMetadata.Builder().setTitle(chapters.get(j).href).build();
                             MediaItem mediaix = new MediaItem.Builder()
-                                    .setUri(url_video)
+                                    //.setUri(url_video)
+                                    .setUri(capitulo.href)
                                     .setMediaMetadata(mdx)
                                     .build();
                             player.addMediaItem(mediaix);
@@ -608,7 +623,7 @@ public class ReproductorFragment extends Fragment implements  StyledPlayerContro
         return actionBar;
     }
 
-    private String getNextChapterUrl(){
+    /*private String getNextChapterUrl(){
         if(seasonList!=null) {
             int size = seasonList.size();
             for (int i = 0; i < size; i++) {
@@ -620,6 +635,6 @@ public class ReproductorFragment extends Fragment implements  StyledPlayerContro
             }
         }
         return "";
-    }
+    }*/
 
 }

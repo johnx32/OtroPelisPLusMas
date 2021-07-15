@@ -15,6 +15,8 @@ import org.kaizoku.otropelisplusmas.database.entity.SerieEnt;
 import java.util.List;
 
 import io.reactivex.Single;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 
 public class CapituloViewModel extends AndroidViewModel {
     private CapituloDao capituloDao;
@@ -24,19 +26,27 @@ public class CapituloViewModel extends AndroidViewModel {
     }
 
     public Single<Long> insertCapitolo(CapituloEnt capitulo){
-        return capituloDao.insertCapitulos(capitulo);
+        return capituloDao.insertCapitulos(capitulo)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
     }
     public Single<CapituloEnt> getCapitulo(long id){
-        return capituloDao.getCapitulo(id);
+        return capituloDao.getCapitulo(id)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
     }
     public Single<CapituloEnt> getCapitulo(String href){
-        return capituloDao.getCapitulo(href);
+        return capituloDao.getCapitulo(href)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
     }
     public Single<List<CapituloEnt>> getCapitulos(){
         return capituloDao.getCapitulos();
     }
 
     public Single<Integer> updateCapitulo(CapituloEnt capitulo){
-        return capituloDao.updateCapitulo(capitulo);
+        return capituloDao.updateCapitulo(capitulo)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
     }
 }

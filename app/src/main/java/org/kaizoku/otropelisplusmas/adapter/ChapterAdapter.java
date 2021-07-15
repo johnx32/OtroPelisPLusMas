@@ -31,7 +31,14 @@ public class ChapterAdapter extends RecyclerView.Adapter<ChapterAdapter.ChapterV
     }
 
     public void setChapterList(List<Chapter> list) {
-        this.list = list;
+        this.list.clear();
+        int j=0;
+        for (Chapter c:list) {
+            if((j%5)==0)
+                this.list.add(new Chapter("","",Chapter.TYPE_BANNER_ADAPTATIVE));
+            this.list.add(c);
+            j++;
+        }
         notifyDataSetChanged();
     }
 
