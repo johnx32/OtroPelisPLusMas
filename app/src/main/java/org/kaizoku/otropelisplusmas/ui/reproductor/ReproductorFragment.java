@@ -315,7 +315,7 @@ public class ReproductorFragment extends Fragment implements  StyledPlayerContro
                             MediaMetadata mdx = new MediaMetadata.Builder().setTitle(chapters.get(j).href).build();
                             MediaItem mediaix = new MediaItem.Builder()
                                     //.setUri(url_video)
-                                    .setUri(capitulo.href)
+                                    .setUri(capitulo.file_url)
                                     .setMediaMetadata(mdx)
                                     .build();
                             player.addMediaItem(mediaix);

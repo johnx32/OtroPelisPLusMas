@@ -106,7 +106,8 @@ public class SeasonPlaceholderFragment extends Fragment implements ChapterAdapte
     public void onClickCardChapter(String href,int chapterPos) {
         //#adsblock
         ((MainActivity)getActivity()).showInterstitialAd();
-        serie.chapterPos=chapterPos;
+        //serie.chapterPos=chapterPos;
+          serie.setChapterPos(href,chapterPos);
         if(serie.getCurrentSeasonChapter().href.equals(href))
             Log.i(TAG, "onClickCardChapter: href iguales");
         Bundle b=new Bundle();

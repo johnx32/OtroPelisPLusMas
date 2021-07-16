@@ -95,7 +95,7 @@ public class VideoCartelFragment extends Fragment implements VideoServerAdapter.
             if(serie==null) {
                 url = b.getString("url", "");//desde serie o home
             }else{
-                url = serie.href;
+                url = serie.getCurrentSeasonChapter().href;
             }
 
 
@@ -132,6 +132,7 @@ public class VideoCartelFragment extends Fragment implements VideoServerAdapter.
                         public SingleSource<Long> apply(@NotNull CapituloEnt capituloGet) throws Exception {
                             Log.i(TAG, "apply: 3 capituloGet from web service: "+capituloGet);
                             loadCapituloEntCartel(capituloGet);
+                            videoServerAdapter.setList(capituloGet.videoServerList);
                             if(capitulo==null) {//no insertado
                                 capitulo=capituloGet;
                                 return capituloViewModel.insertCapitolo(capituloGet);
@@ -242,6 +243,7 @@ public class VideoCartelFragment extends Fragment implements VideoServerAdapter.
         Log.i(TAG, "loadCapituloEntCartel: size: "+capitulo.videoServerList.size());
         videoServerAdapter.setList(capitulo.videoServerList);
 
+        //configurando el webview con comentarios
         if(capitulo.url_disqus!=null) {
             // use cookies to remember a logged in status
             //CookieSyncManager.createInstance(this);
@@ -285,6 +287,7 @@ public class VideoCartelFragment extends Fragment implements VideoServerAdapter.
                 Bundle b=new Bundle();
                     if(serie!=null)
                         b.putParcelable("serie",serie);
+                    capitulo.file_url=file_url;
                     b.putParcelable("capitulo",capitulo);
                     //b.putString("url",file_url);
                     /*b.putParcelableArrayList("season_list", (ArrayList) seasonList);

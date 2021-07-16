@@ -25,6 +25,8 @@ public class CapituloEnt extends MediaEnt {
     public long progress;
     public long id_serie;
     @Ignore
+    public String file_url;
+    @Ignore
     public List<VideoServer> videoServerList = new ArrayList<>();
 
     public CapituloEnt() {
@@ -95,6 +97,6 @@ public class CapituloEnt extends MediaEnt {
     @NotNull
     @Override
     public String toString() {
-        return "\nhref_serie: "+href_serie+"\n visto: "+"\nprogress: "+progress+"\n"+visto+super.toString();
+        return "\nhref_serie: "+href_serie+"\n visto: "+"\nprogress: "+progress+"\n"+visto+"\n server-list size: "+videoServerList.size()+"\n"+super.toString();
     }
 }

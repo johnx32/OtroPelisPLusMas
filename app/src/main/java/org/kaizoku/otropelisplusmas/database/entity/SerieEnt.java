@@ -81,4 +81,21 @@ public class SerieEnt extends MediaEnt {
     public boolean isPlaylist() {// 0 es el 1er capitulo
         return  seasonList!=null && seasonPos>=0 && chapterPos>=0;
     }
+
+    public void setChapterPos(String href, int chapterPos) {
+        List<Chapter> s = getCurrentSeason();
+        if(chapterPos<s.size()){
+            for(int i=chapterPos;i>=0;i--)
+                if (s.get(i).href.equals(href)){
+                    this.chapterPos = i;
+                    return;
+                }
+            int size=s.size();
+            for (int i=chapterPos;i<size;i++)
+                if (s.get(i).href.equals(href)){
+                    this.chapterPos = i;
+                    return;
+                }
+        }
+    }
 }
