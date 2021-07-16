@@ -38,4 +38,10 @@ public class SerieViewModel extends AndroidViewModel {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread());
     }
+
+    public Single<Integer> updateSerie(SerieEnt serieEnt) {
+        return serieDao.updateSerie(serieEnt)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
+    }
 }
