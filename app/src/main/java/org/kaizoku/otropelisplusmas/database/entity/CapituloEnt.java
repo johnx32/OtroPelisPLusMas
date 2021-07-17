@@ -97,6 +97,7 @@ public class CapituloEnt extends MediaEnt {
     @NotNull
     @Override
     public String toString() {
-        return "\nhref_serie: "+href_serie+"\n visto: "+"\nprogress: "+progress+"\n"+visto+"\n server-list size: "+videoServerList.size()+"\n"+super.toString();
+        return "\nhref_serie: "+href_serie+"\n visto: "+"\nprogress: "+progress+"\n"+visto+"\n server-list size: "+
+                videoServerList.size()+"\n file_url: "+file_url+"\n"+super.toString();
     }
 }

@@ -18,6 +18,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.MediaItem;
@@ -28,8 +29,10 @@ import com.google.android.exoplayer2.ui.AspectRatioFrameLayout;
 import com.google.android.exoplayer2.ui.StyledPlayerControlView;
 import com.google.android.exoplayer2.ui.StyledPlayerView;
 
+import org.jetbrains.annotations.NotNull;
 import org.kaizoku.otropelisplusmas.database.entity.CapituloEnt;
 import org.kaizoku.otropelisplusmas.database.entity.SerieEnt;
+import org.kaizoku.otropelisplusmas.database.viewmodel.CapituloViewModel;
 import org.kaizoku.otropelisplusmas.databinding.FragmentReproductorBinding;
 import org.kaizoku.otropelisplusmas.model.Chapter;
 import org.kaizoku.otropelisplusmas.model.Season;
@@ -40,7 +43,10 @@ import org.kaizoku.otropelisplusmas.ui.home.HomeViewModel;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.reactivex.Single;
+import io.reactivex.SingleSource;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 
 public class ReproductorFragment extends Fragment implements  StyledPlayerControlView.VisibilityListener{
@@ -51,6 +57,7 @@ public class ReproductorFragment extends Fragment implements  StyledPlayerContro
     //private PowerManager.WakeLock wakeLock;
     private PelisplushdService pelisplushdService;
 
+    private CapituloViewModel capituloViewModel;
     private MediaItem mediaItem;
     private SerieEnt serie;
     private CapituloEnt capitulo;
@@ -126,6 +133,7 @@ public class ReproductorFragment extends Fragment implements  StyledPlayerContro
             hide();
 
             pelisplushdService = new PelisplushdService();
+            capituloViewModel=new ViewModelProvider(this).get(CapituloViewModel.class);
 
             loadArguments();
 
@@ -159,8 +167,10 @@ public class ReproductorFragment extends Fragment implements  StyledPlayerContro
                 public void onIsPlayingChanged(boolean isPlaying) {
                     if(isPlaying)
                         Log.i(TAG, "onIsPlayingChanged: le dio play");
-                    else
+                    else {
                         Log.i(TAG, "onIsPlayingChanged: le dio pause");
+                        updateSerieProgress();
+                    }
                 }
 
                 @Override
@@ -191,7 +201,6 @@ public class ReproductorFragment extends Fragment implements  StyledPlayerContro
                             break;
                         case Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED:Log.i(TAG, "onMediaItemTransition: playlist changed");break;
                     }
-
                 }
 
             });
@@ -211,7 +220,9 @@ public class ReproductorFragment extends Fragment implements  StyledPlayerContro
             else{
                 // Build the media item.
                 //mediaItem = MediaItem.fromUri(url_video);
-                mediaItem = MediaItem.fromUri(capitulo.href);
+                Log.i(TAG, "onCreateView: serie: "+serie);
+                //mediaItem = MediaItem.fromUri(capitulo.href);
+                mediaItem = MediaItem.fromUri(capitulo.file_url);
                 //mediaItem = new MediaItem.Builder().setUri(url_video).setMediaMetadata(md).build();
 
                 // Set the media item to be played.
@@ -231,7 +242,8 @@ public class ReproductorFragment extends Fragment implements  StyledPlayerContro
                 */
                 // Prepare the player.
                 player.prepare();
-                //player.seekTo(4,0);
+                if(capitulo.progress>0)
+                    player.seekTo(capitulo.progress);
                 // Start the playback.
                 player.play();
             }
@@ -239,6 +251,14 @@ public class ReproductorFragment extends Fragment implements  StyledPlayerContro
         }
 
         return binding.getRoot();
+    }
+
+    private void updateSerieProgress() {
+        Log.i(TAG, "updateSerieProgress: ");
+        if(player!=null&&capituloViewModel!=null) {
+            capitulo.progress = player.getCurrentPosition();
+            capituloViewModel.updateCapitulo(capitulo).subscribe();
+        }
     }
 
     private void loadArguments(){
@@ -267,10 +287,32 @@ public class ReproductorFragment extends Fragment implements  StyledPlayerContro
         pelisplushdService.getSingleVideoCartel(url)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe((videoCartel, throwable) -> {
+                .flatMap(new Function<CapituloEnt, SingleSource<CapituloEnt>>() {
+                    @Override
+                    public SingleSource<CapituloEnt> apply(@NotNull CapituloEnt capituloEnt) throws Exception {
+                        Log.i(TAG, "apply: 1");
+                        capitulo=capituloEnt;
+                        return capituloViewModel.getCapitulo(capituloEnt.href);
+                    }
+                }).flatMap(new Function<CapituloEnt, SingleSource<Long>>() {
+                    @Override
+                    public SingleSource<Long> apply(@NotNull CapituloEnt capituloEnt) throws Exception {
+                        Log.i(TAG, "apply: 2");
+                        capitulo.id=capituloEnt.id;
+                        return Single.just(capitulo.id);
+                    }
+                })
+                .onErrorResumeNext(new Function<Throwable, SingleSource<Long>>() {
+                    @Override
+                    public SingleSource<Long> apply(@NotNull Throwable throwable) throws Exception {
+                        Log.e(TAG, "apply: 3", throwable);
+                        return capituloViewModel.insertCapitolo(capitulo);
+                    }
+                })
+                .subscribe((id, throwable) -> {
                     if(throwable==null){
-                        if(videoCartel.videoServerList.get(0) instanceof FembedServer) {
-                            FembedServer fserver = (FembedServer) videoCartel.videoServerList.get(0);//el cero no es baner, es el 4
+                        if(capitulo.videoServerList.get(0) instanceof FembedServer) {
+                            FembedServer fserver = (FembedServer) capitulo.videoServerList.get(0);//el cero no es baner, es el 4
                             String url_video = fserver.options.get(0).file;
                             //MediaMetadata mediaMetadata = new MediaMetadata.Builder().setTitle(player.getCurrentMediaItem().mediaMetadata.title).build();
                             MediaItem mediaItem = new MediaItem.Builder()
@@ -280,6 +322,8 @@ public class ReproductorFragment extends Fragment implements  StyledPlayerContro
                             player.addMediaItem(player.getCurrentWindowIndex()+1,mediaItem);
                             player.removeMediaItem(player.getCurrentWindowIndex());
                             player.prepare();
+                            if(capitulo.progress>0)
+                                player.seekTo(capitulo.progress);
                             player.play();
                         }
                     }else Log.e(TAG, "playerControlFlow: ", throwable);
@@ -486,6 +530,7 @@ public class ReproductorFragment extends Fragment implements  StyledPlayerContro
     @Override
     public void onStop() {
         Log.i(TAG, "onStop: ");
+        updateSerieProgress();
         super.onStop();
     }
 
