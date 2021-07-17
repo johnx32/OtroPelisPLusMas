@@ -13,6 +13,7 @@
         android:layout_height="wrap_content"
         app:cardCornerRadius="5dp">
         <LinearLayout
+            android:id="@+id/cv_chapter_color"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/button">

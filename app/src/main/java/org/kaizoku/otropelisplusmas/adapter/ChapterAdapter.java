@@ -1,5 +1,6 @@
 package org.kaizoku.otropelisplusmas.adapter;
 
+import android.graphics.Color;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -63,6 +64,9 @@ public class ChapterAdapter extends RecyclerView.Adapter<ChapterAdapter.ChapterV
         Log.i("TAG", "onBindViewHolder: pos: "+position+" type"+getItemViewType(position));
         if(getItemViewType(position)==Chapter.TYPE_CHAPTER){
             holder.title.setText(list.get(position).title);
+            if(list.get(position).visto)
+                holder.color.setBackgroundColor(Color.RED);
+            else holder.color.setBackgroundColor(holder.itemView.getResources().getColor(R.color.button));
             holder.itemView.setOnClickListener(v -> {
                 onCardListener.onClickCardChapter(list.get(position).href,position);
             });
@@ -90,12 +94,14 @@ public class ChapterAdapter extends RecyclerView.Adapter<ChapterAdapter.ChapterV
         //AdView adView;
         CardView cardView;
         LinearLayout ll;
+        LinearLayout color;
         public ChapterViewHolder(@NonNull View itemView) {
             super(itemView);
             //Log.i("TAG", "ChapterViewHolder: type"+getItemViewType() list.get(getAdapterPosition()).type);
             title = itemView.findViewById(R.id.cv_chapter_title);
             cardView = itemView.findViewById(R.id.cv_chapter_title_cardview);
             ll = itemView.findViewById(R.id.cv_chapter_linearlayout);
+            color = itemView.findViewById(R.id.cv_chapter_color);
         }
     }
 

@@ -8,6 +8,7 @@ import androidx.lifecycle.AndroidViewModel;
 import org.jetbrains.annotations.NotNull;
 import org.kaizoku.otropelisplusmas.database.OPelisplusRoom;
 import org.kaizoku.otropelisplusmas.database.dao.SerieDao;
+import org.kaizoku.otropelisplusmas.database.entity.CapituloEnt;
 import org.kaizoku.otropelisplusmas.database.entity.SerieEnt;
 
 import java.util.List;
@@ -41,6 +42,12 @@ public class SerieViewModel extends AndroidViewModel {
 
     public Single<Integer> updateSerie(SerieEnt serieEnt) {
         return serieDao.updateSerie(serieEnt)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
+    }
+
+    public Single<List<CapituloEnt>> getCapituloConVisto(List<String> ar) {
+        return serieDao.getCapituloConVisto(ar)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread());
     }

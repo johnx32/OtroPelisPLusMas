@@ -282,6 +282,8 @@ public class VideoCartelFragment extends Fragment implements VideoServerAdapter.
     @Override
     public void onClickCard(String file_url,byte option) {
         //todo:agregar visto
+        capitulo.visto=true;
+        capituloViewModel.updateCapitulo(capitulo).subscribe();
         switch (option) {
             case VideoServerAdapter.OPTION_PLAY:
                 Bundle b=new Bundle();

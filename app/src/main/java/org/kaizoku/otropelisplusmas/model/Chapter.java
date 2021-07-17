@@ -10,6 +10,7 @@ public class Chapter implements Parcelable {
     public byte type=0;
     public String href;
     public String title;
+    public boolean visto=false;
     public Chapter(String href, String title,byte type) {
         this.href = href;
         this.title = title;
@@ -19,6 +20,7 @@ public class Chapter implements Parcelable {
     protected Chapter(Parcel in) {
         href = in.readString();
         title = in.readString();
+        visto = in.readInt()==0?false:true;
     }
 
     public static final Creator<Chapter> CREATOR = new Creator<Chapter>() {
@@ -42,5 +44,6 @@ public class Chapter implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(href);
         dest.writeString(title);
+        dest.writeInt(visto?1:0);
     }
 }

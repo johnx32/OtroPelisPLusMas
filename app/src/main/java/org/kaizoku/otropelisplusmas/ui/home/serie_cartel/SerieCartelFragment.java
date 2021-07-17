@@ -17,11 +17,18 @@ import org.jetbrains.annotations.NotNull;
 import org.kaizoku.otropelisplusmas.MainActivity;
 import org.kaizoku.otropelisplusmas.R;
 import org.kaizoku.otropelisplusmas.database.OPelisplusRoom;
+import org.kaizoku.otropelisplusmas.database.entity.CapituloEnt;
 import org.kaizoku.otropelisplusmas.database.entity.MediaEnt;
 import org.kaizoku.otropelisplusmas.database.entity.SerieEnt;
 import org.kaizoku.otropelisplusmas.database.viewmodel.SerieViewModel;
 import org.kaizoku.otropelisplusmas.databinding.FragmentSerieCartelBinding;
+import org.kaizoku.otropelisplusmas.model.Chapter;
+import org.kaizoku.otropelisplusmas.model.Season;
 import org.kaizoku.otropelisplusmas.service.PelisplushdService;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
 
 import io.reactivex.Single;
 import io.reactivex.SingleSource;
@@ -100,19 +107,26 @@ public class SerieCartelFragment extends Fragment {
                             if(id>0)
                                 serie.id=id;
                             setFloatingactionbuttonCallback(serie);
-                            //tabSeasonStateAdapter.setTabSeasonList(serie.seasonList);
-                            tabSeasonStateAdapter.setSerie(serie);
-                            binding.fragCartelViewpagerVp2.setAdapter(tabSeasonStateAdapter);
-                            new TabLayoutMediator(
-                                    binding.fragCartelViewpagerTabs,
-                                    binding.fragCartelViewpagerVp2,
-                                (tab, position) -> {
-                                    tab.setText(serie.seasonList.get(position).seasonTitle);
-                                }
-                            ).attach();
+                            loadCapitulosVistos(serie);
+                            //initTabLayout(serie);
+
+
                         }else Log.e(TAG, "loadArgumentos: subscribe error", throwable);
                     });
         }
+    }
+
+    private void initTabLayout(SerieEnt serie) {
+        //tabSeasonStateAdapter.setTabSeasonList(serie.seasonList);
+        tabSeasonStateAdapter.setSerie(serie);
+        binding.fragCartelViewpagerVp2.setAdapter(tabSeasonStateAdapter);
+        new TabLayoutMediator(
+                binding.fragCartelViewpagerTabs,
+                binding.fragCartelViewpagerVp2,
+                (tab, position) -> {
+                    tab.setText(serie.seasonList.get(position).seasonTitle);
+                }
+        ).attach();
     }
 
     private void loadSerieEnt(SerieEnt serie){
@@ -198,6 +212,26 @@ public class SerieCartelFragment extends Fragment {
                         }
                     });
         });
+    }
+
+    private void loadCapitulosVistos(SerieEnt serieEnt){
+        List<Season> seasonList=serieEnt.seasonList;
+        List<String> capitulosList=new ArrayList<>();
+        for (Season s:seasonList)
+            for (Chapter c:s.chapterList)
+                capitulosList.add(c.href);
+        serieViewModel.getCapituloConVisto(capitulosList)
+            .subscribe((capituloEnts, throwable) -> {
+                if(throwable==null){
+                    for (Season s:seasonList)
+                        for (Chapter c:s.chapterList)
+                            for (CapituloEnt ce:capituloEnts)
+                                if(c.href.equals(ce.href)){
+                                    c.visto=ce.visto;break;
+                                }
+                    initTabLayout(serieEnt);
+                }
+            });
     }
 
     @Override

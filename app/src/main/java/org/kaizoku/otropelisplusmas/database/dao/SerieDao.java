@@ -7,6 +7,7 @@ import androidx.room.Query;
 import androidx.room.Transaction;
 import androidx.room.Update;
 
+import org.kaizoku.otropelisplusmas.database.entity.CapituloEnt;
 import org.kaizoku.otropelisplusmas.database.entity.SerieEnt;
 import org.kaizoku.otropelisplusmas.database.entity.query.SerieConCapitulos;
 
@@ -40,4 +41,7 @@ public interface SerieDao {
     //DELETE
     @Delete
     Single<Integer> deleteSerie(SerieEnt serie);//int que indica la cantidad de filas que se quitaron de la base de datos.
+
+    @Query("select * from capitulo c where href in (:ar);")
+    Single<List<CapituloEnt>> getCapituloConVisto(List<String> ar);
 }
