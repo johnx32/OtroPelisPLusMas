@@ -26,36 +26,19 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
-
-import com.google.android.gms.ads.AdError;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.FullScreenContentCallback;
-import com.google.android.gms.ads.LoadAdError;
-import com.google.android.gms.ads.MobileAds;
-import com.google.android.gms.ads.RequestConfiguration;
-import com.google.android.gms.ads.initialization.InitializationStatus;
-import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
-import com.google.android.gms.ads.interstitial.InterstitialAd;
-import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.squareup.picasso.Picasso;
 
-import org.jetbrains.annotations.NotNull;
-import org.kaizoku.otropelisplusmas.adapter.ChapterAdapter;
-import org.kaizoku.otropelisplusmas.database.OPelisplusRoom;
 import org.kaizoku.otropelisplusmas.database.viewmodel.CapituloViewModel;
-import org.kaizoku.otropelisplusmas.databinding.ActivityMainBinding;
 import org.kaizoku.otropelisplusmas.updater.Checker;
 
-import java.util.Arrays;
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "tmain";
     private AppBarConfiguration mAppBarConfiguration;
-    private InterstitialAd mInterstitialAd;
+    //private InterstitialAd mInterstitialAd;
     //admob app-ads.txt
     //google.com, pub-6323075080626234, DIRECT, f08c47fec0942fa0
     /*todo:
@@ -150,7 +133,7 @@ public class MainActivity extends AppCompatActivity {
         });*/
 
 
-        initAds();
+        //initAds();
 
         setFloatingactionButtonOnClick();
 
@@ -252,6 +235,7 @@ public class MainActivity extends AppCompatActivity {
             }
     }
 
+    /*
     private void initAds() {
         MobileAds.initialize(this, new OnInitializationCompleteListener() {
             @Override
@@ -264,7 +248,7 @@ public class MainActivity extends AppCompatActivity {
         MobileAds.setRequestConfiguration(configuration);
 
         loadInterstitialAd();
-    }
+    }*/
 
     private void setFloatingactionButtonOnClick() {
         FloatingActionButton f = findViewById(R.id.fab_main);
@@ -314,7 +298,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull @NotNull String[] permissions, @NonNull @NotNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         //super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if(requestCode == 1) {
             Intent i = new Intent(MainActivity.this, UpdateActivity.class);
@@ -322,6 +306,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /*
     private void loadInterstitialAd(){
         AdRequest adRequest = new AdRequest.Builder()
                 .build();
@@ -375,7 +360,7 @@ public class MainActivity extends AppCompatActivity {
         } else {
             Log.d("TAG", "mInterstitialAd es nulo - The interstitial ad wasn't ready yet.");
         }
-    }
+    }*/
 
     @Override
     public void setTitle(CharSequence title) {

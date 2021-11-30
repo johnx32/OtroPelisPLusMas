@@ -11,12 +11,9 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
 
-import org.jetbrains.annotations.NotNull;
 import org.kaizoku.otropelisplusmas.R;
 import org.kaizoku.otropelisplusmas.adapter.FavoritosAdapter;
-import org.kaizoku.otropelisplusmas.adapter.VideoCardAdapter;
 import org.kaizoku.otropelisplusmas.database.entity.SerieEnt;
 import org.kaizoku.otropelisplusmas.database.viewmodel.FavoritosViewModel;
 import org.kaizoku.otropelisplusmas.databinding.FragmentFavoritosBinding;
@@ -29,9 +26,8 @@ public class FavoritosFragment extends Fragment implements FavoritosAdapter.OnCa
     private FavoritosAdapter adapter;
     private FavoritosViewModel favoritosViewModel;
     @Nullable
-    @org.jetbrains.annotations.Nullable
     @Override
-    public View onCreateView(@NonNull @NotNull LayoutInflater inflater, @Nullable @org.jetbrains.annotations.Nullable ViewGroup container, @Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         binding = FragmentFavoritosBinding.inflate(inflater,container,false);
         initFavoritosAdapter();
         favoritosViewModel = new ViewModelProvider(this).get(FavoritosViewModel.class);

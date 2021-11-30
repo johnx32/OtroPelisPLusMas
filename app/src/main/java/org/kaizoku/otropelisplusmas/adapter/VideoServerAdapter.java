@@ -1,9 +1,6 @@
 package org.kaizoku.otropelisplusmas.adapter;
 
-import android.content.Context;
-import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,12 +9,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
-import com.google.android.gms.ads.AdListener;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdSize;
-import com.google.android.gms.ads.AdView;
-import com.google.android.gms.ads.LoadAdError;
 
 import org.kaizoku.otropelisplusmas.R;
 import org.kaizoku.otropelisplusmas.model.video_server.FembedServer;
@@ -33,11 +24,11 @@ public class VideoServerAdapter extends RecyclerView.Adapter<VideoServerAdapter.
     public static final byte OPTION_EXT=2;
     public static final byte OPTION_CAST=3;
     private List<VideoServer> list=new ArrayList<>();
-    private AdSize adSize;
+    //private AdSize adSize;
 
-    public VideoServerAdapter(OnCardListener onCardListener,AdSize adSize) {
+    public VideoServerAdapter(OnCardListener onCardListener) {
         this.onCardListener = onCardListener;
-        this.adSize = adSize;
+        //this.adSize = adSize;
     }
 
     public void setList(List<VideoServer> list) {
@@ -91,7 +82,7 @@ public class VideoServerAdapter extends RecyclerView.Adapter<VideoServerAdapter.
     public class VideoServerViewHolder extends RecyclerView.ViewHolder{
         TextView name;
         LinearLayout contenedor;
-        AdView adView;
+        //AdView adView;
         LinearLayout linearLayout;
         public VideoServerViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -108,6 +99,7 @@ public class VideoServerAdapter extends RecyclerView.Adapter<VideoServerAdapter.
             });*/
             // Step 1 - Create an AdView and set the ad unit ID on it.
             //adView = itemView.findViewById(R.id.cv_video_server_ll_adView);
+            /*
             adView = new AdView(itemView.getContext());
             adView.setAdUnitId(itemView.getContext().getString(R.string.banner_adaptative01));
             adView.setAdListener(new AdListener() {
@@ -147,11 +139,13 @@ public class VideoServerAdapter extends RecyclerView.Adapter<VideoServerAdapter.
                     super.onAdImpression();
                 }
             });
+
             linearLayout.addView(adView);
             loadBanner();
+            */
         }
 
-        private void loadBanner() {
+        /*private void loadBanner() {
             // Create an ad request. Check your logcat output for the hashed device ID
             // to get test ads on a physical device, e.g.,
             // "Use AdRequest.Builder.addTestDevice("ABCDE0123") to get test ads on this
@@ -166,7 +160,7 @@ public class VideoServerAdapter extends RecyclerView.Adapter<VideoServerAdapter.
 
             // Step 5 - Start loading the ad in the background.
             adView.loadAd(adRequest);
-        }
+        }*/
 
 
     }

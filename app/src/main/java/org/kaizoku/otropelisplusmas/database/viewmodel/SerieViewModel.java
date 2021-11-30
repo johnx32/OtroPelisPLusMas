@@ -5,7 +5,6 @@ import android.app.Application;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 
-import org.jetbrains.annotations.NotNull;
 import org.kaizoku.otropelisplusmas.database.OPelisplusRoom;
 import org.kaizoku.otropelisplusmas.database.dao.SerieDao;
 import org.kaizoku.otropelisplusmas.database.entity.CapituloEnt;
@@ -19,7 +18,7 @@ import io.reactivex.schedulers.Schedulers;
 
 public class SerieViewModel extends AndroidViewModel {
     private SerieDao serieDao;
-    public SerieViewModel(@NonNull @NotNull Application application) {
+    public SerieViewModel(@NonNull Application application) {
         super(application);
         serieDao = OPelisplusRoom.getInstance(application).serieDao();
     }

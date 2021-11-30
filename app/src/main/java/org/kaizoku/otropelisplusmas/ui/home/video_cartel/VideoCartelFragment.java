@@ -22,10 +22,8 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
-import com.google.android.gms.ads.AdSize;
 import com.google.android.material.snackbar.Snackbar;
 
-import org.jetbrains.annotations.NotNull;
 import org.kaizoku.otropelisplusmas.MainActivity;
 import org.kaizoku.otropelisplusmas.R;
 import org.kaizoku.otropelisplusmas.adapter.VideoServerAdapter;
@@ -34,8 +32,6 @@ import org.kaizoku.otropelisplusmas.database.entity.SerieEnt;
 import org.kaizoku.otropelisplusmas.database.viewmodel.CapituloViewModel;
 import org.kaizoku.otropelisplusmas.databinding.FragmentVideoCartelBinding;
 import org.kaizoku.otropelisplusmas.service.PelisplushdService;
-
-import java.util.ArrayList;
 
 import io.reactivex.Single;
 import io.reactivex.SingleSource;
@@ -116,7 +112,7 @@ public class VideoCartelFragment extends Fragment implements VideoServerAdapter.
             capituloViewModel.getCapitulo(url)
                     .flatMap(new Function<CapituloEnt, SingleSource<CapituloEnt>>() {
                         @Override
-                        public SingleSource<CapituloEnt> apply(@NotNull CapituloEnt capituloEnt) throws Exception {
+                        public SingleSource<CapituloEnt> apply(CapituloEnt capituloEnt) throws Exception {
                             capitulo = capituloEnt;
                             loadCapituloEntCartel(capitulo);
                             Log.i(TAG, "apply: 1 capituloEnt: "+capituloEnt);
@@ -127,7 +123,7 @@ public class VideoCartelFragment extends Fragment implements VideoServerAdapter.
                     })
                     .onErrorResumeNext(new Function<Throwable, SingleSource<? extends CapituloEnt>>() {
                         @Override
-                        public SingleSource<? extends CapituloEnt> apply(@NotNull Throwable throwable) throws Exception {
+                        public SingleSource<? extends CapituloEnt> apply(Throwable throwable) throws Exception {
                             Log.i(TAG, "apply: 2 onErrorResumeNext ");
                             Log.e(TAG, "apply: 2 onErrorResumeNext", throwable);
                             return pelisplushdService.getSingleVideoCartel(url)
@@ -137,7 +133,7 @@ public class VideoCartelFragment extends Fragment implements VideoServerAdapter.
                     })
                     .flatMap(new Function<CapituloEnt, SingleSource<Long>>() {
                         @Override
-                        public SingleSource<Long> apply(@NotNull CapituloEnt capituloGet) throws Exception {
+                        public SingleSource<Long> apply(CapituloEnt capituloGet) throws Exception {
                             Log.i(TAG, "apply: 3 capituloGet from web service: "+capituloGet);
                             loadCapituloEntCartel(capituloGet);
                             videoServerAdapter.setList(capituloGet.videoServerList);
@@ -236,7 +232,7 @@ public class VideoCartelFragment extends Fragment implements VideoServerAdapter.
         binding.fragSerieRvServers.setHasFixedSize(true);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         binding.fragSerieRvServers.setLayoutManager(linearLayoutManager);
-        videoServerAdapter = new VideoServerAdapter(this,getAdSize());//ultimo error aqui cheaquearlo
+        videoServerAdapter = new VideoServerAdapter(this);//ultimo error aqui cheaquearlo
         binding.fragSerieRvServers.setAdapter(videoServerAdapter);
     }
 
@@ -272,6 +268,7 @@ public class VideoCartelFragment extends Fragment implements VideoServerAdapter.
         }catch (Exception e){e.printStackTrace();}
     }
 
+    /*
     private AdSize getAdSize() {
         // Step 2 - Determine the screen width (less decorations) to use for the ad width.
         Display display = getActivity().getWindowManager().getDefaultDisplay();
@@ -285,7 +282,7 @@ public class VideoCartelFragment extends Fragment implements VideoServerAdapter.
 
         // Step 3 - Get adaptive ad size and return for setting on the ad view.
         return AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(getContext(), adWidth);
-    }
+    }*/
 
     @Override
     public void onClickCard(String file_url,byte option) {

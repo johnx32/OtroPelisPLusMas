@@ -13,7 +13,6 @@ import org.kaizoku.otropelisplusmas.adapter.ItemChangelogAdapter.ItemChangelogVi
 import androidx.recyclerview.widget.RecyclerView.Adapter;
 import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 
-import org.jetbrains.annotations.NotNull;
 import org.kaizoku.otropelisplusmas.model.ItemChangelog;
 import org.kaizoku.otropelisplusmas.view_group.ItemChangeLayout;
 
@@ -29,16 +28,15 @@ public class ItemChangelogAdapter extends Adapter<ItemChangelogViewHolder> {
     }
 
     @NonNull
-    @NotNull
     @Override
-    public ItemChangelogViewHolder onCreateViewHolder(@NonNull @NotNull ViewGroup parent, int viewType) {
+    public ItemChangelogViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.cardview_item_changelog,parent,false);
         ItemChangelogViewHolder itemChangelogViewHolder = new ItemChangelogViewHolder(v);
         return itemChangelogViewHolder;
     }
 
     @Override
-    public void onBindViewHolder(@NonNull @NotNull ItemChangelogViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ItemChangelogViewHolder holder, int position) {
         holder.code.setText(String.valueOf(list.get(position).code));
         holder.name.setText(list.get(position).name);
         int size = list.get(position).changes.size();
@@ -56,7 +54,7 @@ public class ItemChangelogAdapter extends Adapter<ItemChangelogViewHolder> {
     class ItemChangelogViewHolder extends ViewHolder{
         TextView name,code;
         LinearLayout ll;
-        public ItemChangelogViewHolder(@NonNull @NotNull View itemView) {
+        public ItemChangelogViewHolder(@NonNull View itemView) {
             super(itemView);
             name = itemView.findViewById(R.id.name);
             code = itemView.findViewById(R.id.code);

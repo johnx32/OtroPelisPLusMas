@@ -4,10 +4,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import androidx.annotation.NonNull;
-import androidx.room.Entity;
 import androidx.room.PrimaryKey;
-
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Date;
 
@@ -116,7 +113,6 @@ public class MediaEnt implements Parcelable {
     }
 
     @NonNull
-    @NotNull
     @Override
     public String toString() {
         return "id: "+id+"\n href: "+href+"\n titulo: "+titulo+"\n src_img: "+src_img+"\n favorito_id: "+favorito_id;

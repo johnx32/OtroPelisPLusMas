@@ -11,11 +11,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.squareup.picasso.Picasso;
 
-import org.jetbrains.annotations.NotNull;
 import org.kaizoku.otropelisplusmas.R;
-import org.kaizoku.otropelisplusmas.database.entity.FavoritoEnt;
 import org.kaizoku.otropelisplusmas.database.entity.SerieEnt;
-import org.kaizoku.otropelisplusmas.model.VideoCard;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,16 +30,15 @@ public class FavoritosAdapter extends RecyclerView.Adapter<FavoritosAdapter.Favo
     }
 
     @NonNull
-    @NotNull
     @Override
-    public FavoritoViewHolder onCreateViewHolder(@NonNull @NotNull ViewGroup parent, int viewType) {
+    public FavoritoViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.cardview_video,parent,false);
         FavoritoViewHolder favoritoViewHolder = new FavoritoViewHolder(v);
         return favoritoViewHolder;
     }
 
     @Override
-    public void onBindViewHolder(@NonNull @NotNull FavoritoViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull FavoritoViewHolder holder, int position) {
         holder.name.setText(lista.get(position).titulo);
         holder.rating.setText(lista.get(position).rating);
         Picasso
@@ -60,7 +56,7 @@ public class FavoritosAdapter extends RecyclerView.Adapter<FavoritosAdapter.Favo
     public class FavoritoViewHolder extends RecyclerView.ViewHolder{
         TextView name,rating;
         ImageView src;
-        public FavoritoViewHolder(@NonNull @NotNull View itemView) {
+        public FavoritoViewHolder(@NonNull View itemView) {
             super(itemView);
             name = itemView.findViewById(R.id.cv_tv_name);
             rating = itemView.findViewById(R.id.cv_tv_rating);

@@ -31,7 +31,6 @@ import com.google.android.exoplayer2.ui.AspectRatioFrameLayout;
 import com.google.android.exoplayer2.ui.StyledPlayerControlView;
 import com.google.android.exoplayer2.ui.StyledPlayerView;
 
-import org.jetbrains.annotations.NotNull;
 import org.kaizoku.otropelisplusmas.database.entity.CapituloEnt;
 import org.kaizoku.otropelisplusmas.database.entity.SerieEnt;
 import org.kaizoku.otropelisplusmas.database.viewmodel.CapituloViewModel;
@@ -184,7 +183,7 @@ public class ReproductorFragment extends Fragment implements  StyledPlayerContro
                 }
 
                 @Override
-                public void onMediaItemTransition(@Nullable @org.jetbrains.annotations.Nullable MediaItem mediaItem, int reason) {
+                public void onMediaItemTransition(@Nullable MediaItem mediaItem, int reason) {
                     switch (reason){
                         case Player.MEDIA_ITEM_TRANSITION_REASON_REPEAT:Log.i(TAG, "onMediaItemTransition: repeat");break;
                         case Player.MEDIA_ITEM_TRANSITION_REASON_AUTO:Log.i(TAG, "onMediaItemTransition: auto");
@@ -296,14 +295,14 @@ public class ReproductorFragment extends Fragment implements  StyledPlayerContro
                 .observeOn(AndroidSchedulers.mainThread())
                 .flatMap(new Function<CapituloEnt, SingleSource<CapituloEnt>>() {
                     @Override
-                    public SingleSource<CapituloEnt> apply(@NotNull CapituloEnt capituloEnt) throws Exception {
+                    public SingleSource<CapituloEnt> apply(CapituloEnt capituloEnt) throws Exception {
                         Log.i(TAG, "apply: 1 capituloEnt desde web service");
                         capitulo=capituloEnt;
                         return capituloViewModel.getCapitulo(capituloEnt.href);
                     }
                 }).flatMap(new Function<CapituloEnt, SingleSource<Long>>() {
                     @Override
-                    public SingleSource<Long> apply(@NotNull CapituloEnt capituloEnt) throws Exception {
+                    public SingleSource<Long> apply(CapituloEnt capituloEnt) throws Exception {
                         Log.i(TAG, "apply: 2 capituloEnt desde la db");
                         capitulo.id=capituloEnt.id;
                         return Single.just(capitulo.id);
@@ -311,13 +310,13 @@ public class ReproductorFragment extends Fragment implements  StyledPlayerContro
                 })
                 .onErrorResumeNext(new Function<Throwable, SingleSource<Long>>() {
                     @Override
-                    public SingleSource<Long> apply(@NotNull Throwable throwable) throws Exception {
+                    public SingleSource<Long> apply(Throwable throwable) throws Exception {
                         Log.e(TAG, "apply: 3 error no esta en la db", throwable);
                         return capituloViewModel.insertCapitolo(capitulo);
                     }
                 }).flatMap(new Function<Long, SingleSource<?>>() {
                     @Override
-                    public SingleSource<?> apply(@NotNull Long id) throws Exception {
+                    public SingleSource<?> apply(Long id) throws Exception {
                         Log.i(TAG, "apply: 4");
                         capitulo.id=id;
                         capitulo.visto=true;

@@ -145,8 +145,8 @@ public class HomeFragment extends Fragment implements
 
     @Override
     public void onClickCard(MediaEnt mediaEnt) {
-        //#adsblock
-        ((MainActivity)getActivity()).showInterstitialAd();
+                //#adsblock
+        //((MainActivity)getActivity()).showInterstitialAd();
 
         NavController navController = Navigation.findNavController(getActivity(), R.id.nav_host_fragment);
         int id_nav=navController.getCurrentDestination().getId();

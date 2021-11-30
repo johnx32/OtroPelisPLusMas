@@ -9,7 +9,6 @@ import androidx.room.RoomDatabase;
 import androidx.room.TypeConverters;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
-import org.jetbrains.annotations.NotNull;
 import org.kaizoku.otropelisplusmas.database.dao.CapituloDao;
 import org.kaizoku.otropelisplusmas.database.dao.FavoritoDao;
 import org.kaizoku.otropelisplusmas.database.dao.SerieDao;
@@ -31,7 +30,7 @@ public abstract class OPelisplusRoom extends RoomDatabase {
                             //.allowMainThreadQueries()
                             .addCallback(new Callback() {
                                 @Override
-                                public void onCreate(@NonNull @NotNull SupportSQLiteDatabase db) {
+                                public void onCreate(@NonNull SupportSQLiteDatabase db) {
                                     super.onCreate(db);
                                     db.execSQL("insert into favorito(name) values ('favoritos');");
                                 }

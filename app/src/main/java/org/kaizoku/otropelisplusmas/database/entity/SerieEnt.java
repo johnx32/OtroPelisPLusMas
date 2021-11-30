@@ -1,14 +1,12 @@
 package org.kaizoku.otropelisplusmas.database.entity;
 
 import android.os.Parcel;
-import android.os.Parcelable;
 
 import androidx.annotation.NonNull;
 import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.Index;
 
-import org.jetbrains.annotations.NotNull;
 import org.kaizoku.otropelisplusmas.model.Chapter;
 import org.kaizoku.otropelisplusmas.model.Season;
 
@@ -72,7 +70,6 @@ public class SerieEnt extends MediaEnt {
     }
 
     @NonNull
-    @NotNull
     @Override
     public String toString() {
         return super.toString()+"\n capProgres: "+capProgres+"\n seasonList-size: "+seasonList.size();

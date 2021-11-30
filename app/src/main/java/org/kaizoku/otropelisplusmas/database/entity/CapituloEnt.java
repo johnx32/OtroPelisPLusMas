@@ -1,21 +1,16 @@
 package org.kaizoku.otropelisplusmas.database.entity;
 
-import android.os.Build;
 import android.os.Parcel;
-import android.os.Parcelable;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.Index;
-import androidx.room.PrimaryKey;
 
-import org.jetbrains.annotations.NotNull;
 import org.kaizoku.otropelisplusmas.model.video_server.VideoServer;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Entity(tableName = "capitulo",indices =  {@Index(value = {"href"},unique = true)})
@@ -33,7 +28,7 @@ public class CapituloEnt extends MediaEnt {
     }
 
     @Override
-    public boolean equals(@Nullable @org.jetbrains.annotations.Nullable Object capitulo) {
+    public boolean equals(@Nullable Object capitulo) {
         if(capitulo instanceof CapituloEnt){
             CapituloEnt c = (CapituloEnt) capitulo;
             if(c.href==href && c.titulo==titulo && c.href_serie==href_serie && c.src_img==src_img && c.sinopsis==sinopsis &&
@@ -94,7 +89,6 @@ public class CapituloEnt extends MediaEnt {
     }
 
     @NonNull
-    @NotNull
     @Override
     public String toString() {
         return "\nhref_serie: "+href_serie+"\n visto: "+visto+"\nprogress: "+progress+"\n"+visto+"\n server-list size: "+

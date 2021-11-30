@@ -12,10 +12,6 @@ import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdSize;
-import com.google.android.gms.ads.AdView;
-
 import org.kaizoku.otropelisplusmas.R;
 import org.kaizoku.otropelisplusmas.model.Chapter;
 
@@ -25,11 +21,11 @@ import java.util.List;
 public class ChapterAdapter extends RecyclerView.Adapter<ChapterAdapter.ChapterViewHolder> {
     private static final String TAG = "slfa";
     private List<Chapter> list=new ArrayList<>();
-    private AdSize adSize;
+    //private AdSize adSize;
 
-    public ChapterAdapter(OnCardChapterListener onCardListener, AdSize adSize) {
+    public ChapterAdapter(OnCardChapterListener onCardListener) {
         this.onCardListener = onCardListener;
-        this.adSize = adSize;
+        //this.adSize = adSize;
     }
 
     public void setChapterList(List<Chapter> list) {
@@ -73,11 +69,11 @@ public class ChapterAdapter extends RecyclerView.Adapter<ChapterAdapter.ChapterV
                 onCardListener.onClickCardChapter(list.get(position).href,position);
             });
         }else{
-            AdView adView = new AdView(holder.itemView.getContext());
+            /*AdView adView = new AdView(holder.itemView.getContext());
             adView.setAdUnitId(holder.itemView.getContext().getString(R.string.banner_adaptative02));
             holder.cardView.setVisibility(View.GONE);
             holder.ll.addView(adView);
-            loadBanner(adView);
+            loadBanner(adView);*/
         }
     }
 
@@ -107,7 +103,7 @@ public class ChapterAdapter extends RecyclerView.Adapter<ChapterAdapter.ChapterV
         }
     }
 
-    private void loadBanner(AdView adView) {
+    /*private void loadBanner(AdView adView) {
         // Create an ad request. Check your logcat output for the hashed device ID
         // to get test ads on a physical device, e.g.,
         // "Use AdRequest.Builder.addTestDevice("ABCDE0123") to get test ads on this
@@ -122,7 +118,7 @@ public class ChapterAdapter extends RecyclerView.Adapter<ChapterAdapter.ChapterV
 
         // Step 5 - Start loading the ad in the background.
         adView.loadAd(adRequest);
-    }
+    }*/
 
 
     /*

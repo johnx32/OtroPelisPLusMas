@@ -9,17 +9,14 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
-import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.kaizoku.otropelisplusmas.R;
 import org.kaizoku.otropelisplusmas.adapter.ItemChangelogAdapter;
-import org.kaizoku.otropelisplusmas.adapter.VideoCardAdapter;
 import org.kaizoku.otropelisplusmas.databinding.FragmentChangelogBinding;
 import org.kaizoku.otropelisplusmas.model.Change;
 import org.kaizoku.otropelisplusmas.model.ItemChangelog;
@@ -32,14 +29,13 @@ public class ChangelogFragment extends Fragment {
     FragmentChangelogBinding binding;
     ItemChangelogAdapter adapter;
     @Override
-    public void onCreate(@Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
+    public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
     }
 
     @Nullable
-    @org.jetbrains.annotations.Nullable
     @Override
-    public View onCreateView(@NonNull @NotNull LayoutInflater inflater, @Nullable @org.jetbrains.annotations.Nullable ViewGroup container, @Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         binding = FragmentChangelogBinding.inflate(inflater,container,false);
         initAdapter();
         Thread h = new Thread(() -> {

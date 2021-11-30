@@ -15,10 +15,8 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.tabs.TabLayoutMediator;
 
-import org.jetbrains.annotations.NotNull;
 import org.kaizoku.otropelisplusmas.MainActivity;
 import org.kaizoku.otropelisplusmas.R;
-import org.kaizoku.otropelisplusmas.database.OPelisplusRoom;
 import org.kaizoku.otropelisplusmas.database.entity.CapituloEnt;
 import org.kaizoku.otropelisplusmas.database.entity.MediaEnt;
 import org.kaizoku.otropelisplusmas.database.entity.SerieEnt;
@@ -31,7 +29,6 @@ import org.kaizoku.otropelisplusmas.service.PelisplushdService;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 
 import io.reactivex.Single;
 import io.reactivex.SingleSource;
@@ -82,7 +79,7 @@ public class SerieCartelFragment extends Fragment {
             serieViewModel.getSerie(media.href)
                     .flatMap(new Function<SerieEnt, SingleSource<SerieEnt>>() {
                         @Override
-                        public SingleSource<SerieEnt> apply(@NotNull SerieEnt serieEnt) throws Exception {
+                        public SingleSource<SerieEnt> apply(SerieEnt serieEnt) throws Exception {
                             Log.i(TAG, "apply: 1 obtenido de la db");
                             serie=serieEnt;
                             loadSerieEnt(serie);
@@ -92,7 +89,7 @@ public class SerieCartelFragment extends Fragment {
                         }
                     }).onErrorResumeNext(new Function<Throwable, SingleSource<SerieEnt>>() {
                         @Override
-                        public SingleSource<SerieEnt> apply(@NotNull Throwable throwable) throws Exception {
+                        public SingleSource<SerieEnt> apply(Throwable throwable) throws Exception {
                             Log.e(TAG, "apply: 2 onErrorResumeNext ", throwable);
                             return pelisplushdService.getSingleSerieCartel(media.href)
                                     .subscribeOn(Schedulers.io())
@@ -100,7 +97,7 @@ public class SerieCartelFragment extends Fragment {
                         }
                     }).flatMap(new Function<SerieEnt, SingleSource<Long>>() {
                         @Override
-                        public SingleSource<Long> apply(@NotNull SerieEnt serieEnt) throws Exception {
+                        public SingleSource<Long> apply(SerieEnt serieEnt) throws Exception {
                             Log.i(TAG, "apply: 3 serieEnt from web service");
                             loadSerieEnt(serieEnt);
                             if (serie == null){//from error - todo:if serie null insertar

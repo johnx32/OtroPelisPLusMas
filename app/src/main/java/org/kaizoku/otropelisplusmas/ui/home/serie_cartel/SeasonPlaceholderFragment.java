@@ -1,7 +1,6 @@
 package org.kaizoku.otropelisplusmas.ui.home.serie_cartel;
 
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
@@ -15,14 +14,11 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
-import com.google.android.gms.ads.AdSize;
-
 import org.kaizoku.otropelisplusmas.MainActivity;
 import org.kaizoku.otropelisplusmas.R;
 import org.kaizoku.otropelisplusmas.adapter.ChapterAdapter;
 import org.kaizoku.otropelisplusmas.database.entity.SerieEnt;
 import org.kaizoku.otropelisplusmas.databinding.FragmentPlaceholderSeasonBinding;
-import org.kaizoku.otropelisplusmas.model.Chapter;
 import org.kaizoku.otropelisplusmas.model.Season;
 
 import java.util.ArrayList;
@@ -82,10 +78,11 @@ public class SeasonPlaceholderFragment extends Fragment implements ChapterAdapte
         binding.fragPlaceholderSeasonRv.setHasFixedSize(true);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
         binding.fragPlaceholderSeasonRv.setLayoutManager(layoutManager);
-        chapterAdapter = new ChapterAdapter(this,getAdSize());
+        chapterAdapter = new ChapterAdapter(this);
         binding.fragPlaceholderSeasonRv.setAdapter(chapterAdapter);
     }
 
+    /*
     private AdSize getAdSize() {
         // Step 2 - Determine the screen width (less decorations) to use for the ad width.
         Display display = getActivity().getWindowManager().getDefaultDisplay();
@@ -99,12 +96,12 @@ public class SeasonPlaceholderFragment extends Fragment implements ChapterAdapte
 
         // Step 3 - Get adaptive ad size and return for setting on the ad view.
         return AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(getContext(), adWidth);
-    }
+    }*/
 
     @Override
     public void onClickCardChapter(String href,int chapterPos) {
-        //#adsblock
-        ((MainActivity)getActivity()).showInterstitialAd();
+            //#adsblock
+        //((MainActivity)getActivity()).showInterstitialAd();
         //serie.chapterPos=chapterPos;
           serie.setChapterPos(href,chapterPos);
         if(serie.getCurrentSeasonChapter().href.equals(href))

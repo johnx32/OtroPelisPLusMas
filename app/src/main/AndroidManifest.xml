@@ -40,9 +40,9 @@
                     android:scheme="https" />
             </intent-filter>
         </activity> <!-- Sample AdMob app ID: ca-app-pub-3940256099942544~3347511713 -->
-        <meta-data
+        <!--<meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="@string/id_app" />
+            android:value="@string/id_app" />-->
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="org.kaizoku.otropelisplusmas"
