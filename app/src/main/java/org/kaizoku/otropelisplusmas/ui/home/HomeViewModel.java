@@ -6,9 +6,6 @@ import androidx.lifecycle.ViewModel;
 
 import org.kaizoku.otropelisplusmas.model.FullPage;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class HomeViewModel extends ViewModel {
     private MutableLiveData<FullPage> listaFullpage;
     public LiveData<FullPage> getListaFullpage(){

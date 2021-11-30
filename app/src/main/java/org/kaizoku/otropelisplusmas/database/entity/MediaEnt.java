@@ -33,6 +33,8 @@ public class MediaEnt implements Parcelable {
     public Date updated_at;
 
     public MediaEnt() {
+        this.created_at=new Date();
+        this.updated_at=new Date();
     }
 
     public MediaEnt(MediaEnt media){
@@ -52,6 +54,8 @@ public class MediaEnt implements Parcelable {
         this.rating=rating;
         this.href=href;
         this.src_img=src_img;
+        this.created_at=new Date();
+        this.updated_at=new Date();
     }
     public byte getType(String url){
         if(url.contains("/pelicula"))return MediaEnt.TYPE_PELICULA;

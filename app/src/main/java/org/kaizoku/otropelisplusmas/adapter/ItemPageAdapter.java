@@ -1,5 +1,6 @@
 package org.kaizoku.otropelisplusmas.adapter;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,14 +16,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ItemPageAdapter extends RecyclerView.Adapter<ItemPageAdapter.ItemPaginationViewHolder> {
-    List<ItemPage> list = new ArrayList<>();
+    private static final String TAG = "eljs";
+    private List<ItemPage> list = new ArrayList<>();
 
     public ItemPageAdapter(OnCardPaginationListener onCardPaginationListener) {
         this.onCardPaginationListener = onCardPaginationListener;
     }
 
     public void setList(List<ItemPage> list) {
-        this.list = list;
+        if(list!=null)
+            this.list = list;
+        else Log.i(TAG, "setList: list recivido es null");
         notifyDataSetChanged();
     }
 
@@ -41,6 +45,10 @@ public class ItemPageAdapter extends RecyclerView.Adapter<ItemPageAdapter.ItemPa
 
     @Override
     public int getItemCount() {
+        /*if(list==null){
+            Log.e(TAG, "getItemCount: Error, list es null");
+            return 0;
+        }*/
         return list.size();
     }
 

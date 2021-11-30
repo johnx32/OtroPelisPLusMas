@@ -20,6 +20,7 @@ import androidx.appcompat.widget.TooltipCompat;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -43,6 +44,8 @@ import com.squareup.picasso.Picasso;
 
 import org.jetbrains.annotations.NotNull;
 import org.kaizoku.otropelisplusmas.adapter.ChapterAdapter;
+import org.kaizoku.otropelisplusmas.database.OPelisplusRoom;
+import org.kaizoku.otropelisplusmas.database.viewmodel.CapituloViewModel;
 import org.kaizoku.otropelisplusmas.databinding.ActivityMainBinding;
 import org.kaizoku.otropelisplusmas.updater.Checker;
 
@@ -219,6 +222,34 @@ public class MainActivity extends AppCompatActivity {
         });
 
         mostrarChangelog(navController);
+
+        checkPendingCapituloProgress();
+    }
+
+    private void checkPendingCapituloProgress() {
+        SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
+            long progress = sharedPref.getLong("progress",0);
+            long capitulo_id = sharedPref.getLong("capitulo_id",0);
+
+            if(progress>0){
+                CapituloViewModel capituloViewModel;
+                capituloViewModel = new ViewModelProvider(this).get(CapituloViewModel.class);
+
+                capituloViewModel.getCapitulo(capitulo_id)
+                        .flatMap(capituloEnt -> {
+                            capituloEnt.progress = progress;
+                            return capituloViewModel.updateCapitulo(capituloEnt);
+                        })
+                        .subscribe((integer, throwable) -> {
+                            if(throwable==null) {
+                                SharedPreferences.Editor editor = sharedPref.edit();
+                                editor.remove("progress");
+                                editor.remove("capitulo_id");
+                                editor.commit();
+                                Log.i(TAG, "checkPendingCapituloProgress: capitulo pendiente progreso actualizado con exito");
+                            }
+                        });
+            }
     }
 
     private void initAds() {

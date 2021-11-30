@@ -1,6 +1,8 @@
 package org.kaizoku.otropelisplusmas.ui.home.video_cartel;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.os.Bundle;
@@ -84,6 +86,12 @@ public class VideoCartelFragment extends Fragment implements VideoServerAdapter.
         loadArguments();
 
         return binding.getRoot();
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        checkPendingCapituloProgress();
     }
 
     private void loadArguments() {
@@ -314,5 +322,32 @@ public class VideoCartelFragment extends Fragment implements VideoServerAdapter.
     public void onDestroy() {
         super.onDestroy();
         ((MainActivity)getActivity()).setDisplayShowTitleEnabled(false);
+    }
+
+    private void checkPendingCapituloProgress() {
+        Log.i(TAG, "checkPendingCapituloProgress: checando shared");
+        SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+        long progress = sharedPref.getLong("progress",0);
+        long capitulo_id = sharedPref.getLong("capitulo_id",0);
+
+        if(progress>0){
+            CapituloViewModel capituloViewModel;
+            capituloViewModel = new ViewModelProvider(this).get(CapituloViewModel.class);
+
+            capituloViewModel.getCapitulo(capitulo_id)
+                    .flatMap(capituloEnt -> {
+                        capituloEnt.progress = progress;
+                        return capituloViewModel.updateCapitulo(capituloEnt);
+                    })
+                    .subscribe((integer, throwable) -> {
+                        if(throwable==null) {
+                            SharedPreferences.Editor editor = sharedPref.edit();
+                            editor.remove("progress");
+                            editor.remove("capitulo_id");
+                            editor.commit();
+                            Log.i(TAG, "checkPendingCapituloProgress: capitulo pendiente progreso actualizado con exito");
+                        }
+                    });
+        }
     }
 }

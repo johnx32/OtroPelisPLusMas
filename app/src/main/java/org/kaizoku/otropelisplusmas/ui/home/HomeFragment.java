@@ -44,6 +44,7 @@ public class HomeFragment extends Fragment implements
     private ItemPageAdapter itemPageAdapter;
     private PelisplushdService pelisplushdService;
     private HomeViewModel homeViewModel;
+    private String url_current;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -55,28 +56,41 @@ public class HomeFragment extends Fragment implements
         binding = FragmentHomeBinding.inflate(inflater,container,false);
         pelisplushdService=new PelisplushdService();
         homeViewModel = new ViewModelProvider(this).get(HomeViewModel.class);
-        homeViewModel.getListaFullpage().observe(getViewLifecycleOwner(),fullPage -> {
-            videoCardAdapter.setList(fullPage.listCard);
-            itemPageAdapter.setList(fullPage.paginacion);
-        });
+
+
         ((MainActivity)getActivity()).setDisplayShowTitleEnabled(false);
-        String url=getUrlFromBundle();
+        loadBundle();
+
         initVideoCardAdapter();
         initItemPaginationAdapter();
-        cargarPagina(url);
+        cargarPagina(url_current);
         return binding.getRoot();
     }
 
-    private String getUrlFromBundle(){
-        String url="";
-        int index = -1;
+    private void loadBundle() {
         Bundle b = getArguments();
         if(b!=null) {
-            index = b.getInt("url",-1);
+            int index = b.getInt("url",-1);
             if(index>=0)
-                url = getContext().getResources().getStringArray(R.array.urls)[index];
-        }else Log.i(TAG, "onCreateView: b es null");
-        return url;
+                url_current = getContext().getResources().getStringArray(R.array.urls)[index];
+        }else Log.e(TAG, "onCreateView: bundle Arguments es null");
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        homeViewModel.getListaFullpage().observe(getViewLifecycleOwner(),fullPage -> {
+            videoCardAdapter.setList(fullPage.listCard);
+            if(fullPage.paginacion!=null)
+                itemPageAdapter.setList(fullPage.paginacion);
+            else
+                Log.e(TAG, "onCreateView: fullPage.paginacion es null");
+        });
+
+        binding.rvSwipeSeries.setOnRefreshListener(() -> {
+            if(url_current!=null)
+                cargarPagina(url_current);
+        });
     }
 
     private void initVideoCardAdapter() {
@@ -206,30 +220,37 @@ public class HomeFragment extends Fragment implements
 
     private void cargarPagina(String url){
         if(homeViewModel.getListaFullpage().getValue()!=null &&
+                homeViewModel.getListaFullpage().getValue().url!=null &&
                 homeViewModel.getListaFullpage().getValue().url.equals(url)){
             Log.i(TAG, "lista con elementos: ");
             FullPage fp = homeViewModel.getListaFullpage().getValue();
             videoCardAdapter.setList(fp.listCard);
-            itemPageAdapter.setList(fp.paginacion);
+            if(fp.paginacion!=null)
+                itemPageAdapter.setList(fp.paginacion);
+            else Log.e(TAG, "cargarPagina: fp.paginacion es nullo");
+
             binding.pbHomeLoadContent.setVisibility(View.GONE);
+            binding.rvSwipeSeries.setRefreshing(false);
         }else {
             Log.i(TAG, "cargarPagina: lista vacia");
             pelisplushdService.loadMenuCardsSingle(url)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(onload);
+                    .subscribe((fullPage, throwable) -> {
+                        binding.pbHomeLoadContent.setVisibility(View.GONE);
+                        if(throwable==null) {//todo: mover vista de recycler to top
+                            homeViewModel.setListaFullpage(fullPage);
+                        }else{
+                            Log.e(TAG, "onload, error al cargar: ",throwable );
+                            //todo:error intentar denuevo
+                            Snackbar.make(getView(),"Ocurrio un error al cargar la pagina, intente denuevo",Snackbar.LENGTH_LONG).show();
+                        }
+                        binding.rvSwipeSeries.setRefreshing(false);
+                    });
         }
-
     }
 
-    private BiConsumer<FullPage, Throwable> onload = (fullPage, throwable)->{
-        binding.pbHomeLoadContent.setVisibility(View.GONE);
-        if(throwable==null) {//todo: mover vista de recycler to top
-            homeViewModel.setListaFullpage(fullPage);
-        }else{
-            Log.e(TAG, "onload, error al cargar: ",throwable );
-            //todo:error intentar denuevo
-            Snackbar.make(getView(),"Ocurrio un error al cargar la pagina, intente denuevo",Snackbar.LENGTH_LONG).show();
-        }
-    };
+    /*private BiConsumer<FullPage, Throwable> onload = (fullPage, throwable)->{
+
+    };*/
 }

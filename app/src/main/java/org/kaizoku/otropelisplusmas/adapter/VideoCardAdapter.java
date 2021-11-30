@@ -1,5 +1,6 @@
 package org.kaizoku.otropelisplusmas.adapter;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,8 +29,10 @@ public class VideoCardAdapter extends Adapter<VideoViewHolder> {
     }
 
     public void setList(List<MediaEnt> list) {
-        this.list = list;
-        notifyDataSetChanged();
+        if(list!=null) {
+            this.list = list;
+            notifyDataSetChanged();
+        }else Log.e("TAG", "setList: list recivido es null" );
     }
 
     @NonNull

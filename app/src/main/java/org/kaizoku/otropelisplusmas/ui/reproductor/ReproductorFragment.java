@@ -2,6 +2,8 @@ package org.kaizoku.otropelisplusmas.ui.reproductor;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.media.AudioManager;
 import android.net.Uri;
@@ -38,9 +40,7 @@ import org.kaizoku.otropelisplusmas.model.Chapter;
 import org.kaizoku.otropelisplusmas.model.Season;
 import org.kaizoku.otropelisplusmas.model.video_server.FembedServer;
 import org.kaizoku.otropelisplusmas.service.PelisplushdService;
-import org.kaizoku.otropelisplusmas.ui.home.HomeViewModel;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import io.reactivex.Single;
@@ -188,14 +188,14 @@ public class ReproductorFragment extends Fragment implements  StyledPlayerContro
                     switch (reason){
                         case Player.MEDIA_ITEM_TRANSITION_REASON_REPEAT:Log.i(TAG, "onMediaItemTransition: repeat");break;
                         case Player.MEDIA_ITEM_TRANSITION_REASON_AUTO:Log.i(TAG, "onMediaItemTransition: auto");
-                            playerControlFlow();
+                            playerLoadNextVideo();
                             break;
                         case Player.MEDIA_ITEM_TRANSITION_REASON_SEEK:Log.i(TAG, "onMediaItemTransition: seek");
                             //printPlaylist();
                                     //playFromPlaylistTest(mediaItem);
                             //Log.i(TAG, "onMediaItemTransition: getPlaybackState"+player.getPlaybackState()+" - getPlayWhenReady"+player.getPlayWhenReady());
                             Log.i(TAG, "onMediaItemTransition: isSeekReplace: "+isSeekReplace);
-                            if(isSeekReplace) playerControlFlow();
+                            if(isSeekReplace) playerLoadNextVideo();
                             isSeekReplace=true;
                             //printPlaylist();
                             break;
@@ -256,8 +256,14 @@ public class ReproductorFragment extends Fragment implements  StyledPlayerContro
     private void updateSerieProgress() {
         Log.i(TAG, "updateSerieProgress: ");
         if(player!=null&&capituloViewModel!=null) {
-            capitulo.progress = player.getCurrentPosition();
-            capituloViewModel.updateCapitulo(capitulo).subscribe();
+            SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPref.edit();
+                editor.putLong("progress", player.getCurrentPosition());
+                editor.putLong("capitulo_id", capitulo.id);
+                editor.commit();
+
+            //capitulo.progress = player.getCurrentPosition();
+            //capituloViewModel.updateCapitulo(capitulo).subscribe();
         }
     }
 
@@ -279,10 +285,11 @@ public class ReproductorFragment extends Fragment implements  StyledPlayerContro
         }
     }
 
-    private void playerControlFlow() {
+    private void playerLoadNextVideo() {
         Log.i(TAG, "playerControlFlow: ");
         //Log.i(TAG, "playerControlFlow: pause");
         //player.pause();
+        //obteniendo url del nuevo media
         String url = player.getCurrentMediaItem().mediaMetadata.title;
         pelisplushdService.getSingleVideoCartel(url)
                 .subscribeOn(Schedulers.io())
@@ -290,14 +297,14 @@ public class ReproductorFragment extends Fragment implements  StyledPlayerContro
                 .flatMap(new Function<CapituloEnt, SingleSource<CapituloEnt>>() {
                     @Override
                     public SingleSource<CapituloEnt> apply(@NotNull CapituloEnt capituloEnt) throws Exception {
-                        Log.i(TAG, "apply: 1");
+                        Log.i(TAG, "apply: 1 capituloEnt desde web service");
                         capitulo=capituloEnt;
                         return capituloViewModel.getCapitulo(capituloEnt.href);
                     }
                 }).flatMap(new Function<CapituloEnt, SingleSource<Long>>() {
                     @Override
                     public SingleSource<Long> apply(@NotNull CapituloEnt capituloEnt) throws Exception {
-                        Log.i(TAG, "apply: 2");
+                        Log.i(TAG, "apply: 2 capituloEnt desde la db");
                         capitulo.id=capituloEnt.id;
                         return Single.just(capitulo.id);
                     }
@@ -305,11 +312,19 @@ public class ReproductorFragment extends Fragment implements  StyledPlayerContro
                 .onErrorResumeNext(new Function<Throwable, SingleSource<Long>>() {
                     @Override
                     public SingleSource<Long> apply(@NotNull Throwable throwable) throws Exception {
-                        Log.e(TAG, "apply: 3", throwable);
+                        Log.e(TAG, "apply: 3 error no esta en la db", throwable);
                         return capituloViewModel.insertCapitolo(capitulo);
                     }
+                }).flatMap(new Function<Long, SingleSource<?>>() {
+                    @Override
+                    public SingleSource<?> apply(@NotNull Long id) throws Exception {
+                        Log.i(TAG, "apply: 4");
+                        capitulo.id=id;
+                        capitulo.visto=true;
+                        return capituloViewModel.updateCapitulo(capitulo);
+                    }
                 })
-                .subscribe((id, throwable) -> {
+                .subscribe((integer, throwable) -> {
                     if(throwable==null){
                         if(capitulo.videoServerList.get(0) instanceof FembedServer) {
                             FembedServer fserver = (FembedServer) capitulo.videoServerList.get(0);//el cero no es baner, es el 4

@@ -67,6 +67,7 @@ public class SeasonPlaceholderFragment extends Fragment implements ChapterAdapte
     }
 
     private void loadArgumentos(){
+        Log.i(TAG, "loadArgumentos: ");
         Bundle bundle = getArguments();
         if(bundle!=null){
             serie=bundle.getParcelable("serie");
@@ -81,9 +82,7 @@ public class SeasonPlaceholderFragment extends Fragment implements ChapterAdapte
         binding.fragPlaceholderSeasonRv.setHasFixedSize(true);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
         binding.fragPlaceholderSeasonRv.setLayoutManager(layoutManager);
-
         chapterAdapter = new ChapterAdapter(this,getAdSize());
-
         binding.fragPlaceholderSeasonRv.setAdapter(chapterAdapter);
     }
 

@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ChapterAdapter extends RecyclerView.Adapter<ChapterAdapter.ChapterViewHolder> {
+    private static final String TAG = "slfa";
     private List<Chapter> list=new ArrayList<>();
     private AdSize adSize;
 
@@ -32,6 +33,7 @@ public class ChapterAdapter extends RecyclerView.Adapter<ChapterAdapter.ChapterV
     }
 
     public void setChapterList(List<Chapter> list) {
+        Log.i(TAG, "setChapterList: actualizando lista");
         this.list.clear();
         int j=0;
         for (Chapter c:list) {
