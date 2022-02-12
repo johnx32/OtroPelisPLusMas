@@ -20,7 +20,6 @@ import androidx.appcompat.widget.TooltipCompat;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -31,7 +30,6 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.squareup.picasso.Picasso;
 
-import org.kaizoku.otropelisplusmas.database.viewmodel.CapituloViewModel;
 import org.kaizoku.otropelisplusmas.updater.Checker;
 
 
@@ -133,21 +131,7 @@ public class MainActivity extends AppCompatActivity {
         });*/
 
 
-        //initAds();
-
         setFloatingactionButtonOnClick();
-
-
-        /*
-        AlertDialog.Builder builder = new AlertDialog.Builder(this,R.style.Theme_AppCompat_Dialog);
-        builder.setTitle("Actualización")
-                .setMessage("Parece que la versión " + 10 + " está disponible,\n ¿Quieres actualizar?")
-                //.setCancelable(true)
-                .setNegativeButton("despues",null)
-                .setPositiveButton("si",null);
-        AlertDialog dialog = builder.create();
-        //dialog.getWindow().setBackgroundDrawableResource(R.color.red);
-        dialog.show();*/
 
         Checker.check(this, new Checker.CheckerListener() {
             @Override
@@ -206,10 +190,10 @@ public class MainActivity extends AppCompatActivity {
 
         mostrarChangelog(navController);
 
-        checkPendingCapituloProgress();
+        //checkPendingCapituloProgress();
     }
 
-    private void checkPendingCapituloProgress() {
+    /*private void checkPendingCapituloProgress() {
         SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
             long progress = sharedPref.getLong("progress",0);
             long capitulo_id = sharedPref.getLong("capitulo_id",0);
@@ -233,21 +217,6 @@ public class MainActivity extends AppCompatActivity {
                             }
                         });
             }
-    }
-
-    /*
-    private void initAds() {
-        MobileAds.initialize(this, new OnInitializationCompleteListener() {
-            @Override
-            public void onInitializationComplete(InitializationStatus initializationStatus) {
-            }
-        });
-        //List<String> testDeviceIds = Arrays.asList("AAFFE0B4F0C8C25E830B12A27616C1D4");//mi celu mini j1
-        List<String> testDeviceIds = Arrays.asList("CF0594B70208DD4C10C0A2CBA8028333");//virtual device android 10
-        RequestConfiguration configuration = new RequestConfiguration.Builder().setTestDeviceIds(testDeviceIds).build();
-        MobileAds.setRequestConfiguration(configuration);
-
-        loadInterstitialAd();
     }*/
 
     private void setFloatingactionButtonOnClick() {
@@ -306,62 +275,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    /*
-    private void loadInterstitialAd(){
-        AdRequest adRequest = new AdRequest.Builder()
-                .build();
-
-        InterstitialAd.load(MainActivity.this,getResources().getString(R.string.intersticial01), adRequest, new InterstitialAdLoadCallback() {
-            @Override
-            public void onAdLoaded(@NonNull InterstitialAd interstitialAd) {
-                // The mInterstitialAd reference will be null until
-                // an ad is loaded.
-                mInterstitialAd = interstitialAd;
-                Log.i(TAG, "onAdLoaded");
-            }
-
-            @Override
-            public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
-                // Handle the error
-                Log.e(TAG, "Error loadInterstitialAd - "+loadAdError.getMessage());
-                mInterstitialAd = null;
-            }
-        });
-    }
-
-    public void showInterstitialAd(){
-        if (mInterstitialAd != null) {
-
-            mInterstitialAd.setFullScreenContentCallback(new FullScreenContentCallback(){
-                @Override
-                public void onAdDismissedFullScreenContent() {
-                    // Called when fullscreen content is dismissed.
-                    Log.d("TAG", "The ad was dismissed.");
-                    loadInterstitialAd();
-                }
-
-                @Override
-                public void onAdFailedToShowFullScreenContent(AdError adError) {
-                    // Called when fullscreen content failed to show.
-                    Log.d("TAG", "The ad failed to show.");
-                }
-
-                @Override
-                public void onAdShowedFullScreenContent() {
-                    // Called when fullscreen content is shown.
-                    // Make sure to set your reference to null so you don't
-                    // show it a second time.
-                    mInterstitialAd = null;
-                    Log.d("TAG", "The ad was shown.");
-                }
-            });
-
-            mInterstitialAd.show(MainActivity.this);
-        } else {
-            Log.d("TAG", "mInterstitialAd es nulo - The interstitial ad wasn't ready yet.");
-        }
-    }*/
-
     @Override
     public void setTitle(CharSequence title) {
         //Toolbar toolbar = findViewById(R.id.toolbar);
@@ -383,12 +296,6 @@ public class MainActivity extends AppCompatActivity {
                 .load(src_img)
                 .into((ImageView) findViewById(R.id.img_toolbar));
     }
-
-    /*public void setTitleToolbar(String title){
-        CollapsingToolbarLayout c = findViewById(R.id.coll_toolbar_layout);
-        c.setTitle(title);
-    }*/
-
 
     @Override
     public boolean onSupportNavigateUp() {

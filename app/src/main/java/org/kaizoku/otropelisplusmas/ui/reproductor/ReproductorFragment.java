@@ -122,7 +122,7 @@ public class ReproductorFragment extends Fragment implements  StyledPlayerContro
 
 
 
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         Log.i(TAG, "onCreateView: ");
         Log.i(TAG, "onCreateView: getConfiguration orientation : "+getResources().getConfiguration().orientation);
         binding = FragmentReproductorBinding.inflate(inflater,container,false);
@@ -210,12 +210,12 @@ public class ReproductorFragment extends Fragment implements  StyledPlayerContro
             //mediaItem = MediaItem.fromUri("https://ftp.mi.fu-berlin.de/pub/schiller/00_Telematics_Organizational_2015.mp4");
             //mediaItem = MediaItem.fromUri("https://fvs.io/redirector?token=TzVYU0VqMFlZVmNhQVIxMmw1RkJ4RDVFcU5xYjZDbW9ScnZqTEZ1aGlpYnlsYkVRMC8zclJBL1A3Tndya3p6UkIrenJ0Q1ppb1NnSmtlTURIMkh3ekplcjU4SEE4V0R2czJmaHlBZlV2QmU5MXFiK2Q3akg5eW9jSy9NRkE1eUllRkd6bGxxSEtxVndlazVTZzhDaW5LOUt2UEhMZVVrUmJ6a3o6VkFkV2p4K1VLa0tLQUVNem1BSFRJUT09");
 
-            //si es lista de reproduccion
+            //si es lista de reproduccion Serie
             if(serie!=null && serie.isPlaylist()){
                 setPlayerList();
                 printPlaylist();
             }
-            //si es un solo video
+            //si es un solo video Pelicula
             else{
                 // Build the media item.
                 //mediaItem = MediaItem.fromUri(url_video);
@@ -293,35 +293,23 @@ public class ReproductorFragment extends Fragment implements  StyledPlayerContro
         pelisplushdService.getSingleVideoCartel(url)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .flatMap(new Function<CapituloEnt, SingleSource<CapituloEnt>>() {
-                    @Override
-                    public SingleSource<CapituloEnt> apply(CapituloEnt capituloEnt) throws Exception {
-                        Log.i(TAG, "apply: 1 capituloEnt desde web service");
-                        capitulo=capituloEnt;
-                        return capituloViewModel.getCapitulo(capituloEnt.href);
-                    }
-                }).flatMap(new Function<CapituloEnt, SingleSource<Long>>() {
-                    @Override
-                    public SingleSource<Long> apply(CapituloEnt capituloEnt) throws Exception {
-                        Log.i(TAG, "apply: 2 capituloEnt desde la db");
-                        capitulo.id=capituloEnt.id;
-                        return Single.just(capitulo.id);
-                    }
+                .flatMap(capituloEnt -> {
+                    Log.i(TAG, "apply: 1 capituloEnt desde web service");
+                    capitulo=capituloEnt;
+                    return capituloViewModel.getCapitulo(capituloEnt.href);
+                }).flatMap(capituloEnt -> {
+                    Log.i(TAG, "apply: 2 capituloEnt desde la db");
+                    capitulo.id=capituloEnt.id;
+                    return Single.just(capitulo.id);
                 })
-                .onErrorResumeNext(new Function<Throwable, SingleSource<Long>>() {
-                    @Override
-                    public SingleSource<Long> apply(Throwable throwable) throws Exception {
-                        Log.e(TAG, "apply: 3 error no esta en la db", throwable);
-                        return capituloViewModel.insertCapitolo(capitulo);
-                    }
-                }).flatMap(new Function<Long, SingleSource<?>>() {
-                    @Override
-                    public SingleSource<?> apply(Long id) throws Exception {
-                        Log.i(TAG, "apply: 4");
-                        capitulo.id=id;
-                        capitulo.visto=true;
-                        return capituloViewModel.updateCapitulo(capitulo);
-                    }
+                .onErrorResumeNext(throwable -> {
+                    Log.e(TAG, "apply: 3 error no esta en la db", throwable);
+                    return capituloViewModel.insertCapitolo(capitulo);
+                }).flatMap(id -> {
+                    Log.i(TAG, "apply: 4");
+                    capitulo.id=id;
+                    capitulo.visto=true;
+                    return capituloViewModel.updateCapitulo(capitulo);
                 })
                 .subscribe((integer, throwable) -> {
                     if(throwable==null){
@@ -380,7 +368,7 @@ public class ReproductorFragment extends Fragment implements  StyledPlayerContro
 
                             player.prepare();
                             isSeekReplace=false;
-                            player.seekTo(player.getMediaItemCount()-1, 0);
+                            player.seekTo(player.getMediaItemCount()-1, capitulo.progress);
                             player.play();
                         }else{
                             MediaMetadata md = new MediaMetadata.Builder().setTitle(chapters.get(j).href).build();
@@ -610,23 +598,6 @@ public class ReproductorFragment extends Fragment implements  StyledPlayerContro
     }
 
     void hidex(){
-        /*window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_IMMERSIVE
-        or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-        or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-        or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-        or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-        or View.SYSTEM_UI_FLAG_FULLSCREEN)*/
-        /*
-        WindowManager.LayoutParams attrs = getActivity().getWindow().getAttributes();
-        ((AppCompatActivity) getActivity()).getSupportActionBar().hide();
-        getActivity().getWindow().getDecorView().setSystemUiVisibility(
-                View.SYSTEM_UI_FLAG_LOW_PROFILE
-                        | View.SYSTEM_UI_FLAG_FULLSCREEN
-                        | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                        | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
-        */
 
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
@@ -643,33 +614,6 @@ public class ReproductorFragment extends Fragment implements  StyledPlayerContro
         Activity activity = getActivity();
         if (activity != null && activity.getWindow() != null)
             activity.getWindow().getDecorView().setSystemUiVisibility(flags);
-
-        /*//ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.hide();
-        }*/
-    }
-
-    private void showx(){
-
-
-        // Show the system bar
-        //mContentView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
-
-
-        // Schedule a runnable to display UI elements after a delay
-
-            // Delayed display of UI elements
-            ActionBar actionBar = getSupportActionBar();
-            if (actionBar != null) {
-                actionBar.show();
-            }
-            //mControlsView.setVisibility(View.VISIBLE);
-
-        /*ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.show();
-        }*/
     }
 
     @Nullable
@@ -681,19 +625,5 @@ public class ReproductorFragment extends Fragment implements  StyledPlayerContro
         }
         return actionBar;
     }
-
-    /*private String getNextChapterUrl(){
-        if(seasonList!=null) {
-            int size = seasonList.size();
-            for (int i = 0; i < size; i++) {
-                List<Chapter> chapterList = seasonList.get(seasonPos).chapterList;
-                int length = chapterList.size();
-                for (int j = 0; j > length; j++) {
-
-                }
-            }
-        }
-        return "";
-    }*/
 
 }

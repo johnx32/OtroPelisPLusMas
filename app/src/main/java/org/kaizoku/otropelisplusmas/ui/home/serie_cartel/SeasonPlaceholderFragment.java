@@ -1,20 +1,14 @@
 package org.kaizoku.otropelisplusmas.ui.home.serie_cartel;
 
 import android.os.Bundle;
-import android.util.DisplayMetrics;
-import android.util.Log;
-import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
-import org.kaizoku.otropelisplusmas.MainActivity;
 import org.kaizoku.otropelisplusmas.R;
 import org.kaizoku.otropelisplusmas.adapter.ChapterAdapter;
 import org.kaizoku.otropelisplusmas.database.entity.SerieEnt;
@@ -28,13 +22,9 @@ public class SeasonPlaceholderFragment extends Fragment implements ChapterAdapte
     private static final String TAG = "sd4fd";
     private FragmentPlaceholderSeasonBinding binding;
     private ChapterAdapter chapterAdapter;
-    // Controls de season & chapter
-    //private List<Season> seasonList=new ArrayList<>();
-    //private int seasonPos;
     private SerieEnt serie;
 
     public static SeasonPlaceholderFragment newInstance(List<Season> seasonList, int seasonPos) {
-        //Log.i(TAG, "newInstance: s: "+season.chapterList.size());
         Bundle bundle = new Bundle();
         bundle.putParcelableArrayList("season_list", (ArrayList) seasonList);
         bundle.putInt("season_pos",seasonPos);
@@ -51,9 +41,8 @@ public class SeasonPlaceholderFragment extends Fragment implements ChapterAdapte
         return fragment;
     }
 
-    @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentPlaceholderSeasonBinding.inflate(inflater,container,false);
 
         setRecycler();
@@ -63,15 +52,11 @@ public class SeasonPlaceholderFragment extends Fragment implements ChapterAdapte
     }
 
     private void loadArgumentos(){
-        Log.i(TAG, "loadArgumentos: ");
         Bundle bundle = getArguments();
         if(bundle!=null){
             serie=bundle.getParcelable("serie");
-            //seasonList=bundle.getParcelableArrayList("season_list");
-            //seasonPos=bundle.getInt("season_pos");
             chapterAdapter.setChapterList(serie.getCurrentSeason());
-            //chapterAdapter.setChapterList(seasonList.get(seasonPos).chapterList);
-        }else Log.i(TAG, "onCreateView: bundle es null");
+        }
     }
 
     private void setRecycler() {
@@ -82,38 +67,13 @@ public class SeasonPlaceholderFragment extends Fragment implements ChapterAdapte
         binding.fragPlaceholderSeasonRv.setAdapter(chapterAdapter);
     }
 
-    /*
-    private AdSize getAdSize() {
-        // Step 2 - Determine the screen width (less decorations) to use for the ad width.
-        Display display = getActivity().getWindowManager().getDefaultDisplay();
-        DisplayMetrics outMetrics = new DisplayMetrics();
-        display.getMetrics(outMetrics);
-
-        float widthPixels = outMetrics.widthPixels;
-        float density = outMetrics.density;
-
-        int adWidth = (int) (widthPixels / density);
-
-        // Step 3 - Get adaptive ad size and return for setting on the ad view.
-        return AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(getContext(), adWidth);
-    }*/
-
     @Override
     public void onClickCardChapter(String href,int chapterPos) {
-            //#adsblock
-        //((MainActivity)getActivity()).showInterstitialAd();
-        //serie.chapterPos=chapterPos;
-          serie.setChapterPos(href,chapterPos);
-        if(serie.getCurrentSeasonChapter().href.equals(href))
-            Log.i(TAG, "onClickCardChapter: href iguales");
+        serie.setChapterPos(href,chapterPos);
+
         Bundle b=new Bundle();
         b.putParcelable("serie",serie);
-        /*
-        b.putString("url",href);
-        b.putParcelableArrayList("season_list", (ArrayList) seasonList);
-        b.putInt("season_pos",seasonPos);
-        b.putInt("chapter_pos",chapterPos);
-        */
+
         NavHostFragment.findNavController(this)
                 .navigate(R.id.action_cartelFragment_to_videoCartelFragment,b);
     }

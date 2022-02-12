@@ -6,9 +6,7 @@ import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,10 +32,7 @@ import org.kaizoku.otropelisplusmas.databinding.FragmentVideoCartelBinding;
 import org.kaizoku.otropelisplusmas.service.PelisplushdService;
 
 import io.reactivex.Single;
-import io.reactivex.SingleSource;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.functions.BiConsumer;
-import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 
 public class VideoCartelFragment extends Fragment implements VideoServerAdapter.OnCardListener{
@@ -46,36 +41,17 @@ public class VideoCartelFragment extends Fragment implements VideoServerAdapter.
     private PelisplushdService pelisplushdService;
     private VideoServerAdapter videoServerAdapter;
 
+    private CapituloViewModel capituloViewModel;
     private SerieEnt serie;
     private CapituloEnt capitulo;
-    //private VideoCartelViewModel videoCartelViewModel;
-    private CapituloViewModel capituloViewModel;
-    // Controls de season & chapter
-    /*
-    private List<Season> seasonList=new ArrayList<>();
-    private int seasonPos;
-    private int chapterPos;
-    */
 
-    @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        Log.i(TAG, "onCreateView: ");
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
         binding = FragmentVideoCartelBinding.inflate(inflater,container,false);
         pelisplushdService = new PelisplushdService();
 
         capituloViewModel = new ViewModelProvider(this).get(CapituloViewModel.class);
-
-        /*
-        videoCartelViewModel = new ViewModelProvider(this).get(VideoCartelViewModel.class);
-        videoCartelViewModel.getListVideoCartel().observe(getViewLifecycleOwner(), capituloCartel -> {
-            // update UI
-            //Log.i(TAG, "onCreateView; size: "+videoCartel.videoServerList.size());
-            setVideoCartel(capituloCartel);
-            videoServerAdapter.setList(capituloCartel.videoServerList);
-        });
-        */
 
         intiAdapterServer();
 
@@ -95,91 +71,47 @@ public class VideoCartelFragment extends Fragment implements VideoServerAdapter.
         if(b!=null) {
             serie = b.getParcelable("serie");
             String url;
-            //String url = serie.getCurrentSeasonChapter().href;
             if(serie==null) {
                 url = b.getString("url", "");//desde serie o home
             }else{
                 url = serie.getCurrentSeasonChapter().href;
             }
 
-
-            /*
-            seasonList=b.getParcelableArrayList("season_list");
-            seasonPos=b.getInt("season_pos",-1);
-            chapterPos=b.getInt("chapter_pos",-1);
-            */
-
             capituloViewModel.getCapitulo(url)
-                    .flatMap(new Function<CapituloEnt, SingleSource<CapituloEnt>>() {
-                        @Override
-                        public SingleSource<CapituloEnt> apply(CapituloEnt capituloEnt) throws Exception {
-                            capitulo = capituloEnt;
+                    .flatMap(capituloEnt -> {
+                        capitulo = capituloEnt;
+                        loadCapituloEntCartel(capitulo);
+                        Log.i(TAG, "apply: 1 capituloEnt: "+capituloEnt);
+                        return pelisplushdService.getSingleVideoCartel(url)
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(AndroidSchedulers.mainThread());
+                    })
+                    .onErrorResumeNext(throwable -> {
+                        return pelisplushdService.getSingleVideoCartel(url)
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(AndroidSchedulers.mainThread());
+                    })
+                    .flatMap(capituloEnt -> {
+                        Log.i(TAG, "apply: 3 capituloGet from web service: "+capituloEnt);
+                        loadCapituloEntCartel(capituloEnt);
+                        videoServerAdapter.setList(capituloEnt.videoServerList);
+                        if(capitulo==null) {//no insertado
+                            capitulo=capituloEnt;
+                            return capituloViewModel.insertCapitolo(capituloEnt);
+                        }else {
+                            capitulo.videoServerList=capituloEnt.videoServerList;
+                            return Single.just(-1l);
+                        }
+                    })
+                    .subscribe((id, throwable) -> {
+                        if(throwable==null){
+                            Log.i(TAG, "accept: id: " + id);
+                            if(id>0)
+                                capitulo.id=id;
                             loadCapituloEntCartel(capitulo);
-                            Log.i(TAG, "apply: 1 capituloEnt: "+capituloEnt);
-                            return pelisplushdService.getSingleVideoCartel(url)
-                                    .subscribeOn(Schedulers.io())
-                                    .observeOn(AndroidSchedulers.mainThread());
-                        }
-                    })
-                    .onErrorResumeNext(new Function<Throwable, SingleSource<? extends CapituloEnt>>() {
-                        @Override
-                        public SingleSource<? extends CapituloEnt> apply(Throwable throwable) throws Exception {
-                            Log.i(TAG, "apply: 2 onErrorResumeNext ");
-                            Log.e(TAG, "apply: 2 onErrorResumeNext", throwable);
-                            return pelisplushdService.getSingleVideoCartel(url)
-                                    .subscribeOn(Schedulers.io())
-                                    .observeOn(AndroidSchedulers.mainThread());
-                        }
-                    })
-                    .flatMap(new Function<CapituloEnt, SingleSource<Long>>() {
-                        @Override
-                        public SingleSource<Long> apply(CapituloEnt capituloGet) throws Exception {
-                            Log.i(TAG, "apply: 3 capituloGet from web service: "+capituloGet);
-                            loadCapituloEntCartel(capituloGet);
-                            videoServerAdapter.setList(capituloGet.videoServerList);
-                            if(capitulo==null) {//no insertado
-                                capitulo=capituloGet;
-                                return capituloViewModel.insertCapitolo(capituloGet);
-                            }else {
-                                capitulo.videoServerList=capituloGet.videoServerList;
-                                return Single.just(-1l);
-                            }
-                        }
-                    })
-                    /*.flatMap(new Function<Long, SingleSource<CapituloEnt>>() {
-                        @Override
-                        public SingleSource<CapituloEnt> apply(@NotNull Long id) throws Exception {
-                            Log.i(TAG, "apply: 4 id: "+id);
-                            if(capitulo==null)
-                                return capituloViewModel.getCapitulo(id);
-                            return Single.just(capitulo);
-                        }
-                    })
-                    .flatMap(new Function<CapituloEnt, SingleSource<Integer>>() {
-                        @Override
-                        public SingleSource<Integer> apply(@NotNull CapituloEnt capituloEnt) throws Exception {
-                            Log.i(TAG, "apply: 5 capituloEnt: "+capituloEnt);
-                            if(capitulo==null)
-                                capitulo = capituloEnt;
-                            else capitulo.videoServerList=capituloEnt.videoServerList;
-                            if(!capitulo.equals(capituloEnt)) {
-                                Log.i(TAG, "apply: 5 actualizando capitulo");
-                                capitulo.updateFrom(capituloEnt);
-                                return capituloViewModel.updateCapitulo(capitulo);
-                            }else return Single.just(-1);
-                        }
-                    })*/
-                    .subscribe(new BiConsumer<Long, Throwable>() {
-                        @Override
-                        public void accept(Long id, Throwable throwable) throws Exception {
-                            if(throwable==null){
-                                Log.i(TAG, "accept: id: " + id);
-                                if(id>0)
-                                    capitulo.id=id;
-                                loadCapituloEntCartel(capitulo);
-                            }else Log.e(TAG, "accept: error ", throwable);
-                        }
+                        }else Log.e(TAG, "accept: error ", throwable);
                     });
+
 
             //todo: hacer esta llamada solo si la lista esta vacia
             /*
@@ -237,7 +169,6 @@ public class VideoCartelFragment extends Fragment implements VideoServerAdapter.
     }
 
     private void loadCapituloEntCartel(CapituloEnt capitulo){
-        //binding.fragSerieTitle.setText(videoCartel.name);
         if(capitulo.visto)
             binding.fragSerieChipVisto.setVisibility(View.VISIBLE);
         else binding.fragSerieChipVisto.setVisibility(View.GONE);
@@ -268,39 +199,17 @@ public class VideoCartelFragment extends Fragment implements VideoServerAdapter.
         }catch (Exception e){e.printStackTrace();}
     }
 
-    /*
-    private AdSize getAdSize() {
-        // Step 2 - Determine the screen width (less decorations) to use for the ad width.
-        Display display = getActivity().getWindowManager().getDefaultDisplay();
-        DisplayMetrics outMetrics = new DisplayMetrics();
-        display.getMetrics(outMetrics);
-
-        float widthPixels = outMetrics.widthPixels;
-        float density = outMetrics.density;
-
-        int adWidth = (int) (widthPixels / density);
-
-        // Step 3 - Get adaptive ad size and return for setting on the ad view.
-        return AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(getContext(), adWidth);
-    }*/
-
     @Override
     public void onClickCard(String file_url,byte option) {
-        //todo:agregar visto
         capitulo.visto=true;
         capituloViewModel.updateCapitulo(capitulo).subscribe();
         switch (option) {
             case VideoServerAdapter.OPTION_PLAY:
                 Bundle b=new Bundle();
-                    if(serie!=null)
-                        b.putParcelable("serie",serie);
-                    capitulo.file_url=file_url;
-                    b.putParcelable("capitulo",capitulo);
-                    //b.putString("url",file_url);
-                    /*b.putParcelableArrayList("season_list", (ArrayList) seasonList);
-                    b.putInt("season_pos",seasonPos);
-                    b.putInt("chapter_pos",chapterPos);
-                    */
+                if(serie!=null)
+                    b.putParcelable("serie",serie);
+                capitulo.file_url=file_url;
+                b.putParcelable("capitulo",capitulo);
                 NavHostFragment.findNavController(this)
                         .navigate(R.id.action_videoCartelFragment_to_nav_reproductor,b);
                 break;
@@ -327,16 +236,19 @@ public class VideoCartelFragment extends Fragment implements VideoServerAdapter.
         long progress = sharedPref.getLong("progress",0);
         long capitulo_id = sharedPref.getLong("capitulo_id",0);
 
+        Log.i(TAG, "checkPendingCapituloProgress: progress: "+progress);
         if(progress>0){
             CapituloViewModel capituloViewModel;
             capituloViewModel = new ViewModelProvider(this).get(CapituloViewModel.class);
 
             capituloViewModel.getCapitulo(capitulo_id)
                     .flatMap(capituloEnt -> {
+                        Log.i(TAG, "checkPendingCapituloProgress: capituloEnt: "+capituloEnt);
                         capituloEnt.progress = progress;
+                        capitulo=capituloEnt;
                         return capituloViewModel.updateCapitulo(capituloEnt);
-                    })
-                    .subscribe((integer, throwable) -> {
+                    }).subscribe((integer, throwable) -> {
+                        Log.i(TAG, "checkPendingCapituloProgress: integer: "+integer);
                         if(throwable==null) {
                             SharedPreferences.Editor editor = sharedPref.edit();
                             editor.remove("progress");
